@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import ScheduleList from "../../components/schedules/ScheduleList.jsx";
+---
+
+<DashboardLayout title="Horarios Generados">
+  <ScheduleList client:load />
+</DashboardLayout>

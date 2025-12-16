@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import AvailabilityList from "../../components/availability/AvailabilityList.jsx";
+---
+
+<DashboardLayout title="Disponibilidad de Empleados">
+  <AvailabilityList client:load />
+</DashboardLayout>

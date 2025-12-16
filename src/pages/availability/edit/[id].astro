@@ -1,0 +1,12 @@
+---
+export const prerender = false; // desactiva prerender para SSR
+
+import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
+import AvailabilityEditForm from "../../../components/availability/AvailabilityEditForm.jsx";
+
+const { id } = Astro.params;
+---
+
+<DashboardLayout title={`Editar Disponibilidad #${id}`}>
+  <AvailabilityEditForm client:load id={id} />
+</DashboardLayout>

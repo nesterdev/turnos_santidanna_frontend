@@ -1,0 +1,13 @@
+
+---
+export const prerender = false; // desactiva prerender para SSR
+
+import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
+import AvailabilityView from "../../../components/availability/AvailabilityView";
+
+const { id } = Astro.params;
+---
+
+<DashboardLayout title={`Detalles de Disponibilidad`}>
+  <AvailabilityView client:load id={id} />
+</DashboardLayout>

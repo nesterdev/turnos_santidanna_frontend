@@ -1,0 +1,12 @@
+---
+export const prerender = false; // desactiva prerender para SSR
+
+import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
+import ReplacementsEditForm from "../../../components/replacements/ReplacementsEditForm";
+
+const { id } = Astro.params;
+---
+
+<DashboardLayout title={`Editar Empleado #${id}`}>
+  <ReplacementsEditForm client:load id={id} />
+</DashboardLayout>

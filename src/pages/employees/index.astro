@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import EmployeesTable from "../../components/employees/EmployeesTable.js";
+---
+
+<DashboardLayout title="Empleados">
+  <EmployeesTable client:load />
+</DashboardLayout>

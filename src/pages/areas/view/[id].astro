@@ -1,0 +1,12 @@
+---
+export const prerender = false; // desactiva prerender para SSR
+
+import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
+import AreasView from "../../../components/areas/AreasView.jsx";
+
+const { id } = Astro.params;
+---
+
+<DashboardLayout title={`Empleado #${id}`}>
+    <AreasView client:load id={id} />
+</DashboardLayout>

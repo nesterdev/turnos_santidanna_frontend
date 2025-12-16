@@ -1,0 +1,12 @@
+---
+export const prerender = false; // desactiva prerender para SSR
+
+import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
+import ReplacementsView from "../../../components/replacements/ReplacementsView";
+
+const { id } = Astro.params;
+---
+
+<DashboardLayout title={`Ver Empleado #${id}`}>
+  <ReplacementsView client:load id={id} />
+</DashboardLayout>

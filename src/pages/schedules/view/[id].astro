@@ -1,0 +1,12 @@
+---
+export const prerender = false; // desactiva prerender para SSR
+
+import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
+import ScheduleView from "../../../components/schedules/ScheduleView";
+
+const { id } = Astro.params;
+---
+
+<DashboardLayout title={`Horario #${id}`}>
+  <ScheduleView client:load id={id} />
+</DashboardLayout>

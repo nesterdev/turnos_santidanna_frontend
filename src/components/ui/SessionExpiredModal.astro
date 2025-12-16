@@ -1,0 +1,21 @@
+---
+const visible = Astro.props.visible;
+---
+
+{visible && (
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl shadow-2xl w-96 text-center">
+      <h2 class="text-xl font-semibold mb-2">Sesión Expirada</h2>
+      <p class="text-gray-600 mb-4">
+        Tu sesión ha expirado. Por favor inicia sesión nuevamente.
+      </p>
+
+      <a
+        href="/auth/login"
+        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+      >
+        Iniciar sesión
+      </a>
+    </div>
+  </div>
+)}

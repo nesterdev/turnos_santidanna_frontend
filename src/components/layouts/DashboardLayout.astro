@@ -1,0 +1,34 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../ui/Sidebar.jsx";
+import Topbar from "../ui/Topbar.jsx";
+import SidebarDrawer from "../ui/SidebarDrawer.jsx";
+import InitClient from "../InitClient.astro";
+
+const { title = "Panel" } = Astro.props;
+---
+
+<BaseLayout title={`${title} | Sistema de Turnos`}>
+  <InitClient />
+
+  <div class="flex h-screen w-full overflow-hidden relative">
+    <!-- Sidebar escritorio -->
+    <aside class="hidden md:flex w-64 flex-col bg-white/80 backdrop-blur-xl border-r">
+      <Sidebar client:load />
+    </aside>
+
+    <SidebarDrawer client:load />
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+      <header class="h-16 bg-white/70 backdrop-blur-xl border-b flex items-center px-6">
+        <Topbar client:load />
+      </header>
+
+      <section class="flex-1 overflow-y-auto px-6 py-6">
+        <div class="max-w-7xl mx-auto">
+          <slot />
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>

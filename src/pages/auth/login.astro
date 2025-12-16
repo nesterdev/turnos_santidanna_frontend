@@ -1,0 +1,16 @@
+---
+import LoginForm from "../../components/forms/LoginForm.jsx";
+console.log("dentro de login")
+import "@/styles/global.css"; // ya usando tu alias @
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+  </head>
+
+  <body class="h-screen flex justify-center items-center bg-gray-100">
+    <LoginForm client:load />
+  </body>
+</html>

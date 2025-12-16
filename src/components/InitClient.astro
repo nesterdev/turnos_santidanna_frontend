@@ -1,0 +1,19 @@
+---
+import { systemSettings, setSettings } from "../lib/stores/settingsStore";
+import { user, setUser } from "../lib/stores/userStore";
+
+let initialized = false;
+
+if (typeof window !== "undefined" && !initialized) {
+  initialized = true;
+
+  // Recarga persistencia automáticamente
+  const savedSettings = localStorage.getItem("system_settings");
+  const savedUser = localStorage.getItem("app_user");
+
+  if (savedSettings) setSettings(JSON.parse(savedSettings));
+  if (savedUser) setUser(JSON.parse(savedUser));
+}
+---
+
+<!-- No renderiza nada, solo ejecuta el script -->

@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import ShiftList from "../../components/shifts/ShiftList.jsx";
+---
+
+<DashboardLayout title="Gestión de Turnos">
+  <ShiftList client:load />
+</DashboardLayout>
