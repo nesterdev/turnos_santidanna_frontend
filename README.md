@@ -127,20 +127,6 @@ src/
 │ │     └── initClient.astro
 │ │
 │ ├── pages/
-│ │     ├── api/
-│ │     │     ├── delete-shift/
-│ │     │     │     ├── [id].js
-│ │     │     ├── delete-availability/
-│ │     │     │     ├── [id].js
-│ │     │     ├── delete-replacement/
-│ │     │     │     ├── [id].js
-│ │     │     ├── delete-schedule/
-│ │     │     │     ├── [id].js
-│ │     │     ├── delete-special-date/
-│ │     │     │     ├── [id].js
-│ │     │     ├── delete-season/
-│ │     │     │     ├── [id].js
-│ │     │     └── update-settings.js
 │ │     ├── areas/
 │ │     │     ├── edit/
 │ │     │     │   ├── [id].astro
