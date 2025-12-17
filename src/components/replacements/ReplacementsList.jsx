@@ -60,7 +60,7 @@ export default function ReplacementsList() {
   return (
     <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+      <div className="flex items-center justify-between px-6 py-5 border-gray-100">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
             Reemplazos

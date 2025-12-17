@@ -8,9 +8,14 @@ const { title = "Sistema de Turnos" } = Astro.props;
     <meta charset="UTF-8" />
     <title>{title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ff3131" />
+    <link rel="icon" href="/favicon.svg" />
   </head>
 
-  <body class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900">
+  <body
+    class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900"
+  >
     <slot />
   </body>
 </html>

@@ -1,7 +1,6 @@
 ---
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import { apiFetch } from "../../lib/utils/fetch.js";
-import { setupModal, openConfirmModal } from "../../lib/utils/modal.js";
 
 let dates = [];
 let error = "";
@@ -47,7 +46,7 @@ try {
         </thead>
 
         <tbody>
-          {dates.map(d => (
+          {dates.map(d=> (
             <tr class="border-t">
               <td class="td">{d.date}</td>
               <td class="td">{d.name}</td>
@@ -84,39 +83,3 @@ try {
 
 </DashboardLayout>
 
-<script>
-  import { setupModal, openConfirmModal } from "../../lib/utils/modal.js";
-  setupModal();
-
-  window.confirmDelete = function (id) {
-    openConfirmModal({
-      title: "Eliminar Fecha Especial",
-      message: "¿Seguro que deseas eliminar esta fecha especial?",
-      confirm: () => {
-        fetch(`/api/delete-special-date/${id}`, { method: "POST" })
-          .then(() => (window.location.href = "/special-dates"));
-      },
-    });
-  };
-</script>
-
-<style>
-  .th {
-    @apply px-4 py-2 text-left font-medium text-gray-700;
-  }
-  .td {
-    @apply px-4 py-2;
-  }
-  .action-btn {
-    @apply px-3 py-1 rounded text-sm mr-2;
-  }
-  .action-btn.blue {
-    @apply bg-[#FF3131] text-white hover:bg-[#FF3232];
-  }
-  .action-btn.gray {
-    @apply bg-gray-300 hover:bg-gray-400;
-  }
-  .action-btn.red {
-    @apply bg-red-600 text-white hover:bg-red-700;
-  }
-</style>

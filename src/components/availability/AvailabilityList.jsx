@@ -27,6 +27,7 @@ export default function AvailabilityList() {
   async function loadData() {
     try {
       const res = await apiFetch("/availability");
+      console.log("disponibilidad", res)
       const list = Array.isArray(res)
         ? res
         : Array.isArray(res?.data)

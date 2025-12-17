@@ -48,6 +48,7 @@ public/
 │ ├── eye.svg
 │ ├── favicon.svg
 │ ├── left.svg
+│ ├── manifest.json
 src/
 │ ├── components/
 │ │     ├── areas/
@@ -117,6 +118,7 @@ src/
 │ │     │     ├── DeleteButtons.jsx
 │ │     │     ├── Field.jsx
 │ │     │     ├── Input.jsx
+│ │     │     ├── PublicHeader.astro
 │ │     │     ├── SelectCard.jsx
 │ │     │     ├── SessionExpiredModal.astro
 │ │     │     ├── Sidebar.jsx
