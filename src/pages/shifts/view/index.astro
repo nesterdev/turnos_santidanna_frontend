@@ -4,7 +4,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ShiftsView from "../../../components/shifts/ShiftsView.jsx";
 
-const { id } = Astro.params;
+//const { id } = Astro.params;
+const id = Astro.url.searchParams.get("id");
 ---
 
 <DashboardLayout title={`Empleado #${id}`}>

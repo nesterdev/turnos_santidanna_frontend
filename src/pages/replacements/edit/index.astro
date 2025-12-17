@@ -4,7 +4,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ReplacementsEditForm from "../../../components/replacements/ReplacementsEditForm";
 
-const { id } = Astro.params;
+//const { id } = Astro.params;
+const id = Astro.url.searchParams.get("id");
 ---
 
 <DashboardLayout title={`Editar Empleado #${id}`}>

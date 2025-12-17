@@ -5,7 +5,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AvailabilityView from "../../../components/availability/AvailabilityView";
 
-const { id } = Astro.params;
+//const { id } = Astro.params;
+const id = Astro.url.searchParams.get("id");
 ---
 
 <DashboardLayout title={`Detalles de Disponibilidad`}>

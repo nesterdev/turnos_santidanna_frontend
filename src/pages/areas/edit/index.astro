@@ -2,7 +2,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AreasEditForm from "../../../components/areas/AreasEditForm.jsx";
 
-const { id } = Astro.params;
+//const { id } = Astro.params;
+const id = Astro.url.searchParams.get("id");
 ---
 
 <DashboardLayout title={`Editar Area #${id}`}>

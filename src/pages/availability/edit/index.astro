@@ -3,7 +3,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AvailabilityEditForm from "../../../components/availability/AvailabilityEditForm.jsx";
 
-const { id } = Astro.params;
+//const { id } = Astro.params;
+const id = Astro.url.searchParams.get("id");
 ---
 
 <DashboardLayout title={`Editar Disponibilidad #${id}`}>

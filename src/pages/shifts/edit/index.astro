@@ -2,11 +2,12 @@
 // desactiva prerender para SSR
 
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
-import EmployeeEditForm from "../../../components/employees/EmployeeEditForm.jsx";
+import ShiftsEditForm from "../../../components/shifts/ShiftsEditForm";
 
-const { id } = Astro.params;
+//const { id } = Astro.params;
+const id = Astro.url.searchParams.get("id");
 ---
 
 <DashboardLayout title={`Editar Empleado #${id}`}>
-  <EmployeeEditForm client:load id={id} />
+  <ShiftsEditForm client:load id={id} />
 </DashboardLayout>
