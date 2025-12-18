@@ -4,10 +4,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ShiftsEditForm from "../../../components/shifts/ShiftsEditForm";
 
-//const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Editar Empleado #${id}`}>
-  <ShiftsEditForm client:load id={id} />
+<DashboardLayout title={`Editar Empleado`}>
+  <ShiftsEditForm client:load  />
 </DashboardLayout>

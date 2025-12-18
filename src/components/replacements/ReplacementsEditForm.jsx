@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 
-export default function ReplacementsEditForm({ id }) {
+export default function ReplacementsEditForm() {
   const [name, setName] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -9,8 +9,26 @@ export default function ReplacementsEditForm({ id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+    const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+  if (!id) return;
 
   useEffect(() => {
+    if (!id) return;
     async function loadShift() {
       try {
         const res = await apiFetch(`/replacements/${id}`);

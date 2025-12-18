@@ -3,9 +3,8 @@ import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AreasView from "../../../components/areas/AreasView.jsx";
 
 //const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Empleado #${id}`}>
-    <AreasView client:load id={id} />
+<DashboardLayout title={`Empleado`}>
+    <AreasView client:load/>
 </DashboardLayout>

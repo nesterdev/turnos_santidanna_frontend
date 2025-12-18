@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 
-export default function EmployeeEditForm({ id }) {
+export default function EmployeeEditForm() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -10,8 +10,25 @@ export default function EmployeeEditForm({ id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
 
   useEffect(() => {
+    if (!id) return;
     async function loadEmpleado() {
       try {
         const res = await apiFetch(`/employees/${id}`);

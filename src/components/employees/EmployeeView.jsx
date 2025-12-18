@@ -5,7 +5,9 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
 import ActionButton from "../ui/ActionButtom";
 
-export default function EmployeeView({ id }) {
+export default function EmployeeView() {
+  const [id, setId] = useState(null);
+  console.log("id recibidida desde index.astro de employes",id)
   const [empleado, setEmpleado] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,24 @@ export default function EmployeeView({ id }) {
     }
   };
 
+  // 👇 LEER QUERY PARAM EN CLIENTE
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+
+  useEffect(() => {
+    if (!id) return;
     async function loadEmpleado() {
       try {
         const res = await apiFetch(`/employees/${id}`);
@@ -113,7 +132,7 @@ export default function EmployeeView({ id }) {
           <ActionButton
             icon="/edit.svg"
             alt="Editar"
-            href={`/employees/edit/${id}`}
+            href={`/employees/edit?id=${id}`}
             className="bg-gray-50 text-gray-700 hover:bg-gray-100"
           />
 

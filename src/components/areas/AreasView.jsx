@@ -4,10 +4,27 @@ import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 
-export default function AreasView({ id }) {
+export default function AreasView() {
   const [area, setArea] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+
 
   const deleteArea = async () => {
     const confirmed = await openConfirmModal({
@@ -27,6 +44,7 @@ export default function AreasView({ id }) {
   };
 
   useEffect(() => {
+    if (!id) return;
     if (id) loadArea(id);
   }, [id]);
 
@@ -98,7 +116,7 @@ export default function AreasView({ id }) {
           <ActionButton
             icon="/edit.svg"
             alt="Editar"
-            href={`/areas/edit/${area.id}`}
+            href={`/areas/edit?id=${area.id}`}
             className="bg-gray-50 text-gray-700 hover:bg-gray-100"
           />
 

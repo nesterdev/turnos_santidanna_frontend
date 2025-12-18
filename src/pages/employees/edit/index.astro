@@ -5,9 +5,8 @@ import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import EmployeeEditForm from "../../../components/employees/EmployeeEditForm.jsx";
 
 //const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Editar Empleado #${id}`}>
-  <EmployeeEditForm client:load id={id} />
+<DashboardLayout title={`Editar Empleado`}>
+  <EmployeeEditForm client:load/>
 </DashboardLayout>

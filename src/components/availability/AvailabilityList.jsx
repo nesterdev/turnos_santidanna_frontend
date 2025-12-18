@@ -149,13 +149,13 @@ export default function AvailabilityList() {
                     <ActionButton
                       icon="/eye.svg"
                       alt="Ver"
-                      href={`/availability/view/${a.id}`}
+                      href={`/availability/view?id=${a.id}`}
                     />
 
                     <ActionButton
                       icon="/edit.svg"
                       alt="Editar"
-                      href={`/availability/edit/${a.id}`}
+                      href={`/availability/edit?id=${a.id}`}
                     />
 
                     <DeleteButton

@@ -1,13 +1,8 @@
 ---
- // desactiva prerender para SSR
-
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import EmployeeView from "../../../components/employees/EmployeeView.jsx";
-
-//const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Empleado #${id}`}>
-  <EmployeeView client:load id={id} />
+<DashboardLayout title={`Empleado`}>
+  <EmployeeView client:load/>
 </DashboardLayout>

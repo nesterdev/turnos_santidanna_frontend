@@ -12,7 +12,7 @@ const days = [
   { value: 0, label: "Domingo" },
 ];
 
-export default function AvailabilityEditForm({ id }) {
+export default function AvailabilityEditForm() {
   const [employees, setEmployees] = useState([]);
   const [employeeId, setEmployeeId] = useState(null);
   const [dayOfWeek, setDayOfWeek] = useState(null);
@@ -22,8 +22,26 @@ export default function AvailabilityEditForm({ id }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+
 
   useEffect(() => {
+    if (!id) return;
     async function loadData() {
       try {
         const [empRes, availRes] = await Promise.all([

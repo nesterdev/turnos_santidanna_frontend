@@ -3,9 +3,8 @@ import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AreasEditForm from "../../../components/areas/AreasEditForm.jsx";
 
 //const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Editar Area #${id}`}>
-  <AreasEditForm client:load id={id} />
+<DashboardLayout title={`Editar Area`}>
+  <AreasEditForm client:load />
 </DashboardLayout>

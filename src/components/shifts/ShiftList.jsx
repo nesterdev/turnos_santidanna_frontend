@@ -129,14 +129,14 @@ export default function ShiftList() {
                         <ActionButton
                           icon="/eye.svg"
                           alt="Ver"
-                          href={`/shifts/view/${s.id}`}
+                          href={`/shifts/view?id=${s.id}`}
                           className="bg-gray-100 hover:bg-gray-200"
                         />
 
                         <ActionButton
                           icon="/edit.svg"
                           alt="Editar"
-                          href={`/shifts/edit/${s.id}`}
+                          href={`/shifts/edit?id=${s.id}`}
                           className="bg-gray-100 hover:bg-gray-200"
                         />
 

@@ -137,14 +137,14 @@ export default function AreasList() {
                     <ActionButton
                       icon="/eye.svg"
                       alt="Ver"
-                      href={`/areas/view/${a.id}`}
+                      href={`/areas/view?id=${a.id}`}
                       className="bg-gray-50 hover:bg-gray-100"
                     />
 
                     <ActionButton
                       icon="/edit.svg"
                       alt="Editar"
-                      href={`/areas/edit/${a.id}`}
+                      href={`/areas/edit?id=${a.id}`}
                       className="bg-gray-50 hover:bg-gray-100"
                     />
 

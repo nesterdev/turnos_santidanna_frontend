@@ -4,10 +4,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ScheduleView from "../../../components/schedules/ScheduleView";
 
-//const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Horario #${id}`}>
-  <ScheduleView client:load id={id} />
+<DashboardLayout title={`Horario`}>
+  <ScheduleView client:load />
 </DashboardLayout>

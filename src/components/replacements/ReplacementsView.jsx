@@ -4,12 +4,30 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 
-export default function ReplacementsView({ id }) {
+export default function ReplacementsView() {
   const [replacement, setReplacement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+
 
   useEffect(() => {
+    if (!id) return;
     async function loadReplacement() {
       try {
         const res = await apiFetch(`/replacements/${id}`);
@@ -162,7 +180,7 @@ export default function ReplacementsView({ id }) {
         <ActionButton
           icon="/edit.svg"
           alt="Editar"
-          href={`/replacements/edit/${id}`}
+          href={`/replacements/edit?id=${id}`}
           className="bg-gray-100 text-gray-700 hover:bg-gray-200"
         />
 

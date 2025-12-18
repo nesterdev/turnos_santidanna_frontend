@@ -139,14 +139,14 @@ export default function ReplacementsList() {
                   <ActionButton
                     icon="/eye.svg"
                     alt="Ver"
-                    href={`/replacements/view/${r.id}`}
+                    href={`/replacements/view?id=${r.id}`}
                     className="bg-transparent hover:bg-gray-100 text-gray-600"
                   />
 
                   <ActionButton
                     icon="/edit.svg"
                     alt="Editar"
-                    href={`/replacements/edit/${r.id}`}
+                    href={`/replacements/edit?id=${r.id}`}
                     className="bg-transparent hover:bg-gray-100 text-gray-600"
                   />
 

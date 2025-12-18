@@ -4,10 +4,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ReplacementsView from "../../../components/replacements/ReplacementsView";
 
-//const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Ver Empleado #${id}`}>
-  <ReplacementsView client:load id={id} />
+<DashboardLayout title={`Ver Empleado`}>
+  <ReplacementsView client:load />
 </DashboardLayout>

@@ -5,10 +5,26 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
 import ActionButton from "../ui/ActionButtom";
 
-export default function ShiftsView({ id }) {
+export default function ShiftsView() {
   const [turno, setTurno] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
   const deleteShifts = async (id) => {
     const confirmed = await openConfirmModal({
       title: "Eliminar Turno",
@@ -26,6 +42,7 @@ export default function ShiftsView({ id }) {
     }
   };
   useEffect(() => {
+    if (!id) return
     async function loadEmpleado() {
       try {
         const res = await apiFetch(`/shifts/${id}`);
@@ -94,7 +111,7 @@ export default function ShiftsView({ id }) {
         <ActionButton
           icon="/edit.svg"
           alt="Editar"
-          href={`/shifts/edit/${id}`}
+          href={`/shifts/edit?id=${id}`}
           className="bg-blue-100 text-[#FF3131] hover:bg-blue-200"
         />
         <DeleteButton

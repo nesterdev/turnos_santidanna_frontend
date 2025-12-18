@@ -129,14 +129,14 @@ export default function EmployeesTable() {
                           <ActionButton
                             icon="/eye.svg"
                             alt="Ver"
-                            href={`/employees/view/${emp.id}`}
+                            href={`/employees/view?id=${emp.id}`}
                             className="bg-gray-100 hover:bg-gray-200"
                           />
 
                           <ActionButton
                             icon="/edit.svg"
                             alt="Editar"
-                            href={`/employees/edit/${emp.id}`}
+                            href={`/employees/edit?id=${emp.id}`}
                             className="bg-gray-100 hover:bg-gray-200"
                           />
 

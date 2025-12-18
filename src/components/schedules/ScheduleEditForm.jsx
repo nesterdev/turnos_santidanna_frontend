@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 
-export default function ScheduleEditForm({ id }) {
+export default function ScheduleEditForm() {
   const [date, setDate] = useState("");
   const [employeeId, setEmployeeId] = useState("");
   const [shiftId, setShiftId] = useState("");
@@ -13,8 +13,26 @@ export default function ScheduleEditForm({ id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+
 
   useEffect(() => {
+     if (!id) return;
     async function loadData() {
       try {
         const [scheduleRes, employeesRes, shiftsRes] = await Promise.all([

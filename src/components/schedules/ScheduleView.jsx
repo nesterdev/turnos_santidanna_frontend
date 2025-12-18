@@ -4,10 +4,26 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
 import ActionButton from "../ui/ActionButtom";
 
-export default function ScheduleView({ id }) {
+export default function ScheduleView() {
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
 
   const deleteSchedule = async () => {
     const confirmed = await openConfirmModal({
@@ -28,6 +44,7 @@ export default function ScheduleView({ id }) {
   };
 
   useEffect(() => {
+    if (!id) return;
     async function loadSchedule() {
       try {
         const res = await apiFetch(`/schedules/${id}`);
@@ -199,7 +216,7 @@ export default function ScheduleView({ id }) {
         <ActionButton
           icon="/edit.svg"
           alt="Editar"
-          href={`/schedules/edit/${id}`}
+          href={`/schedules/edit?id=${id}`}
           className="bg-[#FF3131]/10 hover:bg-[#FF3131]/20"
         />
         <DeleteButton

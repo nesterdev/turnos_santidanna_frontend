@@ -154,14 +154,14 @@ export default function ScheduleList() {
                         <ActionButton
                           icon="/eye.svg"
                           alt="Ver"
-                          href={`/schedules/view/${s.id}`}
+                          href={`/schedules/view?id=${s.id}`}
                           className="bg-gray-100 hover:bg-gray-200"
                         />
 
                         <ActionButton
                           icon="/edit.svg"
                           alt="Editar"
-                          href={`/schedules/edit/${s.id}`}
+                          href={`/schedules/edit?id=${s.id}`}
                           className="bg-blue-100 hover:bg-blue-200"
                         />
 

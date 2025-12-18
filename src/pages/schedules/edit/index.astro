@@ -4,10 +4,8 @@
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ScheduleEditForm from "../../../components/schedules/ScheduleEditForm";
 
-//const { id } = Astro.params;
-const id = Astro.url.searchParams.get("id");
 ---
 
-<DashboardLayout title={`Editar Horario #${id}`}>
-  <ScheduleEditForm client:load id={id} />
+<DashboardLayout title={`Editar Horario`}>
+  <ScheduleEditForm client:load />
 </DashboardLayout>

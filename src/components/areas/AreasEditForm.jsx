@@ -10,7 +10,7 @@ const cleanPayload = (obj) =>
     )
   );
 
-export default function AreasEditForm({ id }) {
+export default function AreasEditForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [zone, setZone] = useState("");
@@ -24,9 +24,26 @@ export default function AreasEditForm({ id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
 
   /* LOAD */
   useEffect(() => {
+    if (!id) return;
     async function loadArea() {
       try {
         const res = await apiFetch(`/areas/${id}`);

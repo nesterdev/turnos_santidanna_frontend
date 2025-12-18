@@ -14,12 +14,30 @@ const daysMap = {
   6: "Sábado",
 };
 
-export default function AvailabilityView({ id }) {
+export default function AvailabilityView() {
   const [availability, setAvailability] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const [id, setId] = useState(null);
+  // 👇 LEER QUERY PARAM EN CLIENTE
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const empId = params.get("id");
+
+    console.log("id leída desde URL:", empId);
+
+    if (!empId) {
+      setError("ID de empleado inválido");
+      setLoading(false);
+      return;
+    }
+
+    setId(empId);
+  }, []);
+
 
   useEffect(() => {
+    if (!id) return;
     if (id) loadAvailability(id);
   }, [id]);
 
@@ -142,7 +160,7 @@ export default function AvailabilityView({ id }) {
           <ActionButton
             icon="/edit.svg"
             alt="Editar"
-            href={`/availability/edit/${availability.id}`}
+            href={`/availability/edit?id=${availability.id}`}
             className="bg-gray-50 text-gray-700 hover:bg-gray-100"
           />
 
