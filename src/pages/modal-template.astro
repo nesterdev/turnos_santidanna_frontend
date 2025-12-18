@@ -1,9 +1,0 @@
----
-
-// 🚨 Necesario para evitar que Astro envuelva con layout
-Astro.response.headers.set("Content-Type", "text/html");
-
-const body = await Astro.request.json();
-const { title, message } = body;
----
-
