@@ -35,3 +35,8 @@
 .animate-dropdown {
   animation: dropdown 150ms ease-out forwards;
 }
+
+.export-btn {
+  @apply flex items-center gap-1 px-2 py-1 text-xs rounded hover:opacity-80 transition;
+}
+

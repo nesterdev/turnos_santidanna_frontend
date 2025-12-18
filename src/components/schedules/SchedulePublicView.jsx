@@ -5,6 +5,160 @@ import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { FileImage, FileText, Share2 } from "lucide-react";
 
+/* ======================================================
+   EXPORT HELPERS (FORZADO A DESKTOP WIDTH)
+====================================================== */
+const EXPORT_WIDTH = 900;
+
+async function captureNode(node) {
+  const height = node.scrollHeight;
+
+  return await toPng(node, {
+    backgroundColor: "#ffffff",
+    width: EXPORT_WIDTH,
+    height,
+    style: {
+      width: `${EXPORT_WIDTH}px`,
+      height: `${height}px`,
+    },
+    pixelRatio: 2,
+  });
+}
+
+async function exportAsPNG(elementId, filename) {
+  const node = document.getElementById(elementId);
+  if (!node) return;
+
+  const dataUrl = await captureNode(node);
+  const link = document.createElement("a");
+  link.download = `${filename}.png`;
+  link.href = dataUrl;
+  link.click();
+}
+
+async function exportAsPDF(elementId, filename) {
+  const node = document.getElementById(elementId);
+  if (!node) return;
+
+  const dataUrl = await captureNode(node);
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const imgProps = pdf.getImageProperties(dataUrl);
+  const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+  let position = 0;
+  let heightLeft = imgHeight;
+
+  pdf.addImage(dataUrl, "PNG", 0, position, pageWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position -= pageHeight;
+    pdf.addPage();
+    pdf.addImage(dataUrl, "PNG", 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save(`${filename}.pdf`);
+}
+
+async function shareSchedule(elementId, date) {
+  const node = document.getElementById(elementId);
+  if (!node) return;
+
+  const dataUrl = await captureNode(node);
+  const blob = await (await fetch(dataUrl)).blob();
+  const file = new File([blob], `horario-${date}.png`, {
+    type: "image/png",
+  });
+
+  const text = `📅 Horario ${dayjs(date).format("dddd DD MMM YYYY")}`;
+
+  if (navigator.canShare?.({ files: [file] })) {
+    await navigator.share({ files: [file], text });
+    return;
+  }
+
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+}
+
+/* ======================================================
+   SUBCOMPONENTS
+====================================================== */
+
+function DesktopTable({ schedules }) {
+  return (
+    <div className="hidden md:block overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="p-2 text-left">Empleado</th>
+            <th className="p-2 text-left">Turno</th>
+            <th className="p-2 text-left">Áreas</th>
+            <th className="p-2 text-left">Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {schedules.map((s) => (
+            <tr
+              key={s.id}
+              className="border-b last:border-none hover:bg-gray-50 transition"
+            >
+              <td className="p-2 font-medium">{s.ScheduleEmployee?.name}</td>
+              <td className="p-2">
+                {s.is_rest_day ? "Descanso" : s.ScheduleShift?.name}
+              </td>
+              <td className="p-2">{s.areas.map((a) => a.name).join(", ")}</td>
+              <td className="p-2 text-gray-600">
+                {s.areas.map((a) => a.description).join(", ")}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function MobileCards({ schedules }) {
+  return (
+    <div className="md:hidden space-y-3">
+      {schedules.map((s) => (
+        <div
+          key={s.id}
+          className="bg-gray-50 border rounded-xl p-4 shadow-sm transition hover:shadow-md"
+        >
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-800">
+              {s.ScheduleEmployee?.name}
+            </span>
+            <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+              {s.is_rest_day ? "Descanso" : s.ScheduleShift?.name}
+            </span>
+          </div>
+
+          <div className="mt-2 text-sm">
+            <p>
+              <span className="font-medium text-gray-600">Áreas:</span>{" "}
+              {s.areas.map((a) => a.name).join(", ")}
+            </p>
+
+            <p className="mt-1 text-gray-500">
+              {s.areas.map((a) => a.description).join(", ")}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ======================================================
+   MAIN COMPONENT
+====================================================== */
+
 export default function SchedulePublicView() {
   const [schedules, setSchedules] = useState([]);
   const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
@@ -15,138 +169,71 @@ export default function SchedulePublicView() {
     loadSchedules();
   }, [startDate]);
 
-  const loadSchedules = async () => {
+  async function loadSchedules() {
     setLoading(true);
     try {
       const res = await apiFetch(
         `/schedules/public?start=${startDate}&days=${daysPerPage}`
       );
       if (res?.success) setSchedules(res.data);
-    } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const prevDays = () => {
-    setStartDate(
-      dayjs(startDate).subtract(daysPerPage, "day").format("YYYY-MM-DD")
-    );
-  };
-
-  const nextDays = () => {
-    setStartDate(dayjs(startDate).add(daysPerPage, "day").format("YYYY-MM-DD"));
-  };
+  }
 
   const groupedByDate = schedules.reduce((acc, s) => {
     (acc[s.date] ||= []).push(s);
     return acc;
   }, {});
 
-  // ================= EXPORT HELPERS =================
-
-  const exportAsPNG = async (elementId, filename) => {
-    const node = document.getElementById(elementId);
-    if (!node) return;
-
-    const dataUrl = await toPng(node, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-    });
-
-    const link = document.createElement("a");
-    link.download = `${filename}.png`;
-    link.href = dataUrl;
-    link.click();
-  };
-
-  const exportAsPDF = async (elementId, filename) => {
-    const node = document.getElementById(elementId);
-    if (!node) return;
-
-    const dataUrl = await toPng(node, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-    });
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const imgProps = pdf.getImageProperties(dataUrl);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${filename}.pdf`);
-  };
-
-  const shareSchedule = async (elementId, date) => {
-    const node = document.getElementById(elementId);
-    if (!node) return;
-
-    const dataUrl = await toPng(node, {
-      pixelRatio: 2,
-      backgroundColor: "#ffffff",
-    });
-
-    const blob = await (await fetch(dataUrl)).blob();
-    const file = new File([blob], `horario-${date}.png`, {
-      type: "image/png",
-    });
-
-    const text = `📅 Horario ${dayjs(date).format("dddd DD MMM YYYY")}`;
-
-    // ✅ Web Share API (móviles)
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        text,
-      });
-      return;
-    }
-
-    // ❌ Fallback: WhatsApp Web (texto)
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
-  };
-
-  // ================= UI =================
-
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-5 p-4">
       {/* CONTROLES */}
-      <div className="flex justify-between items-center">
-        <button onClick={prevDays} className="px-3 py-1 bg-gray-200 rounded">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        {/* BOTÓN ANTERIOR */}
+        <button
+          onClick={() =>
+            setStartDate(
+              dayjs(startDate).subtract(daysPerPage, "day").format("YYYY-MM-DD")
+            )
+          }
+          className="w-full md:w-auto px-3 py-2 bg-gray-200 rounded"
+        >
           ← Anteriores
         </button>
 
+        {/* FECHA */}
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="border rounded px-2 py-1"
+          className="w-full md:w-auto border rounded px-3 py-2 text-center"
         />
 
-        <button onClick={nextDays} className="px-3 py-1 bg-gray-200 rounded">
+        {/* BOTÓN SIGUIENTE */}
+        <button
+          onClick={() =>
+            setStartDate(
+              dayjs(startDate).add(daysPerPage, "day").format("YYYY-MM-DD")
+            )
+          }
+          className="w-full md:w-auto px-3 py-2 bg-gray-200 rounded"
+        >
           Siguientes →
         </button>
       </div>
 
       {loading && <p>Cargando horarios…</p>}
 
-      {!loading && Object.keys(groupedByDate).length === 0 && (
-        <p>No hay horarios para estas fechas.</p>
-      )}
-
-      {/* TABLAS POR DÍA */}
       {!loading &&
         Object.entries(groupedByDate).map(([date, daySchedules]) => (
           <div
             key={date}
             id={`schedule-${date}`}
-            className="bg-white p-4 rounded shadow-md"
+            className="bg-white rounded-xl p-4 shadow-md"
           >
-            {/* HEADER + BOTONES */}
-            <div className="flex justify-between items-center mb-2">
+            {/* HEADER */}
+            <div className="flex flex-wrap gap-2 justify-between items-center mb-3">
               <h3 className="text-lg font-semibold">
                 {dayjs(date).format("dddd, DD MMM YYYY")}
               </h3>
@@ -156,58 +243,31 @@ export default function SchedulePublicView() {
                   onClick={() =>
                     exportAsPNG(`schedule-${date}`, `horario-${date}`)
                   }
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  className="export-btn bg-blue-100 text-blue-700"
                 >
-                  <FileImage size={14} />
-                  PNG
+                  <FileImage size={14} /> PNG
                 </button>
 
                 <button
                   onClick={() =>
                     exportAsPDF(`schedule-${date}`, `horario-${date}`)
                   }
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                  className="export-btn bg-red-100 text-red-700"
                 >
-                  <FileText size={14} />
-                  PDF
+                  <FileText size={14} /> PDF
                 </button>
+
                 <button
                   onClick={() => shareSchedule(`schedule-${date}`, date)}
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200"
+                  className="export-btn bg-green-100 text-green-700"
                 >
-                  <Share2 size={14} />
-                  Compartir
+                  <Share2 size={14} /> Compartir
                 </button>
               </div>
             </div>
 
-            {/* TABLA */}
-            <table className="w-full text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="p-2 text-left">Empleado</th>
-                  <th className="p-2 text-left">Turno</th>
-                  <th className="p-2 text-left">Áreas</th>
-                  <th className="p-2 text-left">Área - desc</th>
-                </tr>
-              </thead>
-              <tbody>
-                {daySchedules.map((s) => (
-                  <tr key={s.id} className="border-b last:border-none">
-                    <td className="p-2">{s.ScheduleEmployee?.name}</td>
-                    <td className="p-2">
-                      {s.is_rest_day ? "Descanso" : s.ScheduleShift?.name}
-                    </td>
-                    <td className="p-2">
-                      {s.areas.map((a) => a.name).join(", ")}
-                    </td>
-                    <td className="p-2">
-                      {s.areas.map((a) => a.description).join(", ")}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DesktopTable schedules={daySchedules} />
+            <MobileCards schedules={daySchedules} />
           </div>
         ))}
     </div>
