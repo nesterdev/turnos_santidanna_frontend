@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 const days = [
   { value: 1, label: "Lunes" },
@@ -38,7 +40,6 @@ export default function AvailabilityEditForm() {
 
     setId(empId);
   }, []);
-
 
   useEffect(() => {
     if (!id) return;
@@ -97,10 +98,11 @@ export default function AvailabilityEditForm() {
           notes: notes || null,
         }),
       });
-
-      window.location.href = "/availability";
+      showSuccess("Disponibilidad actualizada correctamente", {
+        onClose: () => redirect("/availability"),
+      });
     } catch (err) {
-      setError(err?.message || "Error guardando cambios");
+      showError(err?.message || "Error guardando cambios");
     } finally {
       setSaving(false);
     }

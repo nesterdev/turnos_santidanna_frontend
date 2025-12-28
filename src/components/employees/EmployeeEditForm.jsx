@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function EmployeeEditForm() {
   const [nombre, setNombre] = useState("");
@@ -69,13 +71,14 @@ export default function EmployeeEditForm() {
       });
 
       if (res?.success) {
-        setSuccess("Empleado actualizado correctamente.");
-        setTimeout(() => (window.location.href = "/employees"), 800);
+        showSuccess("Empleado actualizado correctamente", {
+          onClose: () => redirect("/employees"),
+        });
       } else {
-        setError(res?.message || "Error actualizando empleado");
+        showError(res?.message || "Error actualizando empleado");
       }
     } catch (err) {
-      setError(err?.message || "Error al actualizar empleado");
+      showError(err?.message || "Error al actualizar empleado");
     }
   };
 
@@ -95,9 +98,7 @@ export default function EmployeeEditForm() {
     >
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
-          Editar empleado
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900">Editar empleado</h2>
         <p className="text-sm text-gray-500 mt-1">
           Actualiza la información básica del empleado.
         </p>

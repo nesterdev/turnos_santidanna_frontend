@@ -2,18 +2,21 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import { redirect } from "../../lib/utils/navigation";
 import { showError, showSuccess } from "../../lib/utils/alert";
-import { canSelectArea } from "../../lib/rules/scheduleAreas";
-import { apiAction } from "../../lib/utils/apiAction";
-import { useScheduleFormData } from "../../hooks/useScheduleFormData";
-import { hideLoading, showLoading } from "../../lib/utils/loading";
-import Loading from "../ui/Loading";
 
 export default function ScheduleForm() {
-  const { employees, shifts, areas, loading } = useScheduleFormData();
 
+  const [employees, setEmployees] = useState([]);
+  const [shifts, setShifts] = useState([]);
+  const [areas, setAreas] = useState([]);
   const [manualAreas, setManualAreas] = useState([]);
   const [loadingAreas, setLoadingAreas] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const [mode, setMode] = useState("automatic");
+
   const [autoData, setAutoData] = useState({
     capacity: 1,
     start_date: "",
@@ -27,6 +30,24 @@ export default function ScheduleForm() {
     date: "",
     area_ids: [],
   });
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [e, s, a] = await Promise.all([
+          apiFetch("/employees"),
+          apiFetch("/shifts"),
+          apiFetch("/areas"),
+        ]);
+        if (e?.success) setEmployees(e.data);
+        if (s?.success) setShifts(s.data);
+        if (a?.success) setAreas(a.data);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   useEffect(() => {
     if (mode !== "manual" || !manualData.employee_id || !manualData.date) {
@@ -54,47 +75,78 @@ export default function ScheduleForm() {
     loadContext();
   }, [mode, manualData.employee_id, manualData.date]);
 
+  function canSelectArea(area) {
+    const selected = manualAreas.filter((a) =>
+      manualData.area_ids.includes(a.id)
+    );
+
+    // ⛔ Área pesada: solo una
+    if (area.complexity_level === 4 && selected.length > 0) return false;
+
+    if (selected.some((a) => a.complexity_level === 4)) return false;
+
+    // ⛔ Máximo 2 áreas
+    if (selected.length >= 2) return false;
+
+    // ⛔ Zonas incompatibles
+    if (selected.length === 1 && selected[0].zone !== area.zone) {
+      return false;
+    }
+
+    return true;
+  }
+
   const submit = async (e) => {
     e.preventDefault();
-    showLoading("Guardando horario…");
+    setError("");
+    setSuccess("");
+
     try {
       if (mode === "automatic") {
-        await apiAction(
-          apiFetch("/schedules/generate", {
-            method: "POST",
-            body: JSON.stringify({
-              start_date: autoData.start_date,
-              end_date: autoData.end_date || autoData.start_date,
-              capacity_default: Number(autoData.capacity),
-              shift_id: autoData.shift_id,
-            }),
+        const res = await apiFetch("/schedules/generate", {
+          method: "POST",
+          body: JSON.stringify({
+            start_date: autoData.start_date,
+            end_date: autoData.end_date || autoData.start_date,
+            capacity_default: Number(autoData.capacity),
+            shift_id: autoData.shift_id,
           }),
-          "Horarios generados correctamente",
-          () => redirect("/schedules")
-        );
+        });
+
+        if (res?.success) {
+          showSuccess("Horario{s.id} creado correctamente", {
+            onClose: () => redirect("/schedules"),
+          });
+        } else {setError(res?.message);
+          showError(res?.message)
+        }
       } else {
-        await apiAction(
-          apiFetch("/schedules", {
-            method: "POST",
-            body: JSON.stringify({
-              employee_id: manualData.employee_id,
-              shift_id: manualData.shift_id,
-              date: manualData.date,
-              area_ids: manualData.area_ids,
-            }),
+        const res = await apiFetch("/schedules", {
+          method: "POST",
+          body: JSON.stringify({
+            employee_id: manualData.employee_id,
+            shift_id: manualData.shift_id,
+            date: manualData.date,
+            area_ids: manualData.area_ids,
           }),
-          "Horario creado correctamente",
-          () => redirect("/schedules")
-        );
+        });
+
+        if (res?.success) {
+          console.log("respuesta de horario manual",res)
+          showSuccess("Horario creado correctamente", {
+            onClose: () => redirect("/schedules"),
+          });
+        } else {setError(res?.message);
+          showError(res?.message)
+        }
       }
     } catch {
-      showError("Error inesperado.");
-    } finally {
-      hideLoading();
+      setError("Error inesperado.");
+      showError("Error inesperado.")
     }
   };
 
-  if (loading) return <Loading fullscreen text="Cargando formulario…" />;
+  if (loading) return <p className="text-gray-500">Cargando…</p>;
 
   return (
     <form
@@ -295,13 +347,8 @@ export default function ScheduleForm() {
             <div className="grid sm:grid-cols-3 gap-3">
               {manualAreas.map((a) => {
                 const checked = manualData.area_ids.includes(a.id);
+                const disabled = a.disabled || (!checked && !canSelectArea(a));
 
-                const selected = manualAreas.filter((x) =>
-                  manualData.area_ids.includes(x.id)
-                );
-
-                const disabled =
-                  a.disabled || (!checked && !canSelectArea(a, selected));
                 return (
                   <label
                     key={a.id}

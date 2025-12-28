@@ -7,6 +7,8 @@ import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 import CreateButton from "../ui/CreateButton";
+import ListContainer from "../layouts/ListContainer";
+import Loading from "../ui/Loading";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -59,9 +61,12 @@ export default function ScheduleList() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex items-center justify-end px-6 pt-6 pb-4">
-        <CreateButton href="/schedules/create" label="Nuevo Horario" />
-      </div>
+      <ListContainer
+        title="Horario"
+        description="Lista de horarios"
+        createHref="/schedules/create"
+        createLabel="Nueva Horario"
+      />
       {/* HEADER / FILTER */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-gray-900">Horarios</h2>
@@ -80,9 +85,7 @@ export default function ScheduleList() {
 
       {/* STATES */}
       {loading && (
-        <div className="p-6 bg-white border rounded-xl shadow-sm text-gray-600">
-          Cargando horarios…
-        </div>
+        <Loading fullscreen text="Cargando horario…" />
       )}
 
       {error && (
@@ -104,7 +107,7 @@ export default function ScheduleList() {
             <table className="w-full min-w-[1000px] text-sm">
               <thead className="bg-gray-50 border-b text-gray-600">
                 <tr>
-                  <th className="p-4 text-left">ID</th>
+                  <th className="p-4 text-left">#</th>
                   <th className="p-4 text-left">Empleado</th>
                   <th className="p-4 text-left">Turno</th>
                   <th className="p-4 text-left">Áreas</th>
@@ -114,12 +117,12 @@ export default function ScheduleList() {
               </thead>
 
               <tbody>
-                {schedules.map((s) => (
+                {schedules.map((s, index) => (
                   <tr
                     key={s.id}
                     className="border-b last:border-none hover:bg-gray-50 transition"
                   >
-                    <td className="p-4 text-gray-500">{s.id}</td>
+                    <td className="p-4 text-gray-500">{index + 1}</td>
 
                     <td className="p-4 font-medium text-gray-900">
                       {s.ScheduleEmployee?.name || "N/A"}

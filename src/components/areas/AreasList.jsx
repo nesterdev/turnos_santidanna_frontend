@@ -4,6 +4,8 @@ import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 import CreateButton from "../ui/CreateButton";
+import ListContainer from "../layouts/ListContainer";
+import Loading from "../ui/Loading";
 
 export default function AreasList() {
   const [areas, setAreas] = useState([]);
@@ -48,31 +50,24 @@ export default function AreasList() {
 
   if (loading)
     return (
-      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-xl max-w-xl">
-        Cargando áreas…
-      </p>
+       <Loading fullscreen text="Cargando áreas…" />
     );
 
   if (error)
     return (
       <p className="text-sm text-red-600 bg-red-50 p-4 rounded-xl">{error}</p>
     );
-
-  if (!areas.length)
-    return (
-      <div className="text-center py-12 text-gray-500">
-        No hay áreas creadas
-      </div>
-    );
-
   /* ---------- TABLE ---------- */
 
   return (
     <div className="bg-white rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.04)]">
       {/* HEADER */}
-      <div className="flex items-center justify-end px-6 pt-6 pb-4">
-        <CreateButton href="/areas/create" label="Nueva Área" />
-      </div>
+      <ListContainer
+        title="Areas"
+        description="Lista de areas disponibles"
+        createHref="/areas/create"
+        createLabel="Nueva Área"
+      />
       <div className="relative overflow-x-auto">
         <table className="min-w-[1100px] w-full text-sm">
           <thead>

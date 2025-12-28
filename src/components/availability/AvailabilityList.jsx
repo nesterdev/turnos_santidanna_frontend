@@ -4,6 +4,8 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import CreateButton from "../ui/CreateButton";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
+import ListContainer from "../layouts/ListContainer";
+import Loading from "../ui/Loading";
 
 const daysMap = {
   0: "Domingo",
@@ -27,7 +29,7 @@ export default function AvailabilityList() {
   async function loadData() {
     try {
       const res = await apiFetch("/availability");
-      console.log("disponibilidad", res)
+      console.log("disponibilidad", res);
       const list = Array.isArray(res)
         ? res
         : Array.isArray(res?.data)
@@ -57,9 +59,7 @@ export default function AvailabilityList() {
 
   if (loading)
     return (
-      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-xl max-w-xl">
-        Cargando disponibilidad…
-      </p>
+       <Loading fullscreen text="Cargando disponibilidad…" />
     );
 
   if (error)
@@ -70,21 +70,12 @@ export default function AvailabilityList() {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_12px_30px_rgba(0,0,0,0.04)]">
       {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">
-            Disponibilidad
-          </h2>
-          <p className="text-sm text-gray-500">
-            Días disponibles por empleado
-          </p>
-        </div>
-
-        <CreateButton
-          href="/availability/create"
-          label="Nueva disponibilidad"
-        />
-      </div>
+      <ListContainer
+        title="Disponibilidad"
+        description="Días disponibles por empleado"
+        createHref="/availability/create"
+        createLabel="Nueva disponibilidad"
+      />
 
       {/* TABLE */}
       <div className="relative overflow-x-auto">
@@ -105,10 +96,7 @@ export default function AvailabilityList() {
           <tbody>
             {availability.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-5 py-6 text-center text-gray-500"
-                >
+                <td colSpan={5} className="px-5 py-6 text-center text-gray-500">
                   No hay registros de disponibilidad
                 </td>
               </tr>

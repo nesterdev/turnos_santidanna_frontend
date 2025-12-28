@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function ShiftsEditForm() {
   const [name, setName] = useState("");
@@ -27,7 +29,7 @@ export default function ShiftsEditForm() {
   }, []);
 
   useEffect(() => {
-    if (!id) return
+    if (!id) return;
     async function loadShift() {
       try {
         const res = await apiFetch(`/shifts/${id}`);
@@ -66,15 +68,14 @@ export default function ShiftsEditForm() {
       });
 
       if (res?.success) {
-        setSuccess("Turno actualizado correctamente");
-        setTimeout(() => {
-          window.location.href = "/shifts";
-        }, 700);
+        showSuccess("Turno actualizado correctamente", {
+          onClose: () => redirect(`/shifts`),
+        });
       } else {
-        setError(res?.message || "Error actualizando el turno");
+        showError(res?.message || "Error actualizando el turno");
       }
     } catch (err) {
-      setError(err?.message || "Error al actualizar el turno");
+      showError(err?.message || "Error al actualizar el turno");
     }
   };
 
@@ -99,9 +100,7 @@ export default function ShiftsEditForm() {
     >
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
-          Editar turno
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900">Editar turno</h2>
         <p className="text-sm text-gray-500 mt-1">
           Actualiza la información del horario seleccionado
         </p>

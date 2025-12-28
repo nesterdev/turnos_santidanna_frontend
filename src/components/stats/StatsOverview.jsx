@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import Loading from "../ui/Loading";
 
 export default function StatsOverview({ dateRange, groupBy }) {
   const [summary, setSummary] = useState([]);
@@ -38,9 +39,7 @@ export default function StatsOverview({ dateRange, groupBy }) {
 
   if (loading)
     return (
-      <div className="p-6 bg-white border rounded-xl shadow-sm text-gray-600">
-        Cargando resumen…
-      </div>
+      <Loading fullscreen text="Cargando resumen…" />
     );
 
   return (

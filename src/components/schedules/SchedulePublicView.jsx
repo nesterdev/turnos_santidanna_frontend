@@ -10,6 +10,7 @@ import {
   exportSchedulePNG,
   shareSchedule,
 } from "../../lib/utils/exportSchedule";
+import Loading from "../ui/Loading";
 
 /* ======================================================
    EXPORT HELPERS (FORZADO A DESKTOP WIDTH)
@@ -100,7 +101,7 @@ export default function SchedulePublicView() {
         >Siguientes →</button>
       </div>
 
-      {loading && <p>Cargando horarios…</p>}
+      {loading && <Loading fullscreen text="Cargando horario…" />}
 
       {!loading && Object.entries(groupedByDate).map(([date, daySchedules]) => (
         <div key={date} id={`schedule-${date}`} className="bg-white rounded-xl p-4 shadow-md">
@@ -111,22 +112,22 @@ export default function SchedulePublicView() {
               <button
                 onClick={() => exportSchedulePNG({ date, schedules: daySchedules })}
                 className="export-btn bg-blue-100 text-blue-700"
-              ><FileImage size={14} /> PNG</button>
+              ><FileImage size={14} /></button>
 
               <button
                 onClick={() => exportSchedulePDF({ date, schedules: daySchedules })}
                 className="export-btn bg-red-100 text-red-700"
-              ><FileText size={14} /> PDF</button>
+              ><FileText size={14} /></button>
 
               <button
                 onClick={() => shareSchedule(`schedule-${date}`, date)}
                 className="export-btn bg-green-100 text-green-700"
-              ><Share2 size={14} /> Compartir</button>
+              ><Share2 size={14} /></button>
 
               <button
                 onClick={async () => { await copyWhatsappText({ date, schedules: daySchedules }); alert("📋 Texto copiado para WhatsApp"); }}
                 className="export-btn bg-emerald-100 text-emerald-700"
-              ><MessageCircle size={14} /> Copiar WhatsApp</button>
+              ><MessageCircle size={14} /> Copiar</button>
             </div>
           </div>
 

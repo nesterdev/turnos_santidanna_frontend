@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 /* 🔹 helper */
 const cleanPayload = (obj) =>
@@ -106,13 +108,14 @@ export default function AreasEditForm() {
       });
 
       if (res?.success) {
-        setSuccess("Área actualizada correctamente");
-        setTimeout(() => (window.location.href = "/areas"), 900);
+        showSuccess("Área actualizada correctamente", {
+          onClose: () => redirect("/areas"),
+        });
       } else {
-        setError(res?.message || "Error actualizando el área");
+        showError(res?.message || "Error actualizando el área");
       }
     } catch (err) {
-      setError(err?.message || "Error al actualizar");
+      showError(err?.message || "Error al actualizar");
     }
   };
 
@@ -143,9 +146,7 @@ export default function AreasEditForm() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
-          {error}
-        </p>
+        <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>
       )}
 
       {success && (
@@ -215,9 +216,7 @@ export default function AreasEditForm() {
       {/* CONFIRMACIÓN */}
       {showConfirm && (
         <div className="bg-gray-50 rounded-xl p-5 space-y-4 text-sm">
-          <p className="font-medium text-gray-800">
-            Confirmar cambios
-          </p>
+          <p className="font-medium text-gray-800">Confirmar cambios</p>
 
           <pre className="bg-white rounded-lg p-3 text-xs text-gray-600 overflow-auto max-h-60">
             {JSON.stringify(payload, null, 2)}
@@ -264,12 +263,8 @@ export default function AreasEditForm() {
 function Section({ title, children }) {
   return (
     <div className="space-y-4">
-      <p className="text-xs uppercase tracking-wide text-gray-400">
-        {title}
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {children}
-      </div>
+      <p className="text-xs uppercase tracking-wide text-gray-400">{title}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{children}</div>
     </div>
   );
 }

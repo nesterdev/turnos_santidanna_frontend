@@ -17,9 +17,10 @@ export default function Sidebar() {
     { label: "Disponibilidad", href: "/availability" },
     { label: "Reemplazos", href: "/replacements" },
     { label: "Estadísticas", href: "/stats" },
-    { label: "Temporadas", href: "/seasons" },
-    { label: "Fechas Especiales", href: "/special-dates" },
-    { label: "Ajustes", href: "/settings" },
+    { label: "Home", href: "/" },
+    //{ label: "Temporadas", href: "/seasons" },
+    //{ label: "Fechas Especiales", href: "/special-dates" },
+    //{ label: "Ajustes", href: "/settings" },
   ];
 
   return (

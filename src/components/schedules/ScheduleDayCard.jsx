@@ -9,6 +9,7 @@ import {
 import { FileImage, FileText, Share2, MessageCircle } from "lucide-react";
 import { apiFetch } from "../../lib/utils/fetch";
 import { ScheduleTable } from "./SchedulePublicView";
+import Loading from "../ui/Loading";
 
 export default function ScheduleDayCard() {
   const [schedules, setSchedules] = useState([]);
@@ -46,7 +47,7 @@ export default function ScheduleDayCard() {
   }
 
   if (error) return <p className="text-red-500">{error}</p>;
-  if (!id || loading) return <p>Cargando horario…</p>;
+  if (!id || loading) return <Loading fullscreen text="Cargando horario…" />;
   if (!schedules.length)
     return <p>No hay horarios para {dayjs(id).format("DD/MM/YYYY")}</p>;
 
@@ -64,7 +65,7 @@ export default function ScheduleDayCard() {
             }
             className="export-btn bg-blue-100 text-blue-700"
           >
-            <FileImage size={14} /> PNG
+            <FileImage size={14} />
           </button>
           <button
             onClick={() =>
@@ -72,7 +73,7 @@ export default function ScheduleDayCard() {
             }
             className="export-btn bg-red-100 text-red-700"
           >
-            <FileText size={14} /> PDF
+            <FileText size={14} />
           </button>
           <button
             onClick={() => shareSchedule(`schedule-${id}`, id)}
@@ -87,7 +88,7 @@ export default function ScheduleDayCard() {
             }}
             className="export-btn bg-emerald-100 text-emerald-700"
           >
-            <MessageCircle size={14} /> WhatsApp
+            <MessageCircle size={14} /> Copiar
           </button>
         </div>
       </div>

@@ -4,6 +4,8 @@ import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 import CreateButton from "../ui/CreateButton";
+import ListContainer from "../layouts/ListContainer";
+import Loading from "../ui/Loading";
 
 export default function ShiftList() {
   const [shifts, setShifts] = useState([]);
@@ -47,9 +49,7 @@ export default function ShiftList() {
 
   if (loading)
     return (
-      <div className="p-6 rounded-2xl bg-white/70 border border-gray-100 shadow-sm text-gray-500">
-        Cargando turnos…
-      </div>
+      <Loading fullscreen text="Cargando turnos…" />
     );
 
   if (error)
@@ -64,12 +64,12 @@ export default function ShiftList() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex items-center justify-end px-6 pt-6 pb-4">
-        <CreateButton
-          href="/shifts/create"
-          label="Nuevo turno"
-        />
-      </div>
+      <ListContainer
+        title="Turnos"
+        description="Gestión de turnos"
+        createHref="/shifts/create"
+        createLabel="Nuevo turno"
+      />
 
       {/* EMPTY */}
       {!shifts.length && (
@@ -100,13 +100,9 @@ export default function ShiftList() {
                     key={s.id}
                     className="border-b last:border-none hover:bg-gray-50/60 transition"
                   >
-                    <td className="p-4 text-gray-400">
-                      #{s.id}
-                    </td>
+                    <td className="p-4 text-gray-400">#{s.id}</td>
 
-                    <td className="p-4 font-medium text-gray-900">
-                      {s.name}
-                    </td>
+                    <td className="p-4 font-medium text-gray-900">{s.name}</td>
 
                     <td className="p-4">
                       <span className="inline-flex px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-medium">

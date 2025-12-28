@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function AvailabilityForm({ availability = null }) {
   const [employees, setEmployees] = useState([]);
@@ -51,9 +53,11 @@ export default function AvailabilityForm({ availability = null }) {
         });
       }
 
-      window.location.href = "/availability";
+      showSuccess("Disponibilidad creada correctamente", {
+        onClose: () => redirect("/availability"),
+      });
     } catch (err) {
-      setError(err.message || "Error guardando disponibilidad.");
+      showError(err.message || "Error guardando disponibilidad.");
     } finally {
       setLoading(false);
     }

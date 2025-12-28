@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import Field from "../ui/Field";
 import SelectCard from "../ui/SelectCard";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function ReplacementCreateForm() {
   const [absentEmployees, setAbsentEmployees] = useState([]); // empleados con turno ese día
@@ -186,10 +188,12 @@ export default function ReplacementCreateForm() {
         body: JSON.stringify(payload),
       });
 
-      window.location.href = "/replacements";
+      showSuccess("Remplazo creado correctamente", {
+        onClose: () => redirect("/replacements"),
+      });
     } catch (err) {
       console.error("Error creando replacement:", err);
-      setError(err?.message || "Error creando el reemplazo.");
+      showError(err?.message || "Error creando el reemplazo.");
     }
   }
 

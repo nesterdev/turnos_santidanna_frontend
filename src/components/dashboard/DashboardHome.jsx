@@ -7,6 +7,7 @@ import DashboardPendingReplacements from "./DashboardPendingReplacements";
 import DashboardEmployeesSummary from "./DashboardEmployeesSummary";
 import DashboardShiftsStats from "./DashboardShiftsStats";
 import DashboardReplacementsStats from "./DashboardReplacementsStats";
+import Loading from "../ui/Loading";
 
 export default function DashboardHome() {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ export default function DashboardHome() {
     async function load() {
       try {
         const res = await apiFetch("/dashboard/resumen");
+        console.log("respuesta de dashboard",res)
         setData(res);
       } catch (e) {
         console.error("Error cargando dashboard:", e);
@@ -26,11 +28,8 @@ export default function DashboardHome() {
     load();
   }, []);
 
-  if (loading) return <p>Cargando dashboard...</p>;
+  if (loading) return <Loading fullscreen text="Cargando datos…" />
   if (!data) return <p>Error cargando datos.</p>;
-
-  // Transformamos empleados desde schedulesHoy para DashboardEmployeesSummary
-  const empleados = data.schedulesHoy.map((s) => s.ScheduleEmployee);
 
   return (
     <div className="space-y-10">
@@ -38,7 +37,7 @@ export default function DashboardHome() {
       <DashboardKPIs resumen={data.kpis} />
 
       {/* Resumen de empleados */}
-      <DashboardEmployeesSummary employees={empleados} />
+      <DashboardEmployeesSummary employees={data.empleadosSummary} />
 
       {/* Estadísticas */}
       <DashboardShiftsStats schedules={data.schedulesHoy} />

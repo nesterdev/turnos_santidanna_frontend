@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function AreasForm() {
   const [name, setName] = useState("");
@@ -35,13 +37,14 @@ export default function AreasForm() {
       });
 
       if (res?.success) {
-        setSuccess("Área creada correctamente.");
-        setTimeout(() => (window.location.href = "/areas"), 1000);
+        showSuccess("Área creada correctamente.", {
+          onClose: () => redirect("/areas"),
+        });
       } else {
         setError(res?.message);
       }
     } catch {
-      setError("Error creando el área.");
+      showError("Error inesperado al crear el área.")
     } finally {
       setLoading(false);
     }
@@ -76,7 +79,12 @@ export default function AreasForm() {
 
       {/* INFO */}
       <div className="space-y-4">
-        <Input label="Nombre del área" value={name} onChange={setName} required />
+        <Input
+          label="Nombre del área"
+          value={name}
+          onChange={setName}
+          required
+        />
         <Textarea
           label="Descripción"
           value={description}
@@ -149,9 +157,7 @@ export default function AreasForm() {
         <div className="flex items-center gap-3 mt-4">
           <button
             type="button"
-            onClick={() =>
-              setFrequencyValue((v) => Math.max(1, v - 1))
-            }
+            onClick={() => setFrequencyValue((v) => Math.max(1, v - 1))}
             className="px-3 py-2 rounded-xl border"
           >
             −
@@ -236,9 +242,7 @@ function CardRadio({ title, subtitle, active, onClick }) {
       <input type="radio" checked={active} readOnly className="radio" />
       <div>
         <p className="font-medium text-sm">{title}</p>
-        {subtitle && (
-          <p className="text-xs text-gray-500">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function ReplacementsEditForm() {
   const [name, setName] = useState("");
@@ -9,7 +11,7 @@ export default function ReplacementsEditForm() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-    const [id, setId] = useState(null);
+  const [id, setId] = useState(null);
   // 👇 LEER QUERY PARAM EN CLIENTE
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -34,7 +36,7 @@ export default function ReplacementsEditForm() {
         const res = await apiFetch(`/replacements/${id}`);
 
         if (res?.success) {
-            console.log("respuesta de replacements",res)
+          console.log("respuesta de replacements", res);
           const data = res.data;
           setName(data.name || "");
           setStartTime(data.start_time || "");
@@ -68,15 +70,14 @@ export default function ReplacementsEditForm() {
       });
 
       if (res?.success) {
-        setSuccess("Remplazo actualizado correctamente");
-        setTimeout(() => {
-          window.location.href = "/replacements";
-        }, 700);
+        showSuccess("Remplazo actualizado correctamente", {
+          onClose: () => redirect("/replacements"),
+        });
       } else {
-        setError(res?.message || "Error actualizando el turno");
+        showError(res?.message || "Error actualizando el turno");
       }
     } catch (err) {
-      setError(err?.message || "Error al actualizar el turno");
+      showError(err?.message || "Error al actualizar el turno");
     }
   };
 
@@ -101,9 +102,7 @@ export default function ReplacementsEditForm() {
     >
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
-          Editar turno
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900">Editar turno</h2>
         <p className="text-sm text-gray-500 mt-1">
           Actualiza la información del horario seleccionado
         </p>

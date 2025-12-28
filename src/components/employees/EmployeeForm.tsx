@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function EmployeeForm() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [rol, setRol] = useState<"admin" | "worker" | "">("");
+  const [rol, setRol] = useState<"admin" | "worker" | "supervisor" | "">("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -26,13 +28,14 @@ export default function EmployeeForm() {
       });
 
       if (res?.success) {
-        setSuccess("Empleado creado correctamente.");
-        setTimeout(() => (window.location.href = "/employees"), 800);
+        showSuccess("Empleado creada correctamente", {
+          onClose: () => redirect("/employees"),
+        });
       } else {
-        setError(res?.message || "Error creando empleado");
+        showError(res?.message || "Error creando empleado");
       }
     } catch (err: any) {
-      setError(err?.message || "Error al crear empleado");
+      showError(err?.message || "Error al crear empleado");
     }
   };
 
@@ -84,11 +87,7 @@ export default function EmployeeForm() {
         />
 
         {/* Teléfono */}
-        <Input
-          label="Teléfono"
-          value={telefono}
-          onChange={setTelefono}
-        />
+        <Input label="Teléfono" value={telefono} onChange={setTelefono} />
       </div>
 
       {/* ROL (cards modernas) */}
@@ -109,6 +108,12 @@ export default function EmployeeForm() {
             description="Puede ser asignado a turnos y áreas"
             active={rol === "worker"}
             onClick={() => setRol("worker")}
+          />
+          <RoleCard
+            title="Supervisor"
+            description="Puede ser asignado a turnos"
+            active={rol === "supervisor"}
+            onClick={() => setRol("supervisor")}
           />
         </div>
       </div>

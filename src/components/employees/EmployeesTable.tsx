@@ -3,7 +3,8 @@ import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
-import CreateButton from "../ui/CreateButton";
+import ListContainer from "../layouts/ListContainer";
+import Loading from "../ui/Loading";
 
 interface Empleado {
   id: number;
@@ -53,18 +54,16 @@ export default function EmployeesTable() {
   return (
     <div className="space-y-8">
       {/* HEADER */}
-      <div className="flex items-center justify-end px-6 pt-6 pb-4">
-        <CreateButton
-          href="/employees/create"
-          label="Nuevo empleado"
-        />
-      </div>
+      <ListContainer
+        title="Reemplazos"
+        description="Gestión de empleados"
+        createHref="/employees/create"
+        createLabel="Nuevo empleado"
+      />
 
       {/* ESTADOS */}
       {loading && (
-        <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500 animate-pulse">
-          Cargando empleados…
-        </div>
+         <Loading fullscreen text="Cargando Empleados…" />
       )}
 
       {error && (
@@ -90,10 +89,7 @@ export default function EmployeesTable() {
               <tbody>
                 {empleados.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={4}
-                      className="py-12 text-center text-gray-500"
-                    >
+                    <td colSpan={4} className="py-12 text-center text-gray-500">
                       No hay empleados registrados
                     </td>
                   </tr>
@@ -107,9 +103,7 @@ export default function EmployeesTable() {
                         {emp.name}
                       </td>
 
-                      <td className="p-4 text-gray-600">
-                        {emp.email}
-                      </td>
+                      <td className="p-4 text-gray-600">{emp.email}</td>
 
                       <td className="p-4">
                         <span

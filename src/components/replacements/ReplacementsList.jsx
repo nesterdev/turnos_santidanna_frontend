@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
-import CreateButton from "../ui/CreateButton";
+import DeleteButton from "../ui/deleteButtom";
+import ListContainer from "../layouts/ListContainer";
+import Loading from "../ui/Loading";
 
 export default function ReplacementsList() {
   const [replacements, setReplacements] = useState([]);
@@ -29,25 +31,31 @@ export default function ReplacementsList() {
     }
   }
 
-  function deleteReplacement(id) {
-    openConfirmModal({
+  const deleteReplacement = async (id) => {
+    console.log("id de reemplazo", id);
+    const confirmed = await openConfirmModal({
       title: "Eliminar reemplazo",
-      message: "Esta acción no se puede deshacer.",
-      confirm: async () => {
-        const res = await fetch(`/api/delete-replacement/${id}`, {
-          method: "POST",
-        });
-        const data = await res.json();
-        if (data.success) loadData();
-      },
+      message:
+        "¿Deseas eliminar este registro de reemplazo? Esta acción es irreversible.",
+      confirmText: "Eliminar",
     });
-  }
+
+    if (!confirmed) return;
+
+    try {
+      const res = await apiFetch(`/replacements/delete-replacement/${id}`, {
+        method: "DELETE",
+      });
+      setReplacements((prev) => prev.filter((a) => a.id !== id));
+      console.log("respuesta delete replacements", res);
+    } catch {
+      alert("Error eliminando el reemplazo");
+    }
+  };
 
   if (loading)
     return (
-      <div className="max-w-6xl mx-auto p-6 text-sm text-gray-500 animate-pulse">
-        Cargando reemplazos…
-      </div>
+      <Loading fullscreen text="Cargando reemplazos…" />
     );
 
   if (error)
@@ -60,21 +68,12 @@ export default function ReplacementsList() {
   return (
     <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-5 border-gray-100">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Reemplazos
-          </h2>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Gestión de reemplazos de empleados
-          </p>
-        </div>
-
-        <CreateButton
-          href="/replacements/create"
-          label="Nuevo reemplazo"
-        />
-      </div>
+      <ListContainer
+        title="Reemplazos"
+        description="Gestión de reemplazos de empleados"
+        createHref="/replacements/create"
+        createLabel="Nuevo reemplazo"
+      />
 
       {/* TABLE */}
       <div className="overflow-x-auto">
@@ -85,19 +84,14 @@ export default function ReplacementsList() {
               <th className="px-6 py-3 font-medium">Reemplazado por</th>
               <th className="px-6 py-3 font-medium">Fecha</th>
               <th className="px-6 py-3 font-medium">Turno</th>
-              <th className="px-6 py-3 font-medium text-right">
-                Acciones
-              </th>
+              <th className="px-6 py-3 font-medium text-right">Acciones</th>
             </tr>
           </thead>
 
           <tbody>
             {replacements.length === 0 && (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-6 py-8 text-center text-gray-500"
-                >
+                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                   No hay reemplazos registrados
                 </td>
               </tr>
@@ -116,16 +110,12 @@ export default function ReplacementsList() {
                   {r.ReplacementReplacer?.name || "—"}
                 </td>
 
-                <td className="px-6 py-4 text-gray-600">
-                  {r.date}
-                </td>
+                <td className="px-6 py-4 text-gray-600">{r.date}</td>
 
                 <td className="px-6 py-4 text-gray-600">
                   {r.ReplacementSchedule ? (
                     <div className="space-y-0.5">
-                      <div>
-                        Turno #{r.ReplacementSchedule.shift_id}
-                      </div>
+                      <div>Turno #{r.ReplacementSchedule.shift_id}</div>
                       <div className="text-xs text-gray-500">
                         {r.ReplacementSchedule.ScheduleEmployee?.name}
                       </div>
@@ -150,11 +140,11 @@ export default function ReplacementsList() {
                     className="bg-transparent hover:bg-gray-100 text-gray-600"
                   />
 
-                  <ActionButton
+                  <DeleteButton
                     icon="/delete.svg"
                     alt="Eliminar"
                     onClick={() => deleteReplacement(r.id)}
-                    className="bg-transparent hover:bg-red-50 text-red-500"
+                    className="bg-red-100 text-red-600 hover:bg-red-200"
                   />
                 </td>
               </tr>

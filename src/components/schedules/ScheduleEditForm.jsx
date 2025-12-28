@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function ScheduleEditForm() {
   const [date, setDate] = useState("");
@@ -30,9 +32,8 @@ export default function ScheduleEditForm() {
     setId(empId);
   }, []);
 
-
   useEffect(() => {
-     if (!id) return;
+    if (!id) return;
     async function loadData() {
       try {
         const [scheduleRes, employeesRes, shiftsRes] = await Promise.all([
@@ -82,15 +83,14 @@ export default function ScheduleEditForm() {
       });
 
       if (res?.success) {
-        setSuccess("Schedule actualizado correctamente");
-        setTimeout(() => {
-          window.location.href = `/schedules/${id}`;
-        }, 900);
+        showSuccess("Schedule actualizado correctamente", {
+          onClose: () => redirect(`/schedules/${id}`),
+        });
       } else {
-        setError(res?.message || "Error actualizando el turno");
+        showError(res?.message || "Error actualizando el turno");
       }
     } catch (err) {
-      setError(err?.message || "Error al actualizar");
+      showError(err?.message || "Error al actualizar");
     }
   };
 
@@ -103,10 +103,7 @@ export default function ScheduleEditForm() {
     );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-4xl mx-auto space-y-8"
-    >
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8">
       {/* HEADER */}
       <header className="bg-white/80 backdrop-blur rounded-3xl px-8 py-6 ring-1 ring-black/5">
         <div className="flex items-center justify-between">
@@ -133,7 +130,6 @@ export default function ScheduleEditForm() {
 
       {/* FORM */}
       <section className="bg-white/80 backdrop-blur rounded-3xl p-8 ring-1 ring-black/5 space-y-6">
-
         {/* FECHA */}
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">
@@ -208,16 +204,12 @@ export default function ScheduleEditForm() {
             />
             <div
               className={`w-11 h-6 rounded-full transition ${
-                isReplacement
-                  ? "bg-[#FF3131]"
-                  : "bg-gray-300"
+                isReplacement ? "bg-[#FF3131]" : "bg-gray-300"
               }`}
             >
               <div
                 className={`h-5 w-5 bg-white rounded-full shadow transform transition ${
-                  isReplacement
-                    ? "translate-x-5"
-                    : "translate-x-1"
+                  isReplacement ? "translate-x-5" : "translate-x-1"
                 }`}
               />
             </div>

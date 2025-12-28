@@ -23,8 +23,8 @@ export default function SidebarDrawer() {
         />
       )}
 
-      {/* Contenido drawer */}
-      <div className="relative w-64 h-full bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-y-auto rounded-r-xl p-6">
+      {/* Contenido drawer antes relative w-64 h-full bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-y-auto rounded-r-xl p-6*/}
+      <div >
         <Sidebar client:load />
       </div>
     </div>

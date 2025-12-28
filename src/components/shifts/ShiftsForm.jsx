@@ -1,6 +1,8 @@
 // src/components/shifts/ShiftsForm.jsx
 import { useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
+import { showError, showSuccess } from "../../lib/utils/alert";
+import { redirect } from "../../lib/utils/navigation";
 
 export default function ShiftsForm() {
   const [name, setName] = useState("");
@@ -30,13 +32,14 @@ export default function ShiftsForm() {
       });
 
       if (res?.success) {
-        setSuccess("Turno creado correctamente.");
-        setTimeout(() => (window.location.href = "/shifts"), 800);
+        showSuccess("Turno creado correctamente", {
+          onClose: () => redirect(`/shifts`),
+        });
       } else {
-        setError(res?.message || "Error al crear el turno.");
+        showError(res?.message || "Error al crear el turno.");
       }
     } catch (err) {
-      setError(err?.message || "Error al crear el turno.");
+      showError(err?.message || "Error al crear el turno.");
     } finally {
       setLoading(false);
     }
@@ -148,17 +151,17 @@ export default function ShiftsForm() {
       </div>
 
       {/* Night shift */}
-      <div className="
+      <div
+        className="
         flex items-center justify-between
         rounded-xl
         border border-gray-200
         bg-gray-50/50
         px-4 py-3
-      ">
+      "
+      >
         <div>
-          <p className="text-sm font-medium text-gray-800">
-            Turno nocturno
-          </p>
+          <p className="text-sm font-medium text-gray-800">Turno nocturno</p>
           <p className="text-xs text-gray-500">
             Marca si este turno corresponde a horario nocturno
           </p>
