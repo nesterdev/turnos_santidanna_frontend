@@ -139,8 +139,7 @@
 │   │       ├── loading.ts
 │   │       ├── modal.js
 │   │       └── navigation.js
-│   ├── middleware/
-│   │   └── auth.js
+│   ├── middleware.js
 │   ├── pages/
 │   │   ├── _prerender.ts
 │   │   ├── areas/
@@ -209,8 +208,9 @@
 │   │   │   ├── index.astro
 │   │   │   └── view/
 │   │   │       └── index.astro
-│   │   └── stats/
-│   │       └── index.astro
+│   │   ├── stats/
+│   │   │   └── index.astro
+│   │   └── unauthorized.astro
 │   ├── prueba.js
 │   ├── styles/
 │   │   └── global.css

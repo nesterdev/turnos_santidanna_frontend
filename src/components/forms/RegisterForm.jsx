@@ -7,7 +7,6 @@ export default function RegisterForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    password: "",
     role: "worker",
   });
 
@@ -57,12 +56,6 @@ export default function RegisterForm() {
 
       <Input label="Nombre" value={form.name} onChange={(v) => update("name", v)} />
       <Input label="Correo" value={form.email} onChange={(v) => update("email", v)} />
-      <Input
-        label="Contraseña"
-        type="password"
-        value={form.password}
-        onChange={(v) => update("password", v)}
-      />
 
       <div className="mb-4">
         <label className="block font-semibold mb-1">Rol</label>
@@ -72,8 +65,6 @@ export default function RegisterForm() {
           className="border rounded-md px-3 py-2 w-full"
         >
           <option value="worker">Worker</option>
-          <option value="supervisor">Supervisor</option>
-          <option value="admin">Admin</option>
         </select>
       </div>
 

@@ -1,5 +1,4 @@
 ---
-
 import PublicHeader from "../components/ui/PublicHeader.astro";
 import PublicHero from "../components/public/PublicHero.astro";
 import PublicFeatures from "../components/public/PublicFeatures.jsx";
@@ -11,9 +10,6 @@ import PublicLayout from "../components/public/PublicLayout.astro";
   <PublicHeader title="Variedades Santidanna" />
 
   <main class="min-h-screen">
-    <PublicHero />
-    <PublicFeatures client:load />
-
     <section class="bg-gray-50 border-t">
       <div class="max-w-7xl mx-auto px-6 py-12">
         <h2 class="text-2xl font-semibold text-gray-900 mb-6">
@@ -23,6 +19,8 @@ import PublicLayout from "../components/public/PublicLayout.astro";
         <SchedulePublicView client:load />
       </div>
     </section>
+    <PublicHero />
+    <PublicFeatures client:load />
   </main>
 
   <footer class="border-t bg-white">

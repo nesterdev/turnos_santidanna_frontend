@@ -54,7 +54,8 @@ export function logout() {
   deleteToken();
 
   if (isBrowser()) {
-    window.location.href = "/auth/login";
+    window.location.href = "/unauthorized";
+    console.log("dentro de auth me ejeute utils")
   }
 }
 
