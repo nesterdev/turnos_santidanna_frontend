@@ -12,6 +12,7 @@ export default function ScheduleForm() {
   const { employees, shifts, areas, loading } = useScheduleFormData();
 
   const [manualAreas, setManualAreas] = useState([]);
+  const [manualEmployees, setManualEmployees] = useState([]);
   const [loadingAreas, setLoadingAreas] = useState(false);
   const [mode, setMode] = useState("automatic");
   const [autoData, setAutoData] = useState({
@@ -29,8 +30,9 @@ export default function ScheduleForm() {
   });
 
   useEffect(() => {
-    if (mode !== "manual" || !manualData.employee_id || !manualData.date) {
+    if (mode !== "manual" || !manualData.date) {
       setManualAreas([]);
+      setManualEmployees([]);
       return;
     }
 
@@ -38,12 +40,16 @@ export default function ScheduleForm() {
       setLoadingAreas(true);
       try {
         const res = await apiFetch(
-          `/schedules/manual-context?employee_id=${manualData.employee_id}&date=${manualData.date}`
+          `/schedules/manual-context?date=${manualData.date}${
+            manualData.employee_id
+              ? `&employee_id=${manualData.employee_id}`
+              : ""
+          }`
         );
 
         if (res?.success) {
-          setManualAreas(res.areas);
-          // reset áreas seleccionadas
+          setManualEmployees(res.employees);
+          setManualAreas(res.areas || []);
           setManualData((p) => ({ ...p, area_ids: [] }));
         }
       } finally {
@@ -52,7 +58,7 @@ export default function ScheduleForm() {
     }
 
     loadContext();
-  }, [mode, manualData.employee_id, manualData.date]);
+  }, [mode, manualData.date, manualData.employee_id]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -226,61 +232,68 @@ export default function ScheduleForm() {
       {/* MANUAL */}
       {mode === "manual" && (
         <>
+          {/* DATE */}
+          <div>
+            <label className="label">Fecha</label>
+            <input
+              type="date"
+              className="input"
+              onChange={(e) =>
+                setManualData({ ...manualData, date: e.target.value })
+              }
+            />
+          </div>
           {/* EMPLOYEES */}
           <div className="space-y-2">
             <label className="label">Empleado</label>
             <div className="grid sm:grid-cols-2 gap-3">
-              {employees.map((e) => (
-                <div
-                  key={e.id}
-                  onClick={() =>
-                    setManualData({ ...manualData, employee_id: e.id })
-                  }
-                  className={`card-option ${
-                    manualData.employee_id === e.id ? "card-option-active" : ""
-                  }`}
-                >
-                  <div>
-                    <p className="font-medium">{e.name}</p>
-                    <p className="text-xs text-gray-500">{e.role}</p>
+              {manualEmployees.map((e) => {
+                const disabled = e.disabled;
+
+                return (
+                  <div
+                    key={e.id}
+                    onClick={() => {
+                      if (disabled) return;
+                      setManualData({ ...manualData, employee_id: e.id });
+                    }}
+                    className={`card-option ${
+                      manualData.employee_id === e.id
+                        ? "card-option-active"
+                        : ""
+                    } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <div>
+                      <p className="font-medium">{e.name}</p>
+                      <p className="text-xs text-gray-500">{e.role}</p>
+
+                      {disabled && (
+                        <p className="text-xs text-red-500 mt-1">{e.reason}</p>
+                      )}
+                    </div>
+
+                    <input
+                      type="radio"
+                      checked={manualData.employee_id === e.id}
+                      disabled={disabled}
+                      readOnly
+                    />
                   </div>
-                  <input
-                    type="radio"
-                    checked={manualData.employee_id === e.id}
-                    readOnly
-                  />
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
-
-          {/* AREAS CHECKBOX 
-          <div>
-            <label className="label">Áreas</label>
-            <div className="grid sm:grid-cols-3 gap-3">
-              {areas.map((a) => (
-                <label key={a.id} className="card-option items-center gap-3">
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    onChange={(e) =>
-                      setManualData((p) => ({
-                        ...p,
-                        area_ids: e.target.checked
-                          ? [...p.area_ids, a.id]
-                          : p.area_ids.filter((id) => id !== a.id),
-                      }))
-                    }
-                  />
-                  <span className="text-sm">{a.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>*/}
 
           {/* AREAS (MANUAL CONTEXT) */}
           <div className="space-y-2">
             <label className="label">Áreas disponibles</label>
+
+            {/* 👇 AQUÍ VA */}
+            {!manualData.employee_id && (
+              <p className="text-sm text-gray-400">
+                Selecciona un empleado para ver áreas disponibles
+              </p>
+            )}
 
             {loadingAreas && (
               <p className="text-sm text-gray-400">Cargando áreas…</p>
@@ -338,18 +351,6 @@ export default function ScheduleForm() {
                 );
               })}
             </div>
-          </div>
-
-          {/* DATE */}
-          <div>
-            <label className="label">Fecha</label>
-            <input
-              type="date"
-              className="input"
-              onChange={(e) =>
-                setManualData({ ...manualData, date: e.target.value })
-              }
-            />
           </div>
 
           {/* SHIFTS */}
