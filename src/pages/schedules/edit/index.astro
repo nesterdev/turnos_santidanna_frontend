@@ -7,7 +7,7 @@ import ScheduleEditForm from "../../../components/schedules/ScheduleEditForm";
 ---
 
 <DashboardLayout title={`Editar Horario`}>
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <ScheduleEditForm client:only="react" />
   </AuthGuard>
 </DashboardLayout>

@@ -7,7 +7,7 @@ import ReplacementsEditForm from "../../../components/replacements/ReplacementsE
 ---
 
 <DashboardLayout title={`Editar Empleado`}>
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
     <ReplacementsEditForm client:only="react" />
   </AuthGuard>
 </DashboardLayout>

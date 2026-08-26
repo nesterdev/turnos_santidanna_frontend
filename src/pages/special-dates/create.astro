@@ -5,7 +5,7 @@ import ShiftList from "../../components/shifts/ShiftList.jsx";
 ---
 
 <DashboardLayout title="Gestión de Turnos">
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <ShiftList client:only="react" />
   </AuthGuard>
 </DashboardLayout>

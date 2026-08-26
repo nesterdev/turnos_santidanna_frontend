@@ -5,7 +5,7 @@ import ReplacementCreateForm from "../../components/replacements/ReplacementCrea
 ---
 
 <DashboardLayout title="Crear Reemplazo">
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
     <ReplacementCreateForm client:load />
   </AuthGuard>
 </DashboardLayout>

@@ -5,7 +5,7 @@ import ScheduleList from "../../components/schedules/ScheduleList.jsx";
 ---
 
 <DashboardLayout title="Horarios Generados">
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <ScheduleList client:only="react" />
   </AuthGuard>
 </DashboardLayout>

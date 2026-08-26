@@ -6,7 +6,7 @@ import AuthGuard from "../../components/auth/AuthGuard.jsx";
 ---
 
 <DashboardLayout title="Dashboard">
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
     <DashboardHome client:only="react" />
   </AuthGuard>
 </DashboardLayout>

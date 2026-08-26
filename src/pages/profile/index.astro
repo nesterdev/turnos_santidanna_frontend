@@ -6,7 +6,7 @@ import UserProfile from "../../components/profile/UserProfile";
 
 <DashboardLayout title="Mi Perfil">
     <AuthGuard
-        allowedRoles={["admin", "supervisor", "worker"]}
+        allowedRoles={["admin", "supervisor", "worker", "super_admin"]}
         client:only="react"
     >
         <UserProfile client:only="react" />

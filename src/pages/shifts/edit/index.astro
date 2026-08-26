@@ -7,7 +7,7 @@ import ShiftsEditForm from "../../../components/shifts/ShiftsEditForm";
 ---
 
 <DashboardLayout title={`Editar Empleado`}>
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <ShiftsEditForm client:only="react" />
   </AuthGuard>
 </DashboardLayout>

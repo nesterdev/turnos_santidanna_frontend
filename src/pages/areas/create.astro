@@ -5,7 +5,7 @@ import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title="Crear Areas">
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
     <AreasForm client:only="react" />
   </AuthGuard>
 </DashboardLayout>

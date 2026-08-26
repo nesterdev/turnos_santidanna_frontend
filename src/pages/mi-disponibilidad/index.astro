@@ -5,7 +5,7 @@ import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 ---
 
 <DashboardLayout title="Mi Disponibilidad">
-  <AuthGuard client:only="react" allowedRoles={["worker", "admin", "supervisor"]}>
+  <AuthGuard client:only="react" allowedRoles={["worker", "admin", "supervisor", "super_admin"]}>
     <MyAvailabilityForm client:load />
   </AuthGuard>
 </DashboardLayout>

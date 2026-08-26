@@ -7,7 +7,7 @@ import ScheduleView from "../../../components/schedules/ScheduleView";
 ---
 
 <DashboardLayout title={`Horario`}>
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <ScheduleView client:only="react" />
   </AuthGuard>
 </DashboardLayout>

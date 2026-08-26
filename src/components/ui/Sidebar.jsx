@@ -28,6 +28,38 @@ export default function Sidebar() {
 
   // Grupos organizados por categoría para dar estructura SaaS
   const navigationGroups = {
+    super_admin: [
+      {
+        title: "Principal",
+        items: [
+          { label: "Dashboard", href: "/dashboard", icon: icons.dashboard },
+          { label: "Estadísticas", href: "/stats", icon: icons.stats }
+        ]
+      },
+      {
+        title: "Gestión Operativa",
+        items: [
+          { label: "Empleados", href: "/employees", icon: icons.employees },
+          { label: "Turnos", href: "/shifts", icon: icons.shifts },
+          { label: "Horarios", href: "/schedules", icon: icons.schedules },
+          { label: "Áreas", href: "/areas", icon: icons.areas }
+        ]
+      },
+      {
+        title: "Solicitudes",
+        items: [
+          { label: "Disponibilidad", href: "/availability", icon: icons.availability },
+          { label: "Reemplazos", href: "/replacements", icon: icons.replacements }
+        ]
+      },
+      {
+        title: "Mi Panel",
+        items: [
+          { label: "Mi Horario", href: "/mi-horario", icon: icons.schedules },
+          { label: "Mi Disponibilidad", href: "/mi-disponibilidad", icon: icons.availability }
+        ]
+      }
+    ],
     admin: [
       {
         title: "Principal",
@@ -51,20 +83,30 @@ export default function Sidebar() {
           { label: "Disponibilidad", href: "/availability", icon: icons.availability },
           { label: "Reemplazos", href: "/replacements", icon: icons.replacements }
         ]
+      },
+      {
+        title: "Mi Panel",
+        items: [
+          { label: "Mi Horario", href: "/mi-horario", icon: icons.schedules },
+          { label: "Mi Disponibilidad", href: "/mi-disponibilidad", icon: icons.availability }
+        ]
       }
     ],
     supervisor: [
       {
-        title: "Principal",
-        items: [{ label: "Dashboard", href: "/dashboard", icon: icons.dashboard }]
-      },
-      {
         title: "Operación",
         items: [
+          { label: "Empleados", href: "/employees", icon: icons.employees },
           { label: "Turnos", href: "/shifts", icon: icons.shifts },
           { label: "Horarios", href: "/schedules", icon: icons.schedules },
           { label: "Disponibilidad", href: "/availability", icon: icons.availability },
-          { label: "Reemplazos", href: "/replacements", icon: icons.replacements }
+        ]
+      },
+      {
+        title: "Mi Panel",
+        items: [
+          { label: "Mi Horario", href: "/mi-horario", icon: icons.schedules },
+          { label: "Mi Disponibilidad", href: "/mi-disponibilidad", icon: icons.availability }
         ]
       }
     ],

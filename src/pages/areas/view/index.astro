@@ -7,7 +7,7 @@ import AuthGuard from "../../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title={`Empleado`}>
-    <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
         <AreasView client:only="react" />
     </AuthGuard>
 </DashboardLayout>

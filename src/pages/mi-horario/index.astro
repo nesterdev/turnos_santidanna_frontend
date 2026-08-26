@@ -6,7 +6,7 @@ import EmployeeScheduleView from "../../components/schedules/EmployeeScheduleVie
 ---
 
 <DashboardLayout title="Mi Horario">
-  <AuthGuard client:only="react" allowedRoles={["worker", "admin", "supervisor"]}>
+  <AuthGuard client:only="react" allowedRoles={["worker", "admin", "supervisor", "super_admin"]}>
     <EmployeeScheduleView client:only="react" />
   </AuthGuard>
 </DashboardLayout>

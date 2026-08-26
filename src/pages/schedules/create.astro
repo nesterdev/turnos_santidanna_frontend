@@ -5,7 +5,7 @@ import ScheduleForm from "../../components/schedules/ScheduleForm.jsx";
 ---
 
 <DashboardLayout title="Crear Horario">
-    <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
         <ScheduleForm client:only="react" />
     </AuthGuard>
 </DashboardLayout>

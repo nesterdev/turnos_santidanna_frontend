@@ -7,7 +7,7 @@ import ReplacementsView from "../../../components/replacements/ReplacementsView"
 ---
 
 <DashboardLayout title={`Ver Empleado`}>
-  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
     <ReplacementsView client:only="react" />
   </AuthGuard>
 </DashboardLayout>
