@@ -11,6 +11,13 @@ import {
 } from "recharts";
 import Loading from "../ui/Loading";
 
+const GROUP_LABELS = {
+  day: "Día",
+  week: "Semana",
+  month: "Mes",
+  year: "Año"
+};
+
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
@@ -46,7 +53,6 @@ export default function StatsOverview({ dateRange, groupBy }) {
             const lastName = e.name ? e.name.trim().split(" ")[1] || "" : "";
             return {
               fullName: e.name,
-              // Nombre corto para que no choque en el eje X
               shortName: `${firstName} ${lastName}`.trim(),
               total_days: e.total_days,
             };
@@ -61,7 +67,6 @@ export default function StatsOverview({ dateRange, groupBy }) {
 
   if (loading) return <Loading fullscreen text="Cargando resumen…" />;
 
-  // Si hay más de 10 empleados, habilitamos scroll horizontal dinámico para que la gráfica no se comprima
   const minWidth = summary.length > 8 ? summary.length * 60 : "100%";
 
   return (
@@ -70,7 +75,7 @@ export default function StatsOverview({ dateRange, groupBy }) {
         <div>
           <h2 className="text-sm font-bold text-gray-900">Días trabajados</h2>
           <p className="text-[11px] text-gray-400 font-medium">
-            Agrupado por: <span className="capitalize text-gray-700">{groupBy}</span>
+            Agrupado por: <span className="font-semibold text-gray-700">{GROUP_LABELS[groupBy] || groupBy}</span>
           </p>
         </div>
         <span className="self-start sm:self-auto px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-red-50 text-[#FF3131] border border-red-100 uppercase tracking-wider">

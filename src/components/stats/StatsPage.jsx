@@ -1,24 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import StatsOverview from "../../components/stats/StatsOverview.jsx";
 import EmployeeStatsTable from "../../components/stats/EmployeeStatsTable.jsx";
 import DateFilter from "../../components/stats/DateFilter.jsx";
 
 export default function StatsPage() {
-  const [dateRange, setDateRange] = useState({
-    from: new Date().toISOString().slice(0, 10),
-    to: new Date().toISOString().slice(0, 10),
-  });
+  const [dateRange, setDateRange] = useState({ from: "", to: "" });
+  const [groupBy, setGroupBy] = useState("week");
 
-  const groupBy = useMemo(() => {
-    if (!dateRange?.from || !dateRange?.to) return "day";
-    const diffDays =
-      (new Date(dateRange.to) - new Date(dateRange.from)) /
-      (1000 * 60 * 60 * 24);
-    if (diffDays <= 1) return "day";
-    if (diffDays <= 31) return "week";
-    if (diffDays <= 365) return "month";
-    return "year";
-  }, [dateRange]);
+  const handleFilterChange = (newRange, newGroupBy) => {
+    setDateRange(newRange);
+    if (newGroupBy) setGroupBy(newGroupBy);
+  };
 
   return (
     <div className="space-y-6">
@@ -36,7 +28,7 @@ export default function StatsPage() {
           </p>
         </div>
 
-        <DateFilter onChange={setDateRange} />
+        <DateFilter onChange={handleFilterChange} />
       </div>
 
       {/* OVERVIEW (GRÁFICA RECHARTS) */}
