@@ -7,6 +7,7 @@ export default function StatsPage() {
   const [dateRange, setDateRange] = useState({ from: "", to: "" });
   const [groupBy, setGroupBy] = useState("week");
 
+  // Recibe directamente el rango de fechas y la agrupación calculada por el filtro
   const handleFilterChange = (newRange, newGroupBy) => {
     setDateRange(newRange);
     if (newGroupBy) setGroupBy(newGroupBy);

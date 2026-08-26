@@ -10,6 +10,7 @@ const OPTIONS = [
 export default function DateFilter({ onChange }) {
   const [range, setRange] = useState("week");
 
+  // Función para calcular rango según la opción seleccionada
   const computeFilterData = (optionId) => {
     const today = new Date();
     let from, to;
@@ -40,6 +41,7 @@ export default function DateFilter({ onChange }) {
         from = to = today;
     }
 
+    // Formatear a YYYY-MM-DD local
     const format = (d) => {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -53,15 +55,17 @@ export default function DateFilter({ onChange }) {
     };
   };
 
+  // Carga inicial
   useEffect(() => {
-    const initialData = computeFilterData(range);
-    onChange?.(initialData.dateRange, initialData.groupBy);
+    const data = computeFilterData(range);
+    onChange?.(data.dateRange, data.groupBy);
   }, []);
 
+  // Al hacer clic en un botón
   const handleSelect = (val) => {
     setRange(val);
-    const filterData = computeFilterData(val);
-    onChange?.(filterData.dateRange, filterData.groupBy);
+    const data = computeFilterData(val);
+    onChange?.(data.dateRange, data.groupBy);
   };
 
   return (
