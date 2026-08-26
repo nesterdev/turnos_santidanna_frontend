@@ -47,8 +47,55 @@ export default function EmployeeStatsTable({ dateRange, groupBy }) {
         <span className="text-xs text-gray-400 font-semibold">{stats.length} registros</span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
+      {/* VISTA MÓVIL (Tarjetas) */}
+      <div className="block sm:hidden divide-y divide-gray-100">
+        {stats.map((e) => (
+          <div key={e.employee_id} className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gray-100 text-gray-700 font-black flex items-center justify-center text-xs">
+                  {e.name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900 leading-tight">{e.name}</p>
+                  <span className="capitalize px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[9px] inline-block mt-0.5">
+                    {e.role}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-gray-400 block font-semibold uppercase">Días Trab.</span>
+                <span className="text-sm font-extrabold text-gray-900">{e.total_days}</span>
+              </div>
+            </div>
+
+            {(e.rest_days?.length > 0 || e.upcoming_rest?.length > 0) && (
+              <div className="pt-2 border-t border-gray-50 text-[11px] space-y-1.5">
+                {e.rest_days?.length > 0 && (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-gray-400 font-medium">Descansos:</span>
+                    {e.rest_days.map((d, i) => (
+                      <span key={i} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px]">{d}</span>
+                    ))}
+                  </div>
+                )}
+                {e.upcoming_rest?.length > 0 && (
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-gray-400 font-medium">Próximos:</span>
+                    {e.upcoming_rest.map((d, i) => (
+                      <span key={i} className="px-1.5 py-0.5 bg-blue-50 text-blue-600 font-medium rounded text-[10px]">{d}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* VISTA ESCRITORIO (Tabla responsiva) */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full text-left text-xs whitespace-nowrap">
           <thead>
             <tr className="bg-gray-50/60 border-b border-gray-100 text-gray-400 font-bold uppercase tracking-wider">
               <th className="py-3.5 px-5">Empleado</th>
@@ -65,7 +112,7 @@ export default function EmployeeStatsTable({ dateRange, groupBy }) {
                   <div className="w-7 h-7 rounded-lg bg-gray-100 text-gray-700 font-black flex items-center justify-center text-[10px]">
                     {e.name?.charAt(0).toUpperCase()}
                   </div>
-                  {e.name}
+                  <span className="truncate max-w-[200px]" title={e.name}>{e.name}</span>
                 </td>
                 <td className="py-3.5 px-5">
                   <span className="capitalize px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold text-[10px]">

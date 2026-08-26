@@ -11,14 +11,14 @@ import {
 } from "recharts";
 import Loading from "../ui/Loading";
 
-// Custom Tooltip con la línea gráfica del prototipo
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
+    const data = payload[0].payload;
     return (
       <div className="bg-slate-900 text-white p-3 rounded-xl shadow-lg border border-slate-800 text-xs">
-        <p className="font-bold text-gray-200 mb-1">{label}</p>
+        <p className="font-bold text-gray-200 mb-1">{data.fullName}</p>
         <p className="text-[#FF3131] font-semibold">
-          Días trabajados: <span className="text-white font-black">{payload[0].value}</span>
+          Días trabajados: <span className="text-white font-black">{data.total_days}</span>
         </p>
       </div>
     );
@@ -41,10 +41,16 @@ export default function StatsOverview({ dateRange, groupBy }) {
 
       if (res?.success) {
         setSummary(
-          res.data.map((e) => ({
-            name: e.name,
-            total_days: e.total_days,
-          }))
+          res.data.map((e) => {
+            const firstName = e.name ? e.name.trim().split(" ")[0] : "";
+            const lastName = e.name ? e.name.trim().split(" ")[1] || "" : "";
+            return {
+              fullName: e.name,
+              // Nombre corto para que no choque en el eje X
+              shortName: `${firstName} ${lastName}`.trim(),
+              total_days: e.total_days,
+            };
+          })
         );
       }
       setLoading(false);
@@ -55,16 +61,19 @@ export default function StatsOverview({ dateRange, groupBy }) {
 
   if (loading) return <Loading fullscreen text="Cargando resumen…" />;
 
+  // Si hay más de 10 empleados, habilitamos scroll horizontal dinámico para que la gráfica no se comprima
+  const minWidth = summary.length > 8 ? summary.length * 60 : "100%";
+
   return (
-    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
         <div>
           <h2 className="text-sm font-bold text-gray-900">Días trabajados</h2>
           <p className="text-[11px] text-gray-400 font-medium">
             Agrupado por: <span className="capitalize text-gray-700">{groupBy}</span>
           </p>
         </div>
-        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-red-50 text-[#FF3131] border border-red-100 uppercase tracking-wider">
+        <span className="self-start sm:self-auto px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-red-50 text-[#FF3131] border border-red-100 uppercase tracking-wider">
           {dateRange.from} / {dateRange.to}
         </span>
       </div>
@@ -77,20 +86,32 @@ export default function StatsOverview({ dateRange, groupBy }) {
           <p className="text-xs font-semibold text-gray-400">No hay información gráfica para este rango</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={summary} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-            <Bar
-              dataKey="total_days"
-              fill="#FF3131"
-              radius={[6, 6, 0, 0]}
-              barSize={32}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="overflow-x-auto">
+          <div style={{ minWidth }} className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={summary} margin={{ top: 10, right: 10, left: -20, bottom: 45 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="shortName" 
+                  tick={{ fontSize: 10, fill: '#64748b' }} 
+                  interval={0}
+                  angle={-35}
+                  textAnchor="end"
+                  axisLine={false} 
+                  tickLine={false} 
+                />
+                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                <Bar
+                  dataKey="total_days"
+                  fill="#FF3131"
+                  radius={[6, 6, 0, 0]}
+                  barSize={28}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       )}
     </div>
   );
