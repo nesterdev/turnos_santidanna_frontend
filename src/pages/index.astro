@@ -9,23 +9,33 @@ import PublicLayout from "../components/public/PublicLayout.astro";
 <PublicLayout>
   <PublicHeader title="Variedades Santidanna" />
 
-  <main class="min-h-screen">
-    <section class="bg-gray-50 border-t">
-      <div class="max-w-7xl mx-auto px-6 py-12">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-6">
-          Horarios públicos
-        </h2>
+  <main class="min-h-screen bg-gray-50/50 py-8">
+    <div class="max-w-5xl mx-auto px-4 space-y-8">
+      
+      <!-- HERO BIENVENIDA -->
+      <PublicHero />
+
+      <!-- HORARIOS PÚBLICOS -->
+      <section class="space-y-4">
+        <div class="flex items-center gap-2 px-1">
+          <span class="w-2 h-2 rounded-full bg-[#FF3131]"></span>
+          <h2 class="text-base font-bold tracking-tight text-gray-900">
+            Horarios Programados
+          </h2>
+        </div>
 
         <SchedulePublicView client:load />
-      </div>
-    </section>
-    <PublicHero />
-    <PublicFeatures client:load />
+      </section>
+
+      <!-- CARACTERÍSTICAS DE LA PLATAFORMA -->
+      <PublicFeatures client:load />
+
+    </div>
   </main>
 
-  <footer class="border-t bg-white">
-    <div class="max-w-7xl mx-auto px-6 py-6 text-sm text-gray-500">
-      © {new Date().getFullYear()} Sistema de Gestión de Horarios Variedades Santidanna
+  <footer class="border-t border-gray-100 bg-white">
+    <div class="max-w-5xl mx-auto px-4 py-6 text-center text-xs text-gray-400 font-medium">
+      © {new Date().getFullYear()} Sistema de Gestión de Horarios — Variedades Santidanna
     </div>
-  </footer>
+  </footer> 
 </PublicLayout>

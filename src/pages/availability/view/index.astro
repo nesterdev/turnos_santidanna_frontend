@@ -1,8 +1,11 @@
 ---
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AvailabilityView from "../../../components/availability/AvailabilityView";
+import AuthGuard from "../../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title={`Detalles de Disponibilidad`}>
-  <AvailabilityView client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+  <AvailabilityView client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

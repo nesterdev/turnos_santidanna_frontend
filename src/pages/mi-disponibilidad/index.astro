@@ -1,0 +1,11 @@
+---
+import AuthGuard from "../../components/auth/AuthGuard.jsx";
+import MyAvailabilityForm from "../../components/availability/MyAvailabilityForm.jsx";
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+---
+
+<DashboardLayout title="Mi Disponibilidad">
+  <AuthGuard client:only="react" allowedRoles={["worker", "admin", "supervisor"]}>
+    <MyAvailabilityForm client:load />
+  </AuthGuard>
+</DashboardLayout>

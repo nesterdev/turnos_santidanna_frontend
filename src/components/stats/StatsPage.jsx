@@ -21,14 +21,17 @@ export default function StatsPage() {
   }, [dateRange]);
 
   return (
-    <div className="space-y-8">
-      {/* HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* HEADER DEL MÓDULO */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Estadísticas
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FF3131]"></span>
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+              Estadísticas
+            </h1>
+          </div>
+          <p className="text-xs text-gray-400 font-medium mt-1">
             Resumen de actividad y rendimiento de empleados
           </p>
         </div>
@@ -36,10 +39,10 @@ export default function StatsPage() {
         <DateFilter onChange={setDateRange} />
       </div>
 
-      {/* OVERVIEW */}
+      {/* OVERVIEW (GRÁFICA RECHARTS) */}
       <StatsOverview dateRange={dateRange} groupBy={groupBy} />
 
-      {/* TABLE */}
+      {/* TABLA DE DETALLES */}
       <EmployeeStatsTable dateRange={dateRange} groupBy={groupBy} />
     </div>
   );

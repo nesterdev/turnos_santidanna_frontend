@@ -1,8 +1,11 @@
 ---
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import AvailabilityList from "../../components/availability/AvailabilityList.jsx";
+import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title="Disponibilidad de Empleados">
-  <AvailabilityList client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <AvailabilityList client:load />
+  </AuthGuard>
 </DashboardLayout>

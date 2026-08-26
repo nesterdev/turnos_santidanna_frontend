@@ -1,14 +1,27 @@
-export default function Input({ label, type = "text", value, onChange, name }) {
+// src/components/ui/Input.jsx
+import React from "react";
+
+export default function Input({
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  type = "text",
+  placeholder = "",
+  disabled = false,
+  ...props
+}) {
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold mb-1">{label}</label>
-      <input
-        className="border rounded-md px-3 py-2 w-full focus:ring focus:ring-blue-200"
-        type={type}
-        name={name}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </div>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      disabled={disabled}
+      placeholder={placeholder}
+      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-medium focus:bg-white focus:border-[#FF3131] focus:ring-4 focus:ring-red-500/10 outline-none transition-all duration-200"
+      {...props}
+    />
   );
 }

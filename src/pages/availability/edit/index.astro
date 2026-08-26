@@ -1,11 +1,13 @@
 ---
-
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import AvailabilityEditForm from "../../../components/availability/AvailabilityEditForm.jsx";
+import AuthGuard from "../../../components/auth/AuthGuard";
 
 //const { id } = Astro.params;
 ---
 
 <DashboardLayout title={`Editar Disponibilidad`}>
-  <AvailabilityEditForm client:load/>
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <AvailabilityEditForm client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

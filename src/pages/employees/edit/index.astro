@@ -3,10 +3,13 @@
 
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import EmployeeEditForm from "../../../components/employees/EmployeeEditForm.jsx";
+import AuthGuard from "../../../components/auth/AuthGuard";
 
 //const { id } = Astro.params;
 ---
 
 <DashboardLayout title={`Editar Empleado`}>
-  <EmployeeEditForm client:load/>
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <EmployeeEditForm client:load />
+  </AuthGuard>
 </DashboardLayout>

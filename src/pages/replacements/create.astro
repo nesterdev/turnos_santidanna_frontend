@@ -1,8 +1,11 @@
 ---
+import AuthGuard from "../../components/auth/AuthGuard";
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import ReplacementCreateForm from "../../components/replacements/ReplacementCreateForm.jsx";
 ---
 
 <DashboardLayout title="Crear Reemplazo">
-  <ReplacementCreateForm client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ReplacementCreateForm client:load />
+  </AuthGuard>
 </DashboardLayout>

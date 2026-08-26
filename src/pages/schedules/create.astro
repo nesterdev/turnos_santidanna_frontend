@@ -1,8 +1,11 @@
 ---
+import AuthGuard from "../../components/auth/AuthGuard";
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import ScheduleForm from "../../components/schedules/ScheduleForm.jsx";
 ---
 
 <DashboardLayout title="Crear Horario">
-    <ScheduleForm client:only="react" />
+    <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+        <ScheduleForm client:only="react" />
+    </AuthGuard>
 </DashboardLayout>

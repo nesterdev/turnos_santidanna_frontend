@@ -1,0 +1,14 @@
+---
+import AuthGuard from "../../components/auth/AuthGuard";
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import UserProfile from "../../components/profile/UserProfile";
+---
+
+<DashboardLayout title="Mi Perfil">
+    <AuthGuard
+        allowedRoles={["admin", "supervisor", "worker"]}
+        client:only="react"
+    >
+        <UserProfile client:only="react" />
+    </AuthGuard>
+</DashboardLayout>

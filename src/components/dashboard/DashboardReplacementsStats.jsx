@@ -1,29 +1,32 @@
-import Section from "./ui/Section";
-import Card from "./ui/Card";
-
-export default function DashboardReplacementsStats({ reemplazos }) {
-  if (!reemplazos) return null;
-
+export default function DashboardReplacementsStats({ reemplazos = [] }) {
   const total = reemplazos.length;
   const porEstado = reemplazos.reduce((acc, r) => {
-    const estado = r.status;
+    const estado = r.status || "Pendiente";
     acc[estado] = (acc[estado] || 0) + 1;
     return acc;
   }, {});
 
   return (
-    <Section title="Estadísticas de Reemplazos">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card title="Total solicitudes">
-          <p className="text-3xl font-bold">{total}</p>
-        </Card>
+    <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+      <h2 className="text-sm font-bold text-gray-900 mb-4">Estadísticas de Reemplazos</h2>
+      
+      <div className="space-y-3">
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+          <span className="text-xs font-medium text-gray-600">Total solicitudes</span>
+          <span className="text-base font-bold text-gray-900">{total}</span>
+        </div>
 
-        {Object.entries(porEstado).map(([estado, count]) => (
-          <Card key={estado} title={estado}>
-            <p className="text-3xl font-bold">{count}</p>
-          </Card>
-        ))}
+        {Object.keys(porEstado).length > 0 && (
+          <div className="pt-2 space-y-2 border-t border-gray-100">
+            {Object.entries(porEstado).map(([estado, count]) => (
+              <div key={estado} className="flex items-center justify-between text-xs">
+                <span className="text-gray-500 capitalize">{estado}</span>
+                <span className="font-semibold text-gray-700">{count}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </Section>
+    </div>
   );
 }

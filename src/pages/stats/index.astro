@@ -1,8 +1,11 @@
 ---
+import AuthGuard from "../../components/auth/AuthGuard";
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import StatsPage from "../../components/stats/StatsPage.jsx";
 ---
 
 <DashboardLayout title="Estadísticas de Empleados">
-  <StatsPage client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <StatsPage client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

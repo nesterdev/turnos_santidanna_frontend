@@ -1,8 +1,11 @@
 ---
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import EmployeeForm from "../../components/employees/EmployeeForm.jsx";
+import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title="Crear Empleado">
-  <EmployeeForm client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <EmployeeForm client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

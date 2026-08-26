@@ -3,8 +3,6 @@ import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
-import CreateButton from "../ui/CreateButton";
-import ListContainer from "../layouts/ListContainer";
 import Loading from "../ui/Loading";
 
 export default function ShiftList() {
@@ -45,102 +43,124 @@ export default function ShiftList() {
     }
   };
 
-  /* ───────────────────────── STATES ───────────────────────── */
-
-  if (loading)
-    return (
-      <Loading fullscreen text="Cargando turnos…" />
-    );
-
-  if (error)
-    return (
-      <div className="p-6 rounded-2xl bg-red-50/70 border border-red-100 text-red-700">
-        {error}
-      </div>
-    );
-
-  /* ───────────────────────── VIEW ───────────────────────── */
-
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <ListContainer
-        title="Turnos"
-        description="Gestión de turnos"
-        createHref="/shifts/create"
-        createLabel="Nuevo turno"
-      />
+    <div className="max-w-5xl mx-auto pb-12">
+      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
+        
+        {/* HEADER SUPERIOR */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900">
+              Gestión de Turnos
+            </h1>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Configura y administra los horarios base para la programación operativa.
+            </p>
+          </div>
 
-      {/* EMPTY */}
-      {!shifts.length && (
-        <div className="p-10 rounded-2xl bg-gray-50/60 border border-gray-100 text-center text-gray-500">
-          No hay turnos registrados
+          <a
+            href="/shifts/create"
+            className="inline-flex items-center justify-center px-4 py-2 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition self-start sm:self-auto"
+          >
+            + Nuevo turno
+          </a>
         </div>
-      )}
 
-      {/* TABLE */}
-      {!!shifts.length && (
-        <div className="bg-white/70 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-          <div className="relative overflow-x-auto">
-            <table className="w-full min-w-[900px] text-sm">
-              <thead className="bg-gray-50/70 text-gray-500 border-b">
-                <tr>
-                  <th className="p-4 text-left font-medium">ID</th>
-                  <th className="p-4 text-left font-medium">Nombre</th>
-                  <th className="p-4 text-left font-medium">Inicio</th>
-                  <th className="p-4 text-left font-medium">Fin</th>
-                  <th className="p-4 text-left font-medium">Notas</th>
-                  <th className="p-4 text-left font-medium">Acciones</th>
+        {/* ESTADO DE CARGA */}
+        {loading && <Loading fullscreen={false} text="Cargando turnos…" />}
+
+        {/* ALERTA DE ERROR */}
+        {error && (
+          <div className="p-4 bg-red-50 text-red-600 text-xs font-semibold rounded-xl">
+            {error}
+          </div>
+        )}
+
+        {/* EMPTY STATE */}
+        {!loading && !error && shifts.length === 0 && (
+          <div className="py-16 text-center space-y-3">
+            <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center mx-auto border border-gray-100">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-700">No hay turnos registrados</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">
+                Comienza agregando un nuevo turno operacional.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* TABLA PRINCIPAL */}
+        {!loading && shifts.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <th className="pb-3 px-3">ID</th>
+                  <th className="pb-3 px-3">NOMBRE DEL TURNO</th>
+                  <th className="pb-3 px-3">HORA INICIO</th>
+                  <th className="pb-3 px-3">HORA FIN</th>
+                  <th className="pb-3 px-3">DESCANSO</th>
+                  <th className="pb-3 px-3">NOTAS</th>
+                  <th className="pb-3 px-3 text-right">ACCIONES</th>
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="divide-y divide-gray-50 text-xs">
                 {shifts.map((s) => (
-                  <tr
-                    key={s.id}
-                    className="border-b last:border-none hover:bg-gray-50/60 transition"
-                  >
-                    <td className="p-4 text-gray-400">#{s.id}</td>
+                  <tr key={s.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-3.5 px-3 font-mono text-gray-400 font-medium">
+                      #{s.id}
+                    </td>
 
-                    <td className="p-4 font-medium text-gray-900">{s.name}</td>
+                    <td className="py-3.5 px-3 font-semibold text-gray-900">
+                      {s.name}
+                    </td>
 
-                    <td className="p-4">
-                      <span className="inline-flex px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-medium">
+                    <td className="py-3.5 px-3">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 font-mono">
                         {s.start_time}
                       </span>
                     </td>
 
-                    <td className="p-4">
-                      <span className="inline-flex px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-medium">
+                    <td className="py-3.5 px-3">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 font-mono">
                         {s.end_time}
                       </span>
                     </td>
 
-                    <td className="p-4 text-gray-500 max-w-xs truncate">
+                    <td className="py-3.5 px-3">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 font-mono">
+                        {s.break_time ? `${s.break_time} min` : "0 min"}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-3 text-gray-500 max-w-xs truncate">
                       {s.notes || "—"}
                     </td>
 
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
+                    <td className="py-3.5 px-3 text-right">
+                      <div className="inline-flex items-center justify-end gap-1.5">
                         <ActionButton
                           icon="/eye.svg"
                           alt="Ver"
                           href={`/shifts/view?id=${s.id}`}
-                          className="bg-gray-100 hover:bg-gray-200"
+                          className="bg-gray-50 text-gray-600 hover:bg-gray-100"
                         />
-
                         <ActionButton
                           icon="/edit.svg"
                           alt="Editar"
                           href={`/shifts/edit?id=${s.id}`}
-                          className="bg-gray-100 hover:bg-gray-200"
+                          className="bg-gray-50 text-gray-600 hover:bg-gray-100"
                         />
-
                         <DeleteButton
                           icon="/delete.svg"
                           alt="Eliminar"
                           onClick={() => deleteShift(s.id)}
-                          className="bg-gray-100 hover:bg-gray-200"
+                          className="bg-red-50 text-red-600 hover:bg-red-100"
                         />
                       </div>
                     </td>
@@ -149,13 +169,8 @@ export default function ShiftList() {
               </tbody>
             </table>
           </div>
-
-          {/* MOBILE HINT */}
-          <div className="md:hidden text-xs text-gray-400 px-4 py-2 border-t">
-            Desliza horizontalmente para ver más →
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

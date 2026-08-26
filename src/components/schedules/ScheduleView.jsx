@@ -9,15 +9,13 @@ export default function ScheduleView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [id, setId] = useState(null);
-  // 👇 LEER QUERY PARAM EN CLIENTE
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const empId = params.get("id");
 
-    console.log("id leída desde URL:", empId);
-
     if (!empId) {
-      setError("ID de empleado inválido");
+      setError("ID de schedule inválido");
       setLoading(false);
       return;
     }
@@ -84,14 +82,17 @@ export default function ScheduleView() {
     date,
     created_at,
     is_replacement,
+    was_replaced,
     ScheduleEmployee,
+    OriginalEmployee,
     ScheduleShift,
     ScheduleReplacements = [],
   } = schedule;
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-10">
+  const isReplacedShift = is_replacement || was_replaced || !!OriginalEmployee;
 
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
       {/* HEADER */}
       <header className="relative bg-white/80 backdrop-blur rounded-3xl px-8 py-6 ring-1 ring-black/5">
         <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#FF3131]/40 to-transparent" />
@@ -101,7 +102,7 @@ export default function ScheduleView() {
             <p className="text-sm text-gray-400">
               Schedule #{scheduleId}
             </p>
-            <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+            <h1 className="text-3xl font-semibold text-gray-900 tracking-tight capitalize">
               {new Date(date).toLocaleDateString("es-CO", {
                 weekday: "long",
                 year: "numeric",
@@ -110,74 +111,110 @@ export default function ScheduleView() {
               })}
             </h1>
             <p className="text-sm text-gray-400 mt-1">
-              Creado el{" "}
-              {new Date(created_at).toLocaleDateString()}
+              Creado el {new Date(created_at).toLocaleDateString()}
             </p>
           </div>
 
           <span
             className={`inline-flex items-center px-4 py-1.5 rounded-full text-xs font-medium ring-1 ${
-              is_replacement
-                ? "bg-yellow-50 text-yellow-700 ring-yellow-200"
+              isReplacedShift
+                ? "bg-amber-50 text-amber-700 ring-amber-200"
                 : "bg-emerald-50 text-emerald-700 ring-emerald-200"
             }`}
           >
-            {is_replacement ? "Reemplazo" : "Asignación normal"}
+            {isReplacedShift ? "Turno Reemplazado" : "Asignación Normal"}
           </span>
         </div>
       </header>
 
-      {/* INFO */}
+      {/* SECCIÓN INFORMACIÓN GENERAL */}
       <section className="grid md:grid-cols-2 gap-6">
+        {/* EMPLEADO ACTUAL */}
+        <div className="bg-white/80 backdrop-blur rounded-3xl p-6 ring-1 ring-black/5 flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500 mb-4">
+              Empleado asignado hoy (Cubre el turno)
+            </h3>
+            <p className="text-xl font-medium text-gray-900">
+              {ScheduleEmployee?.name || "Sin asignar"}
+            </p>
+            <p className="text-sm text-gray-400">
+              {ScheduleEmployee?.email || "Sin correo"}
+            </p>
+          </div>
 
-        {/* EMPLEADO */}
-        <div className="bg-white/80 backdrop-blur rounded-3xl p-6 ring-1 ring-black/5">
-          <h3 className="text-sm font-medium text-gray-500 mb-4">
-            Empleado asignado
-          </h3>
-
-          <p className="text-xl font-medium text-gray-900">
-            {ScheduleEmployee?.name}
-          </p>
-          <p className="text-sm text-gray-400">
-            {ScheduleEmployee?.email}
-          </p>
-
-          <span
-            className={`inline-flex mt-4 px-3 py-1 rounded-full text-xs font-medium ring-1 ${
-              ScheduleEmployee?.active
-                ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-                : "bg-red-50 text-red-600 ring-red-200"
-            }`}
-          >
-            {ScheduleEmployee?.active ? "Activo" : "Inactivo"}
-          </span>
+          <div className="mt-4">
+            <span
+              className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ring-1 ${
+                ScheduleEmployee?.active
+                  ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+                  : "bg-red-50 text-red-600 ring-red-200"
+              }`}
+            >
+              {ScheduleEmployee?.active ? "Activo" : "Inactivo"}
+            </span>
+          </div>
         </div>
 
-        {/* TURNO */}
-        <div className="bg-white/80 backdrop-blur rounded-3xl p-6 ring-1 ring-black/5">
-          <h3 className="text-sm font-medium text-gray-500 mb-4">
-            Detalles del turno
-          </h3>
-
-          <p className="text-xl font-medium text-gray-900">
-            {ScheduleShift?.name}
-          </p>
-          <p className="text-sm text-gray-400">
-            {ScheduleShift?.start_time} — {ScheduleShift?.end_time}
-          </p>
-        </div>
+        {/* EMPLEADO ORIGINAL (SI HUBO REEMPLAZO) O TURNO */}
+        {OriginalEmployee ? (
+          <div className="bg-amber-50/40 backdrop-blur rounded-3xl p-6 ring-1 ring-amber-200/60 flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-amber-700 mb-4">
+                Empleado Original (Ausente)
+              </h3>
+              <p className="text-xl font-medium text-gray-900">
+                {OriginalEmployee.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                {OriginalEmployee.email}
+              </p>
+            </div>
+            <div className="mt-4">
+              <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 ring-1 ring-amber-200">
+                Titular del turno
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white/80 backdrop-blur rounded-3xl p-6 ring-1 ring-black/5">
+            <h3 className="text-sm font-medium text-gray-500 mb-4">
+              Detalles del turno
+            </h3>
+            <p className="text-xl font-medium text-gray-900">
+              {ScheduleShift?.name || "Sin Nombre"}
+            </p>
+            <p className="text-sm text-gray-400">
+              {ScheduleShift?.start_time} — {ScheduleShift?.end_time}
+            </p>
+          </div>
+        )}
       </section>
 
-      {/* REEMPLAZOS */}
+      {/* HORARIOS DEL TURNO (SI EXISTE EMPLEADO ORIGINAL EN LA SECCIÓN ANTERIOR) */}
+      {OriginalEmployee && (
+        <section className="bg-white/80 backdrop-blur rounded-3xl p-6 ring-1 ring-black/5">
+          <h3 className="text-sm font-medium text-gray-500 mb-2">
+            Detalles del turno asignado
+          </h3>
+          <p className="text-xl font-medium text-gray-900">
+            {ScheduleShift?.name || "Sin Nombre"}
+          </p>
+          <p className="text-sm text-gray-400">
+            Horario: {ScheduleShift?.start_time} — {ScheduleShift?.end_time}
+          </p>
+        </section>
+      )}
+
+      {/* HISTORIAL DE REEMPLAZOS */}
       <section className="bg-white/80 backdrop-blur rounded-3xl p-6 ring-1 ring-black/5">
         <h3 className="text-sm font-medium text-gray-500 mb-6">
-          Historial de reemplazos
+          Historial de auditoría del turno
         </h3>
 
         {ScheduleReplacements.length === 0 ? (
           <p className="text-sm text-gray-400">
-            No hay reemplazos registrados.
+            No hay registros en la bitácora de reemplazos.
           </p>
         ) : (
           <div className="space-y-4">
@@ -188,11 +225,10 @@ export default function ScheduleView() {
               >
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {r.ReplacementReplacer?.name} →{" "}
-                    {r.ReplacementEmployee?.name}
+                    Reemplazante: <span className="text-emerald-700">{r.ReplacementReplacer?.name}</span> → Ausente: <span className="text-amber-700">{r.ReplacementEmployee?.name}</span>
                   </p>
-                  <p className="text-xs text-gray-400">
-                    {r.reason || "Sin motivo"}
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Motivo: {r.notes || "Sin motivo registrado"}
                   </p>
                 </div>
 
@@ -205,7 +241,7 @@ export default function ScheduleView() {
         )}
       </section>
 
-      {/* ACTIONS */}
+      {/* BOTONES DE ACCIÓN */}
       <footer className="flex justify-end gap-3">
         <ActionButton
           icon="/left.svg"

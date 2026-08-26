@@ -1,0 +1,12 @@
+---
+
+import AuthGuard from "../../components/auth/AuthGuard.jsx";
+import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import EmployeeScheduleView from "../../components/schedules/EmployeeScheduleView.jsx";
+---
+
+<DashboardLayout title="Mi Horario">
+  <AuthGuard client:only="react" allowedRoles={["worker", "admin", "supervisor"]}>
+    <EmployeeScheduleView client:only="react" />
+  </AuthGuard>
+</DashboardLayout>

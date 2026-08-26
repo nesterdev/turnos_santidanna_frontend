@@ -1,8 +1,11 @@
 ---
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import AvailabilityForm from "../../components/availability/AvailabilityForm.jsx";
+import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title="Crear Disponibilidad">
-  <AvailabilityForm client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <AvailabilityForm client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

@@ -1,11 +1,13 @@
 ---
 // desactiva prerender para SSR
 
+import AuthGuard from "../../../components/auth/AuthGuard";
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ReplacementsView from "../../../components/replacements/ReplacementsView";
-
 ---
 
 <DashboardLayout title={`Ver Empleado`}>
-  <ReplacementsView client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ReplacementsView client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

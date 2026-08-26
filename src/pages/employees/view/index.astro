@@ -1,8 +1,11 @@
 ---
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import EmployeeView from "../../../components/employees/EmployeeView.jsx";
+import AuthGuard from "../../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title={`Empleado`}>
-  <EmployeeView client:load/>
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <EmployeeView client:load />
+  </AuthGuard>
 </DashboardLayout>

@@ -1,13 +1,12 @@
-// src/components/employees/EmployeeView.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
 import ActionButton from "../ui/ActionButtom";
+import Loading from "../ui/Loading";
 
 export default function EmployeeView() {
   const [id, setId] = useState(null);
-  console.log("id recibidida desde index.astro de employes",id)
   const [empleado, setEmpleado] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -29,12 +28,9 @@ export default function EmployeeView() {
     }
   };
 
-  // 👇 LEER QUERY PARAM EN CLIENTE
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const empId = params.get("id");
-
-    console.log("id leída desde URL:", empId);
 
     if (!empId) {
       setError("ID de empleado inválido");
@@ -62,18 +58,13 @@ export default function EmployeeView() {
     loadEmpleado();
   }, [id]);
 
-  if (loading)
-    return (
-      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-xl max-w-3xl mx-auto">
-        Cargando información del empleado…
-      </p>
-    );
+  if (loading) return <Loading fullscreen={false} text="Cargando información..." />;
 
   if (error)
     return (
-      <p className="text-sm text-red-600 bg-red-50 p-4 rounded-xl max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto p-4 bg-red-50 text-red-600 rounded-xl text-xs font-semibold">
         {error}
-      </p>
+      </div>
     );
 
   if (!empleado) return null;
@@ -94,7 +85,7 @@ export default function EmployeeView() {
         <span
           className={`text-xs font-medium px-3 py-1 rounded-full ${
             empleado.active
-              ? "bg-green-50 text-green-700"
+              ? "bg-emerald-50 text-emerald-700"
               : "bg-gray-100 text-gray-500"
           }`}
         >
@@ -112,7 +103,13 @@ export default function EmployeeView() {
         <InfoItem label="Rol" value={empleado.role} capitalize />
         <InfoItem
           label="Creado el"
-          value={new Date(empleado.created_at).toLocaleString()}
+          value={new Date(empleado.created_at).toLocaleDateString("es-CO", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         />
       </div>
 
@@ -148,17 +145,14 @@ export default function EmployeeView() {
   );
 }
 
-/* -----------------------------------------------------
-   Subcomponente limpio para info
------------------------------------------------------ */
 function InfoItem({ label, value, capitalize }) {
   return (
     <div className="space-y-1">
-      <p className="text-xs uppercase tracking-wide text-gray-400">
+      <p className="text-xs uppercase tracking-wide text-gray-400 font-medium">
         {label}
       </p>
       <p
-        className={`text-gray-900 ${
+        className={`text-gray-900 font-medium ${
           capitalize ? "capitalize" : ""
         }`}
       >

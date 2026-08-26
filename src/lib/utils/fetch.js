@@ -1,7 +1,6 @@
 import { getToken, logout } from "./auth";
 
-const API_URL =
-  import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:3000/api";
 
 export async function apiFetch(endpoint, options = {}) {
   const token = getToken();
@@ -24,7 +23,6 @@ export async function apiFetch(endpoint, options = {}) {
 
   const text = await res.text();
 
-  // 🔥 respuesta vacía
   if (!text) {
     return { success: true };
   }
@@ -37,7 +35,10 @@ export async function apiFetch(endpoint, options = {}) {
   }
 
   if (!res.ok) {
-    throw new Error(data.message || "Error en la petición");
+    // 🔥 Creamos un error y le adjuntamos la respuesta del backend
+    const error = new Error(data.message || "Error en la petición");
+    error.response = data;
+    throw error;
   }
 
   return data;

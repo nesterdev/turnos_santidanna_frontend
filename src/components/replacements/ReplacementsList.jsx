@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
-import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
-import ListContainer from "../layouts/ListContainer";
+import { openConfirmModal } from "../../lib/utils/modal";
 import Loading from "../ui/Loading";
 
 export default function ReplacementsList() {
@@ -20,7 +19,7 @@ export default function ReplacementsList() {
       const response = await apiFetch("/replacements");
       const list = Array.isArray(response)
         ? response
-        : Array.isArray(response.data)
+        : Array.isArray(response?.data)
         ? response.data
         : [];
       setReplacements(list);
@@ -32,7 +31,6 @@ export default function ReplacementsList() {
   }
 
   const deleteReplacement = async (id) => {
-    console.log("id de reemplazo", id);
     const confirmed = await openConfirmModal({
       title: "Eliminar reemplazo",
       message:
@@ -43,114 +41,140 @@ export default function ReplacementsList() {
     if (!confirmed) return;
 
     try {
-      const res = await apiFetch(`/replacements/delete-replacement/${id}`, {
+      await apiFetch(`/replacements/delete-replacement/${id}`, {
         method: "DELETE",
       });
       setReplacements((prev) => prev.filter((a) => a.id !== id));
-      console.log("respuesta delete replacements", res);
     } catch {
       alert("Error eliminando el reemplazo");
     }
   };
 
-  if (loading)
-    return (
-      <Loading fullscreen text="Cargando reemplazos…" />
-    );
-
-  if (error)
-    return (
-      <div className="max-w-6xl mx-auto p-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl">
-        {error}
-      </div>
-    );
-
   return (
-    <div className="max-w-6xl mx-auto bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      {/* HEADER */}
-      <ListContainer
-        title="Reemplazos"
-        description="Gestión de reemplazos de empleados"
-        createHref="/replacements/create"
-        createLabel="Nuevo reemplazo"
-      />
+    <div className="max-w-5xl mx-auto pb-12">
+      {/* CONTENEDOR UNIFICADO ESTILO ÁREAS / DISPONIBILIDAD */}
+      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
+        
+        {/* HEADER SUPERIOR */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900">
+              Reemplazos
+            </h1>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Historial y asignación de sustituciones de turnos
+            </p>
+          </div>
 
-      {/* TABLE */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-left text-gray-500 border-b border-gray-100">
-              <th className="px-6 py-3 font-medium">Empleado</th>
-              <th className="px-6 py-3 font-medium">Reemplazado por</th>
-              <th className="px-6 py-3 font-medium">Fecha</th>
-              <th className="px-6 py-3 font-medium">Turno</th>
-              <th className="px-6 py-3 font-medium text-right">Acciones</th>
-            </tr>
-          </thead>
+          <a
+            href="/replacements/create"
+            className="inline-flex items-center justify-center px-4 py-2 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition self-start sm:self-auto"
+          >
+            + Nuevo reemplazo
+          </a>
+        </div>
 
-          <tbody>
-            {replacements.length === 0 && (
-              <tr>
-                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                  No hay reemplazos registrados
-                </td>
-              </tr>
-            )}
+        {/* ESTADO DE CARGA */}
+        {loading && <Loading fullscreen={false} text="Cargando reemplazos…" />}
 
-            {replacements.map((r) => (
-              <tr
-                key={r.id}
-                className="border-b border-gray-50 hover:bg-gray-50/60 transition"
-              >
-                <td className="px-6 py-4 font-medium text-gray-900">
-                  {r.ReplacementEmployee?.name || "—"}
-                </td>
+        {/* ALERTA DE ERROR */}
+        {error && (
+          <div className="p-4 bg-red-50 text-red-600 text-xs font-semibold rounded-xl">
+            {error}
+          </div>
+        )}
 
-                <td className="px-6 py-4 text-gray-700">
-                  {r.ReplacementReplacer?.name || "—"}
-                </td>
+        {/* EMPTY STATE */}
+        {!loading && !error && replacements.length === 0 && (
+          <div className="py-16 text-center space-y-3">
+            <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center mx-auto border border-gray-100">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-700">No hay reemplazos registrados</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">
+                Comienza registrando una nueva sustitución de personal.
+              </p>
+            </div>
+          </div>
+        )}
 
-                <td className="px-6 py-4 text-gray-600">{r.date}</td>
+        {/* TABLA PRINCIPAL */}
+        {!loading && replacements.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  <th className="pb-3 px-3">EMPLEADO TITULAR</th>
+                  <th className="pb-3 px-3">REEMPLAZADO POR</th>
+                  <th className="pb-3 px-3">FECHA</th>
+                  <th className="pb-3 px-3">TURNO DETALLE</th>
+                  <th className="pb-3 px-3 text-right">ACCIONES</th>
+                </tr>
+              </thead>
 
-                <td className="px-6 py-4 text-gray-600">
-                  {r.ReplacementSchedule ? (
-                    <div className="space-y-0.5">
-                      <div>Turno #{r.ReplacementSchedule.shift_id}</div>
-                      <div className="text-xs text-gray-500">
-                        {r.ReplacementSchedule.ScheduleEmployee?.name}
+              <tbody className="divide-y divide-gray-50 text-xs">
+                {replacements.map((r) => (
+                  <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-3.5 px-3 font-semibold text-gray-900">
+                      {r.ReplacementEmployee?.name || "—"}
+                    </td>
+
+                    <td className="py-3.5 px-3 font-medium text-gray-700">
+                      {r.ReplacementReplacer?.name || "—"}
+                    </td>
+
+                    <td className="py-3.5 px-3 font-mono text-gray-500">
+                      {r.date || "—"}
+                    </td>
+
+                    <td className="py-3.5 px-3 text-gray-600">
+                      {r.ReplacementSchedule ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-gray-100 text-gray-700 font-mono">
+                            Turno #{r.ReplacementSchedule.shift_id}
+                          </span>
+                          {r.ReplacementSchedule.ScheduleEmployee?.name && (
+                            <span className="text-gray-400 text-[11px]">
+                              ({r.ReplacementSchedule.ScheduleEmployee.name})
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+
+                    <td className="py-3.5 px-3 text-right">
+                      <div className="inline-flex items-center justify-end gap-1.5">
+                        <ActionButton
+                          icon="/eye.svg"
+                          alt="Ver"
+                          href={`/replacements/view?id=${r.id}`}
+                          className="bg-gray-50 text-gray-600 hover:bg-gray-100"
+                        />
+                        <ActionButton
+                          icon="/edit.svg"
+                          alt="Editar"
+                          href={`/replacements/edit?id=${r.id}`}
+                          className="bg-gray-50 text-gray-600 hover:bg-gray-100"
+                        />
+                        <DeleteButton
+                          icon="/delete.svg"
+                          alt="Eliminar"
+                          onClick={() => deleteReplacement(r.id)}
+                          className="bg-red-50 text-red-600 hover:bg-red-100"
+                        />
                       </div>
-                    </div>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-
-                <td className="px-6 py-4 flex justify-end gap-2">
-                  <ActionButton
-                    icon="/eye.svg"
-                    alt="Ver"
-                    href={`/replacements/view?id=${r.id}`}
-                    className="bg-transparent hover:bg-gray-100 text-gray-600"
-                  />
-
-                  <ActionButton
-                    icon="/edit.svg"
-                    alt="Editar"
-                    href={`/replacements/edit?id=${r.id}`}
-                    className="bg-transparent hover:bg-gray-100 text-gray-600"
-                  />
-
-                  <DeleteButton
-                    icon="/delete.svg"
-                    alt="Eliminar"
-                    onClick={() => deleteReplacement(r.id)}
-                    className="bg-red-100 text-red-600 hover:bg-red-200"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

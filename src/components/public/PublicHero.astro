@@ -1,33 +1,51 @@
-<section class="bg-gradient-to-br from-gray-50 to-white">
-  <div class="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+---
+import { CheckCircle2, ShieldCheck } from "lucide-react";
+---
+
+<section class="bg-white rounded-2xl border border-gray-100/80 p-6 md:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+  <div class="grid md:grid-cols-3 gap-8 items-center">
     
-    <div class="space-y-6">
-      <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+    <!-- INFORMACIÓN PRINCIPAL (2 COLUMNAS) -->
+    <div class="md:col-span-2 space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#FF3131] text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-[#FF3131] animate-pulse"></span>
+        Plataforma Oficial
+      </div>
+
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
         Sistema de Gestión de Horarios
       </h1>
 
-      <p class="text-gray-600 leading-relaxed">
-        Plataforma centralizada para la visualización de turnos, descansos y
-        asignación de áreas de trabajo.  
-        Los empleados pueden consultar los horarios sin iniciar sesión.
+      <p class="text-xs md:text-sm text-gray-500 leading-relaxed max-w-xl">
+        Plataforma centralizada para la consulta de turnos, descansos y asignación de áreas de trabajo en tiempo real para todo el equipo.
       </p>
 
-      <ul class="space-y-2 text-sm text-gray-600">
-        <li>✔ Horarios diarios y futuros</li>
-        <li>✔ Turnos, descansos y áreas</li>
-        <li>✔ Información siempre actualizada</li>
-      </ul>
+      <div class="flex flex-wrap gap-4 pt-2">
+        <div class="flex items-center gap-2 text-xs font-medium text-gray-700">
+          <CheckCircle2 size={16} className="text-[#FF3131]" />
+          <span>Turnos y descansos</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-medium text-gray-700">
+          <CheckCircle2 size={16} className="text-[#FF3131]" />
+          <span>Asignación por áreas</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-medium text-gray-700">
+          <CheckCircle2 size={16} className="text-[#FF3131]" />
+          <span>Actualización en vivo</span>
+        </div>
+      </div>
     </div>
 
-    <div class="bg-white border rounded-2xl shadow-sm p-6">
-      <h3 class="font-semibold text-gray-900 mb-3">
-        ¿Quién puede iniciar sesión?
+    <!-- CARD ACCESO ADMINISTRATIVO (1 COLUMNA) -->
+    <div class="bg-gray-50/70 rounded-xl border border-gray-100 p-5 space-y-2">
+      <div class="w-9 h-9 rounded-lg bg-white border border-gray-200/80 flex items-center justify-center text-gray-700 shadow-sm">
+        <ShieldCheck size={18} />
+      </div>
+      <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider pt-1">
+        Acceso Restringido
       </h3>
-
-      <p class="text-sm text-gray-600">
-        El acceso administrativo está reservado para supervisores y
-        administradores.  
-        Los empleados pueden consultar los horarios públicamente.
+      <p class="text-[11px] text-gray-500 leading-relaxed">
+        El inicio de sesión está reservado únicamente para administradores y supervisores.
       </p>
     </div>
 

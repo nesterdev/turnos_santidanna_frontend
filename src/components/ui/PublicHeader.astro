@@ -1,4 +1,7 @@
 ---
+import DashboardButton from "./DashboardButton";
+
+
 const { title = "Sistema de Horarios" } = Astro.props;
 ---
 
@@ -11,41 +14,9 @@ const { title = "Sistema de Horarios" } = Astro.props;
       </span>
     </div>
 
-    <!-- BOTONES -->
+    <!-- BOTÓN DINÁMICO REACT -->
     <div class="flex items-center gap-3">
-      <!-- Login -->
-      <a
-        href="/auth/login"
-        id="login-btn"
-        class="px-4 py-2 rounded-lg text-sm font-medium
-               bg-gray-900 text-white hover:bg-gray-800 transition hidden"
-      >
-        Login Admin
-      </a>
-
-      <!-- Dashboard -->
-      <a
-        href="/dashboard"
-        id="dashboard-btn"
-        class="px-4 py-2 rounded-lg text-sm font-medium
-               bg-[#FF3131] text-white hover:bg-[FF3231] transition hidden"
-      >
-        Dashboard
-      </a>
+      <DashboardButton client:only="react" />
     </div>
   </div>
 </header>
-
-<!-- SCRIPT CLIENTE -->
-<script is:inline>
-  const token = localStorage.getItem("token");
-
-  const loginBtn = document.getElementById("login-btn");
-  const dashboardBtn = document.getElementById("dashboard-btn");
-
-  if (token) {
-    dashboardBtn?.classList.remove("hidden");
-  } else {
-    loginBtn?.classList.remove("hidden");
-  }
-</script>

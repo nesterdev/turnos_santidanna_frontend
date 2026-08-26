@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
 
+const OPTIONS = [
+  { id: "day", label: "Día" },
+  { id: "week", label: "Semana" },
+  { id: "month", label: "Mes" },
+  { id: "year", label: "Año" },
+];
+
 export default function DateFilter({ onChange }) {
   const [range, setRange] = useState("week");
 
@@ -38,23 +45,36 @@ export default function DateFilter({ onChange }) {
     onChange?.(computeDateRange(range));
   }, []);
 
+  const handleSelect = (val) => {
+    setRange(val);
+    onChange?.(computeDateRange(val));
+  };
+
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-gray-500">Rango</span>
-      <select
-        value={range}
-        onChange={(e) => {
-          setRange(e.target.value);
-          onChange?.(computeDateRange(e.target.value));
-        }}
-        className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm
-                   focus:outline-none focus:ring-2 focus:ring-[#ff3131]/20"
-      >
-        <option value="day">Día</option>
-        <option value="week">Semana</option>
-        <option value="month">Mes</option>
-        <option value="year">Año</option>
-      </select>
+      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mr-1">
+        Rango
+      </span>
+      {/* Contenedor Pill Segmented */}
+      <div className="flex items-center bg-gray-100/80 p-1 rounded-xl border border-gray-200/60">
+        {OPTIONS.map((opt) => {
+          const isActive = range === opt.id;
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => handleSelect(opt.id)}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
+                isActive
+                  ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

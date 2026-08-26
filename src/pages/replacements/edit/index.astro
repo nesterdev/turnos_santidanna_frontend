@@ -1,11 +1,13 @@
 ---
 // desactiva prerender para SSR
 
+import AuthGuard from "../../../components/auth/AuthGuard";
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ReplacementsEditForm from "../../../components/replacements/ReplacementsEditForm";
-
 ---
 
 <DashboardLayout title={`Editar Empleado`}>
-  <ReplacementsEditForm client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ReplacementsEditForm client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

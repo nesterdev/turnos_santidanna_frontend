@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
+import CreateButton from "../ui/CreateButton";
 import { openConfirmModal } from "../../lib/utils/modal";
-import ListContainer from "../layouts/ListContainer";
 import Loading from "../ui/Loading";
 
 interface Empleado {
@@ -13,6 +13,12 @@ interface Empleado {
   role: "worker" | "supervisor" | "admin";
   active: boolean;
 }
+
+const ROLE_LABELS = {
+  admin: { label: "Admin", class: "bg-purple-50 text-purple-700 border-purple-200" },
+  supervisor: { label: "Supervisor", class: "bg-blue-50 text-blue-700 border-blue-200" },
+  worker: { label: "Empleado", class: "bg-gray-100 text-gray-600 border-gray-200" },
+};
 
 export default function EmployeesTable() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
@@ -52,109 +58,142 @@ export default function EmployeesTable() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      {/* HEADER */}
-      <ListContainer
-        title="Reemplazos"
-        description="Gestión de empleados"
-        createHref="/employees/create"
-        createLabel="Nuevo empleado"
-      />
-
-      {/* ESTADOS */}
-      {loading && (
-         <Loading fullscreen text="Cargando Empleados…" />
-      )}
-
-      {error && (
-        <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* TARJETA UNIFICADA */}
+      <div className="bg-white/80 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        
+        {/* HEADER */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Empleados</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Gestión y control de acceso del personal
+            </p>
+          </div>
+          <CreateButton href="/employees/create" label="Nuevo empleado" />
         </div>
-      )}
 
-      {/* TABLA */}
-      {!loading && !error && (
-        <div className="bg-white/80 backdrop-blur border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        {/* ESTADO DE ERROR */}
+        {error && (
+          <div className="m-6 rounded-xl bg-red-50 p-4 text-sm text-red-600 border border-red-100">
+            {error}
+          </div>
+        )}
+
+        {/* ESTADO DE CARGA */}
+        {loading && <Loading fullscreen={false} text="Cargando empleados…" />}
+
+        {/* TABLA DE EMPLEADOS */}
+        {!loading && !error && (
           <div className="relative overflow-x-auto">
-            <table className="w-full min-w-[800px] text-sm">
+            <table className="w-full min-w-[700px] text-sm text-left">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-500">
-                  <th className="p-4 text-left font-medium">Nombre</th>
-                  <th className="p-4 text-left font-medium">Email</th>
-                  <th className="p-4 text-left font-medium">Estado</th>
-                  <th className="p-4 text-left font-medium">Acciones</th>
+                <tr className="border-b border-gray-100 bg-gray-50/50 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3.5">Empleado</th>
+                  <th className="px-6 py-3.5">Rol</th>
+                  <th className="px-6 py-3.5">Estado</th>
+                  <th className="px-6 py-3.5 text-right">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {empleados.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-12 text-center text-gray-500">
-                      No hay empleados registrados
+                    <td colSpan={4} className="py-12 text-center text-gray-400">
+                      No hay empleados registrados actualmente.
                     </td>
                   </tr>
                 ) : (
-                  empleados.map((emp) => (
-                    <tr
-                      key={emp.id}
-                      className="border-b last:border-none hover:bg-gray-50/60 transition"
-                    >
-                      <td className="p-4 font-medium text-gray-900">
-                        {emp.name}
-                      </td>
+                  empleados.map((emp) => {
+                    const roleConfig = ROLE_LABELS[emp.role] || ROLE_LABELS.worker;
+                    const initial = emp.name ? emp.name.charAt(0).toUpperCase() : "E";
 
-                      <td className="p-4 text-gray-600">{emp.email}</td>
+                    return (
+                      <tr
+                        key={emp.id}
+                        className="hover:bg-gray-50/60 transition-colors"
+                      >
+                        {/* Nombre & Email con Avatar */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-red-50 text-[#FF3131] border border-red-100 flex items-center justify-center font-bold text-sm shrink-0">
+                              {initial}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-900">
+                                {emp.name}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {emp.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
 
-                      <td className="p-4">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                          ${
-                            emp.active
-                              ? "bg-green-50 text-green-700"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {emp.active ? "Activo" : "Inactivo"}
-                        </span>
-                      </td>
+                        {/* Rol */}
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold border ${roleConfig.class}`}
+                          >
+                            {roleConfig.label}
+                          </span>
+                        </td>
 
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <ActionButton
-                            icon="/eye.svg"
-                            alt="Ver"
-                            href={`/employees/view?id=${emp.id}`}
-                            className="bg-gray-100 hover:bg-gray-200"
-                          />
+                        {/* Estado */}
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                              emp.active
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                                : "bg-gray-100 text-gray-500 border border-gray-200/60"
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                emp.active ? "bg-emerald-500" : "bg-gray-400"
+                              }`}
+                            />
+                            {emp.active ? "Activo" : "Inactivo"}
+                          </span>
+                        </td>
 
-                          <ActionButton
-                            icon="/edit.svg"
-                            alt="Editar"
-                            href={`/employees/edit?id=${emp.id}`}
-                            className="bg-gray-100 hover:bg-gray-200"
-                          />
-
-                          <DeleteButton
-                            icon="/delete.svg"
-                            alt="Eliminar"
-                            onClick={() => deleteEmployee(emp.id)}
-                            className="bg-red-50 hover:bg-red-100"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        {/* Acciones */}
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <ActionButton
+                              icon="/eye.svg"
+                              alt="Ver"
+                              href={`/employees/view?id=${emp.id}`}
+                              className="bg-gray-50 hover:bg-gray-100 border border-gray-200/60"
+                            />
+                            <ActionButton
+                              icon="/edit.svg"
+                              alt="Editar"
+                              href={`/employees/edit?id=${emp.id}`}
+                              className="bg-gray-50 hover:bg-gray-100 border border-gray-200/60"
+                            />
+                            <DeleteButton
+                              icon="/delete.svg"
+                              alt="Eliminar"
+                              onClick={() => deleteEmployee(emp.id)}
+                              className="bg-red-50 hover:bg-red-100 border border-red-100 text-red-600"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
           </div>
+        )}
 
-          {/* MOBILE HINT */}
-          <div className="md:hidden px-4 py-2 text-xs text-gray-400 border-t">
-            Desliza horizontalmente para ver más →
-          </div>
+        {/* PIE MOVIL */}
+        <div className="md:hidden px-4 py-2 text-xs text-gray-400 border-t border-gray-100 bg-gray-50/50">
+          Desliza horizontalmente para ver más →
         </div>
-      )}
+      </div>
     </div>
   );
 }

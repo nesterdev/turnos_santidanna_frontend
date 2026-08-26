@@ -1,8 +1,12 @@
 ---
+// src/pages/dashboard/index.astro
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import DashboardHome from "../../components/dashboard/DashboardHome.jsx";
+import AuthGuard from "../../components/auth/AuthGuard.jsx";
 ---
 
 <DashboardLayout title="Dashboard">
-  <DashboardHome client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <DashboardHome client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

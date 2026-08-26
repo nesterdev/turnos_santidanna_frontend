@@ -40,3 +40,22 @@
   @apply flex items-center gap-1 px-2 py-1 text-xs rounded hover:opacity-80 transition;
 }
 
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+@keyframes bounceShort {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-shake {
+  animation: shake 0.35s ease-in-out;
+}
+
+.animate-bounce-short {
+  animation: bounceShort 0.4s ease-in-out;
+}

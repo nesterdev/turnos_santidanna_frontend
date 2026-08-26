@@ -1,126 +1,173 @@
-// src/components/employees/EmployeeView.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
 import ActionButton from "../ui/ActionButtom";
+import Loading from "../ui/Loading";
 
-export default function ShiftsView() {
+export default function ShiftView() {
   const [turno, setTurno] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [id, setId] = useState(null);
-  // 👇 LEER QUERY PARAM EN CLIENTE
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const empId = params.get("id");
+    const shiftId = params.get("id");
 
-    console.log("id leída desde URL:", empId);
-
-    if (!empId) {
-      setError("ID de empleado inválido");
+    if (!shiftId) {
+      setError("ID de turno inválido");
       setLoading(false);
       return;
     }
 
-    setId(empId);
+    setId(shiftId);
   }, []);
-  const deleteShifts = async (id) => {
+
+  const deleteShift = async (idToDelete) => {
     const confirmed = await openConfirmModal({
-      title: "Eliminar Turno",
-      message: "¿Deseas eliminar este turno? Esta acción es irreversible.",
+      title: "Eliminar turno",
+      message: "¿Deseas eliminar este turno? Esta acción es permanente.",
       confirmText: "Eliminar",
     });
 
     if (!confirmed) return;
 
     try {
-      await apiFetch(`/shifts/${id}`, { method: "DELETE" });
+      await apiFetch(`/shifts/${idToDelete}`, { method: "DELETE" });
       window.location.href = "/shifts";
-    } catch (err) {
+    } catch {
       alert("Error eliminando el turno");
     }
   };
+
   useEffect(() => {
-    if (!id) return
-    async function loadEmpleado() {
+    if (!id) return;
+    async function loadTurno() {
       try {
         const res = await apiFetch(`/shifts/${id}`);
-        console.log("respuesta de shifts view:", res);
-
         if (res?.success) {
-          setTurno(res.data); // <-- asignamos solo los datos
+          setTurno(res.data);
         } else {
-          setError(res?.message || "No se pudo cargar el empleado");
+          setError(res?.message || "No se pudo cargar el turno");
         }
       } catch (err) {
-        setError(err?.message || "No se pudo cargar el empleado");
+        setError(err?.message || "No se pudo cargar el turno");
       } finally {
         setLoading(false);
       }
     }
 
-    loadEmpleado();
+    loadTurno();
   }, [id]);
 
-  if (loading)
-    return (
-      <p className="text-gray-700 bg-gray-100 p-3 rounded-lg">
-        Cargando información del turno...
-      </p>
-    );
+  if (loading) return <Loading fullscreen={false} text="Cargando información..." />;
 
   if (error)
     return (
-      <p className="text-red-600 bg-red-100 p-3 rounded-lg font-medium">
+      <div className="max-w-3xl mx-auto p-4 bg-red-50 text-red-600 rounded-xl text-xs font-semibold">
         {error}
-      </p>
+      </div>
     );
 
-  if (!turno)
-    return (
-      <p className="text-gray-700 bg-yellow-100 p-3 rounded-lg font-medium">
-        No se encontró el turno
-      </p>
-    );
+  if (!turno) return null;
 
   return (
-    <div className="bg-white p-6 border rounded-xl shadow space-y-4 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">{turno.name}</h2>
+    <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] px-8 py-7 space-y-8 border border-gray-100/80">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            {turno.name}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Detalle e información del turno
+          </p>
+        </div>
 
-      <div className="space-y-2">
-        <p>
-          <strong>Hora de Ingreso:</strong> {turno.start_time ?? "No especificado"}
-        </p>
-        <p>
-          <strong>Hora de Salida:</strong> {turno.end_time ?? "No especificado"}
-        </p>
-        <p>
-          <strong>Creado el:</strong>{" "}
-          {new Date(turno.created_at).toLocaleString()}
-        </p>
+        <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-50 text-blue-700">
+          Turno #{turno.id}
+        </span>
       </div>
 
-      <div className="flex gap-3 mt-6">
+      {/* Divider */}
+      <div className="h-px bg-gray-100" />
+
+      {/* Info grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-sm">
+        <InfoItem label="Hora de Ingreso" value={turno.start_time} fontMono />
+        <InfoItem label="Hora de Salida" value={turno.end_time} fontMono />
+        
+        <InfoItem 
+          label="Tiempo de Descanso" 
+          value={turno.break_time ? `${turno.break_time} min` : "0 min"} 
+          fontMono 
+        />
+        
+        <InfoItem 
+          label="Jornada" 
+          value={turno.is_night ? "Nocturna 🌙" : "Diurna ☀️"} 
+        />
+
+        <InfoItem label="Notas" value={turno.notes} />
+        
+        <InfoItem
+          label="Creado el"
+          value={
+            turno.created_at
+              ? new Date(turno.created_at).toLocaleDateString("es-CO", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "—"
+          }
+        />
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-gray-100" />
+
+      {/* Actions */}
+      <div className="flex items-center justify-between">
         <ActionButton
           icon="/left.svg"
           alt="Volver"
-          href={`/shifts`}
-          className="bg-blue-100 text-[#FF3131] hover:bg-blue-200"
+          href="/shifts"
+          className="bg-gray-50 text-gray-600 hover:bg-gray-100"
         />
-        <ActionButton
-          icon="/edit.svg"
-          alt="Editar"
-          href={`/shifts/edit?id=${id}`}
-          className="bg-blue-100 text-[#FF3131] hover:bg-blue-200"
-        />
-        <DeleteButton
-          icon="/delete.svg"
-          alt="Eliminar"
-          onClick={() => deleteShifts(id)}
-          className="bg-red-100 text-red-600 hover:bg-red-200"
-        />
+
+        <div className="flex gap-3">
+          <ActionButton
+            icon="/edit.svg"
+            alt="Editar"
+            href={`/shifts/edit?id=${id}`}
+            className="bg-gray-50 text-gray-700 hover:bg-gray-100"
+          />
+
+          <DeleteButton
+            icon="/delete.svg"
+            alt="Eliminar"
+            onClick={() => deleteShift(id)}
+            className="bg-red-50 text-red-600 hover:bg-red-100"
+          />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function InfoItem({ label, value, fontMono }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs uppercase tracking-wide text-gray-400 font-medium">
+        {label}
+      </p>
+      <p className={`text-gray-900 font-medium ${fontMono ? "font-mono font-semibold text-base" : ""}`}>
+        {value || "—"}
+      </p>
     </div>
   );
 }

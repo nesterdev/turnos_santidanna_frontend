@@ -1,9 +1,11 @@
-
 ---
+import AuthGuard from "../../components/auth/AuthGuard";
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import ShiftsForm from "../../components/shifts/ShiftsForm";
 ---
 
 <DashboardLayout title="Crear Turno">
-  <ShiftsForm client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ShiftsForm client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

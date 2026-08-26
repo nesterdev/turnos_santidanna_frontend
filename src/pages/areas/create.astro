@@ -1,8 +1,11 @@
 ---
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import AreasForm from "../../components/areas/AreasForm.jsx";
+import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
 <DashboardLayout title="Crear Areas">
-  <AreasForm client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <AreasForm client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

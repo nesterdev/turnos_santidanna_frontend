@@ -9,13 +9,16 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^4.4.2",
+    "@astrojs/react": "^6.0.4",
+    "@nanostores/react": "^1.1.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "astro": "^5.16.4",
+    "astro": "^7.2.6",
     "dayjs": "^1.11.19",
+    "framer-motion": "^13.1.1",
     "howler": "^2.2.4",
     "html-to-image": "^1.11.13",
+    "jsonwebtoken": "^9.0.3",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.561.0",

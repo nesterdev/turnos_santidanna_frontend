@@ -1,11 +1,13 @@
 ---
 // desactiva prerender para SSR
 
+import AuthGuard from "../../../components/auth/AuthGuard";
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ScheduleView from "../../../components/schedules/ScheduleView";
-
 ---
 
 <DashboardLayout title={`Horario`}>
-  <ScheduleView client:load  />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ScheduleView client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

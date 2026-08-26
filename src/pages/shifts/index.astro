@@ -1,8 +1,11 @@
 ---
+import AuthGuard from "../../components/auth/AuthGuard";
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
 import ShiftList from "../../components/shifts/ShiftList.jsx";
 ---
 
 <DashboardLayout title="Gestión de Turnos">
-  <ShiftList client:load />
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ShiftList client:only="react" />
+  </AuthGuard>
 </DashboardLayout>

@@ -1,10 +1,13 @@
 ---
 // desactiva prerender para SSR
 
+import AuthGuard from "../../../components/auth/AuthGuard";
 import DashboardLayout from "../../../components/layouts/DashboardLayout.astro";
 import ShiftsView from "../../../components/shifts/ShiftsView.jsx";
 ---
 
 <DashboardLayout title={`Empleado`}>
-  <ShiftsView client:load/>
+  <AuthGuard allowedRoles={["admin", "supervisor"]} client:only="react">
+    <ShiftsView client:only="react" />
+  </AuthGuard>
 </DashboardLayout>
