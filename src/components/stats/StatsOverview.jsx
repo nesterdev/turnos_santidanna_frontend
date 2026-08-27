@@ -130,9 +130,10 @@ export default function StatsOverview({ dateRange, groupBy }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="overflow-x-auto"
+            className="w-full overflow-x-auto"
           >
-            <div style={{ minWidth }} className="h-72">
+            {/* Contenedor estricto con minWidth y h-72 garantizados para prevenir -1 */}
+            <div style={{ minWidth, height: "18rem" }} className="w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={summary}
