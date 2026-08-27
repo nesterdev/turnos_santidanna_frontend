@@ -1,68 +1,27 @@
-// src/components/employees/EmployeeEditForm.jsx
-import { useEffect, useState } from "react";
+// src/components/employees/EmployeeForm.jsx
+import { useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import { showError, showSuccess } from "../../lib/utils/alerts";
 import { redirect } from "../../lib/utils/navigation";
-import Loading from "../ui/Loading";
 import Field from "../ui/Field";
 import Input from "../ui/Input";
 
-export default function EmployeeEditForm() {
+export default function EmployeeForm() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [rol, setRol] = useState("");
-  const [activo, setActivo] = useState(true);
 
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [id, setId] = useState(null);
 
-  // Helper reutilizable para limpiar errores al interactuar
+  // Helper reutilizable para limpiar errores al escribir/seleccionar
   const updateField = (field, setter) => (val) => {
     setter(val);
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: null }));
     }
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const empId = params.get("id");
-
-    if (!empId) {
-      showError("ID de empleado inválido");
-      setLoading(false);
-      return;
-    }
-
-    setId(empId);
-  }, []);
-
-  useEffect(() => {
-    if (!id) return;
-    async function loadEmpleado() {
-      try {
-        const res = await apiFetch(`/employees/${id}`);
-        if (res?.success) {
-          const data = res.data;
-          setNombre(data.name || "");
-          setEmail(data.email || "");
-          setTelefono(data.phone || "");
-          setRol(data.role || "");
-          setActivo(data.active ?? true);
-        } else {
-          showError(res?.message || "No se pudo cargar el empleado");
-        }
-      } catch (err) {
-        showError(err?.message || "No se pudo cargar el empleado");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadEmpleado();
-  }, [id]);
 
   const validate = () => {
     const errs = {};
@@ -80,32 +39,29 @@ export default function EmployeeEditForm() {
     setSubmitting(true);
 
     try {
-      const res = await apiFetch(`/employees/${id}`, {
-        method: "PUT",
+      const res = await apiFetch("/employees", {
+        method: "POST",
         body: JSON.stringify({
           name: nombre,
           email,
           phone: telefono,
           role: rol,
-          active: activo,
         }),
       });
 
       if (res?.success) {
-        showSuccess("Empleado actualizado correctamente", {
+        showSuccess("Empleado creado correctamente", {
           onClose: () => redirect("/employees"),
         });
       } else {
-        showError(res?.message || "Error actualizando empleado");
+        showError(res?.message || "Error creando empleado");
       }
     } catch (err) {
-      showError(err?.message || "Error al actualizar empleado");
+      showError(err?.message || "Error al crear empleado");
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (loading) return <Loading fullscreen={false} text="Cargando información del empleado..." />;
 
   return (
     <div className="w-full py-6 flex justify-center">
@@ -116,14 +72,11 @@ export default function EmployeeEditForm() {
       >
         {/* HEADER */}
         <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF3131]" />
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Editar empleado
-            </h2>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Crear nuevo empleado
+          </h2>
           <p className="text-sm text-gray-400 mt-1">
-            Actualiza la información básica, rol y permisos del empleado.
+            Agrega un empleado para asignarle turnos y áreas de trabajo.
           </p>
         </div>
 
@@ -134,7 +87,7 @@ export default function EmployeeEditForm() {
               value={nombre}
               onChange={updateField("nombre", setNombre)}
               hasError={Boolean(errors.nombre)}
-              placeholder="Ej: Carlos Muñoz"
+              placeholder="Ej. Carlos Muñoz"
             />
           </Field>
 
@@ -184,32 +137,6 @@ export default function EmployeeEditForm() {
           </div>
         </Field>
 
-        {/* TOGGLE ESTADO ACTIVO */}
-        <div className="flex items-center justify-between bg-gray-50/70 border border-gray-100 rounded-2xl p-4">
-          <div>
-            <p className="text-xs font-bold text-gray-800 uppercase tracking-wider">
-              Estado del empleado
-            </p>
-            <p className="text-xs text-gray-400 mt-0.5">
-              Determina si puede recibir turnos y ser asignado a áreas
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setActivo(!activo)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${
-              activo ? "bg-[#FF3131]" : "bg-gray-300"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 shadow-sm ${
-                activo ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>
-
         {/* ACCIONES */}
         <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
           <a
@@ -226,7 +153,7 @@ export default function EmployeeEditForm() {
             {submitting && (
               <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             )}
-            {submitting ? "Guardando…" : "Guardar cambios"}
+            {submitting ? "Guardando…" : "Crear empleado"}
           </button>
         </div>
       </form>

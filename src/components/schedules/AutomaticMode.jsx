@@ -1,4 +1,5 @@
 import CustomDatePicker from "../ui/CustomDatePicker";
+import ShiftSelector from "../ui/ShiftSelector";
 
 export default function AutomaticMode({ autoData, setAutoData, shifts }) {
   return (
@@ -44,28 +45,11 @@ export default function AutomaticMode({ autoData, setAutoData, shifts }) {
         />
       </div>
 
-      <div className="space-y-3">
-        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
-          Turno
-        </label>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {shifts.map((s) => (
-            <div
-              key={s.id}
-              onClick={() => setAutoData({ ...autoData, shift_id: s.id })}
-              className={`card-option transition-all cursor-pointer ${
-                autoData.shift_id === s.id ? "card-option-active border-[#FF3131]" : ""
-              }`}
-            >
-              <div>
-                <p className="font-semibold text-gray-800 text-sm">{s.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{s.start_time} – {s.end_time}</p>
-              </div>
-              <input type="radio" checked={autoData.shift_id === s.id} readOnly className="accent-[#FF3131]" />
-            </div>
-          ))}
-        </div>
-      </div>
+      <ShiftSelector
+        shifts={shifts}
+        selectedId={autoData.shift_id}
+        onChange={(id) => setAutoData((p) => ({ ...p, shift_id: id }))}
+      />
     </div>
   );
 }

@@ -1,7 +1,18 @@
+// src/components/areas/AreasForm.jsx
 import { useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
-import { showError, showSuccess } from "../../lib/utils/alert";
+import { showError, showSuccess } from "../../lib/utils/alerts";
 import { redirect } from "../../lib/utils/navigation";
+import Field from "../ui/Field";
+import Input from "../ui/Input";
+import Textarea from "../ui/Textarea";
+import TabFilter from "../ui/TabFilter";
+
+const FREQUENCY_OPTIONS = [
+  { id: "daily", label: "Diaria" },
+  { id: "weekly", label: "Semanal" },
+  { id: "monthly", label: "Mensual" },
+];
 
 export default function AreasForm() {
   const [name, setName] = useState("");
@@ -14,13 +25,21 @@ export default function AreasForm() {
   const [frequency_value, setFrequencyValue] = useState(1);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const errs = {};
+    if (!name.trim()) errs.name = "Completa este campo";
+    if (!zone.trim()) errs.zone = "Completa este campo";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const submit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
+
     setLoading(true);
-    setError("");
 
     try {
       const res = await apiFetch("/areas", {
@@ -41,194 +60,166 @@ export default function AreasForm() {
           onClose: () => redirect("/areas"),
         });
       } else {
-        setError(res?.message);
+        showError(res?.message || "Error al procesar la solicitud.");
       }
     } catch {
-      showError("Error inesperado al crear el área.")
+      showError("Error inesperado al crear el área.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={submit}
-      className="max-w-3xl bg-white rounded-2xl border p-10 space-y-10 shadow-[0_12px_30px_rgba(0,0,0,0.04)]"
-    >
-      {/* HEADER */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900">
-          Crear nueva área
-        </h2>
-        <p className="text-sm text-gray-500">
-          Define características y frecuencia de limpieza.
-        </p>
-      </div>
-
-      {/* FEEDBACK */}
-      {error && (
-        <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl">
-          {error}
+    <div className="w-full py-6 flex justify-center">
+      <form
+        onSubmit={submit}
+        noValidate
+        className="w-full max-w-2xl bg-white rounded-3xl border border-gray-100 p-8 sm:p-10 space-y-8 shadow-xl shadow-gray-200/40"
+      >
+        {/* HEADER */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Crear nueva área
+          </h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Configura las características y la frecuencia de limpieza del área.
+          </p>
         </div>
-      )}
-      {success && (
-        <div className="bg-green-50 text-green-700 text-sm px-4 py-3 rounded-xl">
-          {success}
-        </div>
-      )}
 
-      {/* INFO */}
-      <div className="space-y-4">
-        <Input
-          label="Nombre del área"
-          value={name}
-          onChange={setName}
-          required
-        />
-        <Textarea
-          label="Descripción"
-          value={description}
-          onChange={setDescription}
-        />
-        <Input label="Zona" value={zone} onChange={setZone} required />
-      </div>
-
-      {/* COMPLEJIDAD */}
-      <Section title="Complejidad">
-        <div className="grid sm:grid-cols-2 gap-3">
-          {[
-            { value: 2, label: "Baja", desc: "Liviana, rápida" },
-            { value: 4, label: "Media", desc: "Más esfuerzo" },
-          ].map((o) => (
-            <CardRadio
-              key={o.value}
-              active={complexity_level === o.value}
-              onClick={() => setComplexity(o.value)}
-              title={o.label}
-              subtitle={o.desc}
+        {/* INPUTS PRINCIPALES */}
+        <div className="space-y-5">
+          <Field label="Nombre del área" error={errors.name}>
+            <Input
+              value={name}
+              onChange={(val) => {
+                setName(val);
+                if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+              }}
+              hasError={Boolean(errors.name)}
+              placeholder="Ej. Salón Principal"
             />
-          ))}
-        </div>
-      </Section>
+          </Field>
 
-      {/* PRIORIDAD */}
-      <Section title="Prioridad de aseo">
-        <div className="grid sm:grid-cols-2 gap-3">
-          {[
-            { value: 1, label: "Crítica" },
-            { value: 2, label: "Alta" },
-            { value: 3, label: "Media" },
-            { value: 4, label: "Baja" },
-          ].map((o) => (
-            <CardRadio
-              key={o.value}
-              active={priority_level === o.value}
-              onClick={() => setPriority(o.value)}
-              title={o.label}
+          <Field label="Descripción" hint="Opcional: detalles o notas sobre el área">
+            <Textarea
+              value={description}
+              onChange={setDescription}
+              placeholder="Escribe una pequeña descripción..."
             />
-          ))}
-        </div>
-      </Section>
+          </Field>
 
-      {/* FRECUENCIA */}
-      <Section title="Frecuencia">
-        <div className="flex gap-2">
-          {[
-            { v: "daily", l: "Diaria" },
-            { v: "weekly", l: "Semanal" },
-            { v: "monthly", l: "Mensual" },
-          ].map((f) => (
-            <button
-              key={f.v}
-              type="button"
-              onClick={() => setFrequencyType(f.v)}
-              className={`px-4 py-2 rounded-xl text-sm border transition ${
-                frequency_type === f.v
-                  ? "bg-red-50 border-red-500 text-red-600"
-                  : "hover:bg-gray-50"
-              }`}
-            >
-              {f.l}
-            </button>
-          ))}
+          <Field label="Zona" error={errors.zone}>
+            <Input
+              value={zone}
+              onChange={(val) => {
+                setZone(val);
+                if (errors.zone) setErrors((prev) => ({ ...prev, zone: null }));
+              }}
+              hasError={Boolean(errors.zone)}
+              placeholder="Ej. Sector Norte"
+            />
+          </Field>
         </div>
 
-        {/* NUMBER */}
-        <div className="flex items-center gap-3 mt-4">
-          <button
-            type="button"
-            onClick={() => setFrequencyValue((v) => Math.max(1, v - 1))}
-            className="px-3 py-2 rounded-xl border"
-          >
-            −
-          </button>
-          <input
-            type="number"
-            value={frequency_value}
-            className="input w-24 text-center"
-            onChange={(e) => setFrequencyValue(Number(e.target.value))}
+        {/* COMPLEJIDAD */}
+        <Section title="COMPLEJIDAD">
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[
+              { value: 2, label: "Baja", desc: "Liviana, rápida" },
+              { value: 4, label: "Media", desc: "Más esfuerzo" },
+            ].map((o) => (
+              <CardRadio
+                key={o.value}
+                active={complexity_level === o.value}
+                onClick={() => setComplexity(o.value)}
+                title={o.label}
+                subtitle={o.desc}
+              />
+            ))}
+          </div>
+        </Section>
+
+        {/* PRIORIDAD */}
+        <Section title="PRIORIDAD DE ASEO">
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[
+              { value: 1, label: "Crítica" },
+              { value: 2, label: "Alta" },
+              { value: 3, label: "Media" },
+              { value: 4, label: "Baja" },
+            ].map((o) => (
+              <CardRadio
+                key={o.value}
+                active={priority_level === o.value}
+                onClick={() => setPriority(o.value)}
+                title={o.label}
+              />
+            ))}
+          </div>
+        </Section>
+
+        {/* FRECUENCIA CON TABFILTER */}
+        <Section title="FRECUENCIA">
+          <TabFilter
+            options={FREQUENCY_OPTIONS}
+            value={frequency_type}
+            onChange={setFrequencyType}
+            fullWidth
+            size="md"
+            layoutId="frequency-type-tab"
           />
-          <button
-            type="button"
-            onClick={() => setFrequencyValue((v) => v + 1)}
-            className="px-3 py-2 rounded-xl border"
+
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              type="button"
+              onClick={() => setFrequencyValue((v) => Math.max(1, v - 1))}
+              className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition font-bold active:scale-95 cursor-pointer"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              value={frequency_value}
+              className="w-20 text-center py-2 bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800 outline-none"
+              onChange={(e) => setFrequencyValue(Number(e.target.value))}
+            />
+            <button
+              type="button"
+              onClick={() => setFrequencyValue((v) => v + 1)}
+              className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition font-bold active:scale-95 cursor-pointer"
+            >
+              +
+            </button>
+          </div>
+        </Section>
+
+        {/* ACCIONES */}
+        <div className="flex justify-end items-center gap-3 border-t border-gray-100 pt-6">
+          <a
+            href="/areas"
+            className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition cursor-pointer"
           >
-            +
+            Cancelar
+          </a>
+          <button
+            disabled={loading}
+            className="px-6 py-2.5 rounded-xl bg-[#FF3131] hover:bg-red-600 active:scale-95 text-white font-semibold text-xs transition shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50"
+          >
+            {loading ? "Guardando…" : "Crear área"}
           </button>
         </div>
-      </Section>
-
-      {/* ACTIONS */}
-      <div className="flex justify-end gap-3 border-t pt-6">
-        <a href="/areas" className="px-4 py-2 rounded-xl border">
-          Cancelar
-        </a>
-        <button
-          disabled={loading}
-          className="px-6 py-2.5 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition"
-        >
-          {loading ? "Guardando…" : "Crear área"}
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
-
-/* ================= UI ================= */
 
 function Section({ title, children }) {
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
+    <div className="space-y-2.5">
+      <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase">
+        {title}
+      </h3>
       {children}
-    </div>
-  );
-}
-
-function Input({ label, value, onChange, ...props }) {
-  return (
-    <div>
-      <label className="label">{label}</label>
-      <input
-        {...props}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="input"
-      />
-    </div>
-  );
-}
-
-function Textarea({ label, value, onChange }) {
-  return (
-    <div>
-      <label className="label">{label}</label>
-      <textarea
-        rows={3}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="input resize-none"
-      />
     </div>
   );
 }
@@ -237,12 +228,22 @@ function CardRadio({ title, subtitle, active, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`card-option ${active ? "card-option-active" : ""}`}
+      className={`p-4 rounded-2xl border cursor-pointer transition-all duration-200 flex items-center justify-between ${
+        active
+          ? "border-red-500/40 bg-white ring-2 ring-red-500/10 shadow-xs"
+          : "border-gray-200/80 bg-white hover:border-gray-300"
+      }`}
     >
-      <input type="radio" checked={active} readOnly className="radio" />
       <div>
-        <p className="font-medium text-sm">{title}</p>
-        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+        <p className="font-semibold text-sm text-gray-800">{title}</p>
+        {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+      </div>
+      <div
+        className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+          active ? "border-red-500" : "border-gray-300"
+        }`}
+      >
+        {active && <div className="w-2.5 h-2.5 rounded-full bg-[#FF3131]" />}
       </div>
     </div>
   );

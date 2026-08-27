@@ -1,5 +1,5 @@
-// src/components/ui/SidebarDrawer.jsx
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar.jsx";
 
 export default function SidebarDrawer() {
@@ -10,32 +10,34 @@ export default function SidebarDrawer() {
   }, []);
 
   return (
-    <div
-      className={`fixed inset-0 z-50 md:hidden flex transition-all duration-300 ${
-        open ? "pointer-events-auto" : "pointer-events-none"
-      }`}
-    >
-      {/* Backdrop en blanco/negro suave con blur */}
-      <div
-        className={`absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300 ${
-          open ? "opacity-100" : "opacity-0"
-        }`}
-        onClick={() => setOpen(false)}
-      />
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs"
+            onClick={() => setOpen(false)}
+          />
 
-      {/* Drawer desplegable */}
-      <div
-        className={`relative z-10 h-full transform transition-transform duration-300 ease-out ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
-        onClick={(e) => {
-          if (e.target.closest("a")) {
-            setOpen(false);
-          }
-        }}
-      >
-        <Sidebar />
-      </div>
-    </div>
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="relative z-10 h-full"
+            onClick={(e) => {
+              if (e.target.closest("a")) {
+                setOpen(false);
+              }
+            }}
+          >
+            <Sidebar />
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

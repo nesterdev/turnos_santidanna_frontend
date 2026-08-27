@@ -7,9 +7,47 @@ import { apiAction } from "../../lib/utils/apiAction";
 import { useScheduleFormData } from "../../hooks/useScheduleFormData";
 import { hideLoading, showLoading } from "../../lib/utils/loading";
 import Loading from "../ui/Loading";
+import TabFilter from "../ui/TabFilter";
 import AutomaticMode from "./AutomaticMode";
 import ManualMode from "./ManualMode";
 import BulkManualMode from "./BulkManualMode";
+
+// Convierte y asegura formato YYYY-MM-DD según hora local de Colombia
+export const formatDateToISO = (dateStr) => {
+  if (!dateStr) return "";
+
+  // Si ya viene con formato de barras (DD/MM/YYYY)
+  if (dateStr.includes("/")) {
+    const [day, month, year] = dateStr.split("/");
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  // Si ya viene en formato YYYY-MM-DD (o similar), evitamos crear un Date que lo convierta a UTC
+  if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr.slice(0, 10))) {
+    return dateStr.slice(0, 10);
+  }
+
+  // Si es un objeto Date u otro formato, lo procesamos de manera segura usando los componentes locales
+  const dateObj = new Date(dateStr);
+  if (!isNaN(dateObj.getTime())) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  return dateStr;
+};
+
+// Obtiene la fecha actual formateada a YYYY-MM-DD en hora colombiana
+export const getTodayColombia = () => {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Bogota",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+};
 
 export default function ScheduleForm() {
   const { employees, shifts, areas, loading } = useScheduleFormData();
@@ -20,7 +58,6 @@ export default function ScheduleForm() {
   const [employeeFilter, setEmployeeFilter] = useState("all");
   const [mode, setMode] = useState("automatic");
 
-  // Estado de empleados y áreas enriquecidos para el modo masivo
   const [bulkEmployees, setBulkEmployees] = useState([]);
   const [bulkAreas, setBulkAreas] = useState([]);
   const [loadingBulkContext, setLoadingBulkContext] = useState(false);
@@ -35,14 +72,14 @@ export default function ScheduleForm() {
   const [manualData, setManualData] = useState({
     employee_id: null,
     shift_id: null,
-    date: "",
+    date: getTodayColombia(),
     area_ids: [],
   });
 
   const [bulkData, setBulkData] = useState({
-    date: "",
+    date: getTodayColombia(),
     shift_id: null,
-    assignments: [], // [{ employee_id: 1, area_ids: [1, 2] }]
+    assignments: [],
   });
 
   // Cargar disponibilidad y restricciones en modo Manual
@@ -100,16 +137,6 @@ export default function ScheduleForm() {
 
     loadBulkContext();
   }, [mode, bulkData.date]);
-
-  // Función para formatear fechas a ISO (YYYY-MM-DD)
-  const formatDateToISO = (dateStr) => {
-    if (!dateStr) return "";
-    if (dateStr.includes("/")) {
-      const [day, month, year] = dateStr.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    }
-    return dateStr;
-  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -181,26 +208,16 @@ export default function ScheduleForm() {
         </p>
       </div>
 
-      <div className="flex gap-1 bg-gray-100/80 p-1.5 rounded-xl w-fit">
-        {[
+      <TabFilter
+        size="lg"
+        value={mode}
+        onChange={setMode}
+        options={[
           { id: "automatic", label: "Automático" },
           { id: "manual", label: "Manual" },
           { id: "bulk", label: "Manual Masivo" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setMode(tab.id)}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-              mode === tab.id
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-800"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        ]}
+      />
 
       {mode === "automatic" && (
         <AutomaticMode

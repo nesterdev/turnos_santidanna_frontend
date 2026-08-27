@@ -1,3 +1,4 @@
+// src/components/employees/EmployeesTable.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
@@ -6,14 +7,6 @@ import CreateButton from "../ui/CreateButton";
 import { openConfirmModal } from "../../lib/utils/modal";
 import Loading from "../ui/Loading";
 
-interface Empleado {
-  id: number;
-  name: string;
-  email: string;
-  role: "worker" | "supervisor" | "admin";
-  active: boolean;
-}
-
 const ROLE_LABELS = {
   admin: { label: "Admin", class: "bg-purple-50 text-purple-700 border-purple-200" },
   supervisor: { label: "Supervisor", class: "bg-blue-50 text-blue-700 border-blue-200" },
@@ -21,11 +14,11 @@ const ROLE_LABELS = {
 };
 
 export default function EmployeesTable() {
-  const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
-  const deleteEmployee = async (id: number) => {
+  const deleteEmployee = async (id) => {
     const confirmed = await openConfirmModal({
       title: "Eliminar empleado",
       message: "¿Deseas eliminar este empleado? Esta acción es irreversible.",

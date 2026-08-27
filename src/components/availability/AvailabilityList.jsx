@@ -1,9 +1,11 @@
+// src/components/availability/AvailabilityList.jsx
 import { useEffect, useState, useMemo } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 import Loading from "../ui/Loading";
+import TabFilter from "../ui/TabFilter"; // Importamos el componente selector
 
 const daysMap = {
   1: "Lunes",
@@ -37,15 +39,13 @@ function formatDate(dateStr) {
   });
 }
 
-// Función para calcular la fecha exactas sumando días a week_start
+// Función para calcular la fecha exacta sumando días a week_start
 function getExactDate(weekStartStr, dayOfWeek) {
   if (!weekStartStr) return "";
   const [year, month, day] = weekStartStr.split("T")[0].split("-");
   const baseDate = new Date(year, month - 1, day);
 
-  // Convertimos day_of_week de Backend (donde 1 es Lunes, 0 es Domingo) a desfase de días
-  // Supongamos que week_start es Lunes.
-  const dayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
+  const dayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
   baseDate.setDate(baseDate.getDate() + dayOffset);
 
   return baseDate.toLocaleDateString("es-ES", {
@@ -90,13 +90,23 @@ export default function AvailabilityList() {
     return Array.from(weeksSet).sort();
   }, [availability]);
 
+  // Formatear las semanas para el componente TabFilter
+  const weekTabOptions = useMemo(() => {
+    const defaultOption = { id: "ALL", label: "Todas las semanas" };
+    const dynamicOptions = availableWeeks.map((week) => ({
+      id: week,
+      label: `Semana del ${formatDate(week)}`,
+    }));
+    return [defaultOption, ...dynamicOptions];
+  }, [availableWeeks]);
+
   // Agrupar por EMPLEADO y por SEMANA
   const groupedData = useMemo(() => {
     const groups = {};
 
     availability.forEach((item) => {
       const week = item.week_start ? item.week_start.split("T")[0] : "sin-semana";
-      
+
       // Aplicar filtro de semana seleccionada
       if (selectedWeek !== "ALL" && week !== selectedWeek) return;
 
@@ -152,7 +162,6 @@ export default function AvailabilityList() {
   return (
     <div className="max-w-5xl mx-auto pb-12">
       <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
-        
         {/* HEADER SUPERIOR */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -165,20 +174,15 @@ export default function AvailabilityList() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* FILTRO POR SEMANA */}
+            {/* TAB FILTER POR SEMANA */}
             {availableWeeks.length > 0 && (
-              <select
+              <TabFilter
+                options={weekTabOptions}
                 value={selectedWeek}
-                onChange={(e) => setSelectedWeek(e.target.value)}
-                className="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                <option value="ALL">Todas las semanas</option>
-                {availableWeeks.map((week) => (
-                  <option key={week} value={week}>
-                    Semana del {formatDate(week)}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedWeek}
+                size="sm"
+                layoutId="availability-week-filter"
+              />
             )}
 
             <a
@@ -222,7 +226,6 @@ export default function AvailabilityList() {
           <div className="space-y-3">
             {groupedData.map((group) => {
               const isExpanded = expandedCard === group.key;
-              const unavailableDays = group.records.filter((r) => !r.available);
 
               return (
                 <div
@@ -254,7 +257,7 @@ export default function AvailabilityList() {
                       </div>
                     </div>
 
-                    {/* VISTA RAPIDA DE DÍAS (MINI BADGES) & BOTÓN */}
+                    {/* VISTA RÁPIDA DE DÍAS (MINI BADGES) & BOTÓN */}
                     <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-gray-100">
                       {/* CÍRCULOS DE DÍAS (Semanas L-D) */}
                       <div className="flex items-center gap-1">

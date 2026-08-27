@@ -1,11 +1,11 @@
-export function openConfirmModal({
+/*export function openConfirmModal({
   title = "Confirmar acción",
   message = "",
   confirmText = "Confirmar",
   cancelText = "Cancelar",
 }) {
   return new Promise((resolve) => {
-    /* ---------- Overlay con blur ---------- */
+    /* ---------- Overlay con blur ---------- 
     const overlay = document.createElement("div");
     overlay.className = `
       fixed inset-0 z-50
@@ -15,7 +15,7 @@ export function openConfirmModal({
       opacity-0
     `;
 
-    /* ---------- Modal ---------- */
+    /* ---------- Modal ---------- 
     const modal = document.createElement("div");
     modal.className = `
       bg-white rounded-2xl shadow-2xl
@@ -55,7 +55,7 @@ export function openConfirmModal({
 
     const [cancelBtn, confirmBtn] = modal.querySelectorAll("button");
 
-    /* ---------- Cerrar con animación ---------- */
+    /* ---------- Cerrar con animación ---------- 
     const close = (result) => {
       modal.classList.add("scale-95", "opacity-0");
       overlay.classList.add("opacity-0");
@@ -69,19 +69,47 @@ export function openConfirmModal({
     cancelBtn.onclick = () => close(false);
     confirmBtn.onclick = () => close(true);
 
-    /* ---------- Cerrar clic fuera ---------- */
+    /* ---------- Cerrar clic fuera ---------- 
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) close(false);
     });
 
-    /* ---------- Montar ---------- */
+    /* ---------- Montar ---------- 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    /* ---------- Animación entrada ---------- */
+    /* ---------- Animación entrada ---------- 
     requestAnimationFrame(() => {
       overlay.classList.remove("opacity-0");
       modal.classList.remove("scale-95", "opacity-0");
     });
+  });
+}
+*/
+
+export function openConfirmModal({
+  title = "Confirmar acción",
+  message = "",
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
+  type = "danger", // 'danger' | 'warning' | 'info'
+} = {}) {
+  return new Promise((resolve) => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("app:confirm-modal", {
+          detail: {
+            title,
+            message,
+            confirmText,
+            cancelText,
+            type,
+            resolve,
+          },
+        })
+      );
+    } else {
+      resolve(false);
+    }
   });
 }

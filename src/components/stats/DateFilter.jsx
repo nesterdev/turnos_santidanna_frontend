@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import TabFilter from "../ui/TabFilter";
 
 const OPTIONS = [
   { id: "day", label: "Día", groupBy: "day" },
@@ -10,7 +11,6 @@ const OPTIONS = [
 export default function DateFilter({ onChange }) {
   const [range, setRange] = useState("week");
 
-  // Función para calcular rango según la opción seleccionada
   const computeFilterData = (optionId) => {
     const today = new Date();
     let from, to;
@@ -41,7 +41,6 @@ export default function DateFilter({ onChange }) {
         from = to = today;
     }
 
-    // Formatear a YYYY-MM-DD local
     const format = (d) => {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -55,13 +54,11 @@ export default function DateFilter({ onChange }) {
     };
   };
 
-  // Carga inicial
   useEffect(() => {
     const data = computeFilterData(range);
     onChange?.(data.dateRange, data.groupBy);
   }, []);
 
-  // Al hacer clic en un botón
   const handleSelect = (val) => {
     setRange(val);
     const data = computeFilterData(val);
@@ -73,25 +70,12 @@ export default function DateFilter({ onChange }) {
       <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mr-1">
         Rango
       </span>
-      <div className="flex items-center bg-gray-100/80 p-1 rounded-xl border border-gray-200/60 w-full sm:w-auto overflow-x-auto">
-        {OPTIONS.map((opt) => {
-          const isActive = range === opt.id;
-          return (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => handleSelect(opt.id)}
-              className={`flex-1 sm:flex-none px-3 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
-                isActive
-                  ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
-              }`}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
+      <TabFilter
+        size="sm"
+        value={range}
+        onChange={handleSelect}
+        options={OPTIONS}
+      />
     </div>
   );
 }

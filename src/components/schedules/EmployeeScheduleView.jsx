@@ -2,18 +2,25 @@ import { useState, useEffect } from "react";
 import { useStore } from "@nanostores/react";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
+import { motion, AnimatePresence } from "framer-motion";
 import { user } from "../../lib/stores/userStore";
 import { apiFetch } from "../../lib/utils/fetch";
 import CustomDatePicker from "../ui/CustomDatePicker";
 import Loading from "../ui/Loading";
+import TabFilter from "../ui/TabFilter";
 import { ScheduleTable } from "./SchedulePublicView";
 import { Calendar, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 
 dayjs.locale("es");
 
+const VIEW_OPTIONS = [
+  { id: "previous", label: "Semana Anterior" },
+  { id: "current", label: "Semana Actual / Siguiente" },
+];
+
 export default function EmployeeScheduleView() {
   const currentUser = useStore(user);
-  
+
   // Estado para evitar el mismatch de hidratación SSR/Cliente
   const [isMounted, setIsMounted] = useState(false);
 
@@ -41,15 +48,23 @@ export default function EmployeeScheduleView() {
     try {
       let fetchStart = startDate;
       if (viewMode === "previous") {
-        fetchStart = dayjs().subtract(7, "day").startOf("week").add(1, "day").format("YYYY-MM-DD");
+        fetchStart = dayjs()
+          .subtract(7, "day")
+          .startOf("week")
+          .add(1, "day")
+          .format("YYYY-MM-DD");
       }
 
-      const res = await apiFetch(`/schedules/public?start=${fetchStart}&days=${daysRange}`);
+      const res = await apiFetch(
+        `/schedules/public?start=${fetchStart}&days=${daysRange}`
+      );
       if (res?.success) {
-        console.log("respuesta de schedule",res)
         const mySchedules = (res.data || []).filter((s) => {
           const emp = s.ScheduleEmployee;
-          return emp && (emp.id === currentUser?.id || emp.email === currentUser?.email);
+          return (
+            emp &&
+            (emp.id === currentUser?.id || emp.email === currentUser?.email)
+          );
         });
         setSchedules(mySchedules);
       }
@@ -58,12 +73,29 @@ export default function EmployeeScheduleView() {
     }
   }
 
+  const handleModeChange = (newMode) => {
+    setViewMode(newMode);
+    if (newMode === "previous") {
+      setStartDate(
+        dayjs()
+          .subtract(7, "day")
+          .startOf("week")
+          .add(1, "day")
+          .format("YYYY-MM-DD")
+      );
+    } else {
+      setStartDate(dayjs().format("YYYY-MM-DD"));
+    }
+  };
+
   const groupedByDate = schedules.reduce((acc, s) => {
     (acc[s.date] ||= []).push(s);
     return acc;
   }, {});
 
-  const endDateCalculated = dayjs(startDate).add(daysRange - 1, "day").format("DD [de] MMMM");
+  const endDateCalculated = dayjs(startDate)
+    .add(daysRange - 1, "day")
+    .format("DD [de] MMMM");
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -74,7 +106,7 @@ export default function EmployeeScheduleView() {
             Panel de Empleado
           </span>
           <h1 className="text-xl font-bold text-gray-900 mt-2">
-            Hola, {isMounted ? (currentUser?.name || "Empleado") : "Empleado"}
+            Hola, {isMounted ? currentUser?.name || "Empleado" : "Empleado"}
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
             Consulta la asignación de tus turnos, descansos y áreas de trabajo.
@@ -82,34 +114,12 @@ export default function EmployeeScheduleView() {
         </div>
 
         {/* PESTAÑAS DE NAVEGACIÓN */}
-        <div className="flex bg-gray-100 p-1 rounded-xl self-start md:self-auto">
-          <button
-            onClick={() => {
-              setViewMode("previous");
-              setStartDate(dayjs().subtract(7, "day").startOf("week").add(1, "day").format("YYYY-MM-DD"));
-            }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              viewMode === "previous"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            Semana Anterior
-          </button>
-          <button
-            onClick={() => {
-              setViewMode("current");
-              setStartDate(dayjs().format("YYYY-MM-DD"));
-            }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-              viewMode === "current"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            Semana Actual / Siguiente
-          </button>
-        </div>
+        <TabFilter
+          size="sm"
+          value={viewMode}
+          onChange={handleModeChange}
+          options={VIEW_OPTIONS}
+        />
       </div>
 
       {/* CONTROLES DE FECHA */}
@@ -118,13 +128,19 @@ export default function EmployeeScheduleView() {
           <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
             <Calendar size={16} className="text-[#FF3131]" />
             <span>
-              Mostrando 6 días desde: <strong>{dayjs(startDate).format("DD/MM/YYYY")}</strong> hasta <strong>{endDateCalculated}</strong>
+              Mostrando 6 días desde:{" "}
+              <strong>{dayjs(startDate).format("DD/MM/YYYY")}</strong> hasta{" "}
+              <strong>{endDateCalculated}</strong>
             </span>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              onClick={() => setStartDate(dayjs(startDate).subtract(1, "day").format("YYYY-MM-DD"))}
+              onClick={() =>
+                setStartDate(
+                  dayjs(startDate).subtract(1, "day").format("YYYY-MM-DD")
+                )
+              }
               className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl border border-gray-200/60 transition"
               title="Día anterior"
             >
@@ -138,7 +154,11 @@ export default function EmployeeScheduleView() {
             />
 
             <button
-              onClick={() => setStartDate(dayjs(startDate).add(1, "day").format("YYYY-MM-DD"))}
+              onClick={() =>
+                setStartDate(
+                  dayjs(startDate).add(1, "day").format("YYYY-MM-DD")
+                )
+              }
               className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl border border-gray-200/60 transition"
               title="Día siguiente"
             >
@@ -148,38 +168,64 @@ export default function EmployeeScheduleView() {
         </div>
       )}
 
-      {/* ESTADO DE CARGA */}
-      {loading && <Loading fullscreen={false} text="Cargando tus turnos asignados…" />}
-
-      {/* SIN RESULTADOS */}
-      {!loading && Object.keys(groupedByDate).length === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100/80 p-12 text-center shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-          <div className="w-10 h-10 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-3">
-            <Clock size={20} />
-          </div>
-          <p className="text-xs font-semibold text-gray-700">No tienes turnos programados</p>
-          <p className="text-[11px] text-gray-400 mt-0.5">
-            No se encontraron asignaciones registradas a tu nombre para el rango seleccionado.
-          </p>
-        </div>
-      )}
-
-      {/* DETALLE DE TURNOS POR DÍA */}
-      {!loading &&
-        Object.entries(groupedByDate).map(([date, daySchedules]) => (
-          <div
-            key={date}
-            className="bg-white rounded-2xl border border-gray-100/80 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] space-y-4"
+      {/* CONTENEDOR DE ESTADOS ANIMADOS (LOADING / VACÍO / TABLA) */}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
           >
-            <div className="border-b border-gray-50 pb-3">
-              <h3 className="text-sm font-bold text-gray-900 capitalize">
-                {dayjs(date).format("dddd, DD [de] MMMM YYYY")}
-              </h3>
+            <Loading fullscreen={false} text="Cargando tus turnos asignados…" />
+          </motion.div>
+        ) : Object.keys(groupedByDate).length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-2xl border border-gray-100/80 p-12 text-center shadow-[0_10px_30px_rgba(0,0,0,0.04)]"
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center mx-auto mb-3">
+              <Clock size={20} />
             </div>
+            <p className="text-xs font-semibold text-gray-700">
+              No tienes turnos programados
+            </p>
+            <p className="text-[11px] text-gray-400 mt-0.5">
+              No se encontraron asignaciones registradas a tu nombre para el
+              rango seleccionado.
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4"
+          >
+            {Object.entries(groupedByDate).map(([date, daySchedules]) => (
+              <div
+                key={date}
+                className="bg-white rounded-2xl border border-gray-100/80 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] space-y-4"
+              >
+                <div className="border-b border-gray-50 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900 capitalize">
+                    {dayjs(date).format("dddd, DD [de] MMMM YYYY")}
+                  </h3>
+                </div>
 
-            <ScheduleTable schedules={daySchedules} />
-          </div>
-        ))}
+                <ScheduleTable schedules={daySchedules} />
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 ---
-// src/components/layouts/DashboardLayout.astro
 import BaseLayout from "./BaseLayout.astro";
 import Sidebar from "../ui/Sidebar.jsx";
 import Topbar from "../ui/Topbar.jsx";
@@ -13,20 +12,33 @@ const { title = "Panel" } = Astro.props;
   <InitClient />
 
   <div class="flex h-screen w-full overflow-hidden relative">
-    {/* Sidebar Escritorio: Renderizado estrictamente en el cliente */}
-    <aside class="hidden md:flex w-64 flex-col bg-white/80 backdrop-blur-xl border-r border-gray-100">
+    {/* Sidebar Desktop */}
+    <aside 
+      class="hidden md:flex w-64 flex-col bg-slate-900 border-r border-slate-800 z-30"
+      transition:persist="desktop-sidebar"
+    >
       <Sidebar client:only="react" />
     </aside>
 
-    {/* Sidebar Móvil: Renderizado estrictamente en el cliente */}
-    <SidebarDrawer client:only="react" />
+    {/* Sidebar Móvil Drawer */}
+    <div transition:persist="mobile-sidebar">
+      <SidebarDrawer client:only="react" />
+    </div>
 
-    <main class="flex-1 flex flex-col overflow-hidden">
-      <header class="h-16 bg-white/70 backdrop-blur-xl flex items-center px-6 border-b border-gray-100">
+    {/* El contenedor principal NO debe bloquear desbordamientos del header */}
+    <main class="flex-1 flex flex-col min-w-0 relative z-10">
+      <header 
+        class="h-16 bg-white/70 backdrop-blur-xl flex items-center border-b border-gray-100 relative z-50"
+        transition:persist="topbar"
+      >
         <Topbar client:only="react" />
       </header>
 
-      <section class="flex-1 overflow-y-auto px-6 py-6">
+      {/* Solo el contenedor del contenido debe tener scroll propio y overflow aislados */}
+      <section 
+        class="flex-1 overflow-y-auto px-6 py-6 z-0"
+        transition:animate="fade"
+      >
         <div class="max-w-7xl mx-auto">
           <slot />
         </div>

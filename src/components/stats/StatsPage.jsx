@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import StatsOverview from "../../components/stats/StatsOverview.jsx";
 import EmployeeStatsTable from "../../components/stats/EmployeeStatsTable.jsx";
 import DateFilter from "../../components/stats/DateFilter.jsx";
@@ -7,14 +8,18 @@ export default function StatsPage() {
   const [dateRange, setDateRange] = useState({ from: "", to: "" });
   const [groupBy, setGroupBy] = useState("week");
 
-  // Recibe directamente el rango de fechas y la agrupación calculada por el filtro
   const handleFilterChange = (newRange, newGroupBy) => {
     setDateRange(newRange);
     if (newGroupBy) setGroupBy(newGroupBy);
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="space-y-6 max-w-7xl mx-auto"
+    >
       {/* HEADER DEL MÓDULO */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
         <div>
@@ -37,6 +42,6 @@ export default function StatsPage() {
 
       {/* TABLA DE DETALLES */}
       <EmployeeStatsTable dateRange={dateRange} groupBy={groupBy} />
-    </div>
+    </motion.div>
   );
 }

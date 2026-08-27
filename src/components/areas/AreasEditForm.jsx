@@ -1,49 +1,50 @@
-import { useEffect, useMemo, useState } from "react";
+// src/components/areas/AreasEditForm.jsx
+import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
-import ActionButton from "../ui/ActionButtom";
-import { showError, showSuccess } from "../../lib/utils/alert";
+import { showError, showSuccess } from "../../lib/utils/alerts";
 import { redirect } from "../../lib/utils/navigation";
+import Loading from "../ui/Loading";
+import Field from "../ui/Field";
+import Input from "../ui/Input";
+import Textarea from "../ui/Textarea";
+import TabFilter from "../ui/TabFilter";
 
-/* 🔹 helper */
-const cleanPayload = (obj) =>
-  Object.fromEntries(
-    Object.entries(obj).filter(
-      ([_, v]) => v !== undefined && v !== "" && !Number.isNaN(v)
-    )
-  );
+const FREQUENCY_OPTIONS = [
+  { id: "daily", label: "Diaria" },
+  { id: "weekly", label: "Semanal" },
+  { id: "monthly", label: "Mensual" },
+];
 
 export default function AreasEditForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [zone, setZone] = useState("");
 
-  const [complexity_level, setComplexity_level] = useState("");
-  const [priority_level, setPriority_level] = useState("");
-  const [frequency_type, setFrequency_type] = useState("");
-  const [frequency_value, setFrequency_value] = useState("");
+  const [complexity_level, setComplexity] = useState(2);
+  const [priority_level, setPriority] = useState(2);
+  const [frequency_type, setFrequencyType] = useState("daily");
+  const [frequency_value, setFrequencyValue] = useState(1);
 
-  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
   const [id, setId] = useState(null);
-  // 👇 LEER QUERY PARAM EN CLIENTE
+
+  // Carga de parámetro ID de la URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const empId = params.get("id");
+    const areaId = params.get("id");
 
-    console.log("id leída desde URL:", empId);
-
-    if (!empId) {
-      setError("ID de empleado inválido");
+    if (!areaId) {
+      showError("ID de área inválido");
       setLoading(false);
       return;
     }
 
-    setId(empId);
+    setId(areaId);
   }, []);
 
-  /* LOAD */
+  // Carga inicial del área
   useEffect(() => {
     if (!id) return;
     async function loadArea() {
@@ -54,15 +55,15 @@ export default function AreasEditForm() {
           setName(a.name ?? "");
           setDescription(a.description ?? "");
           setZone(a.zone ?? "");
-          setComplexity_level(a.complexity_level ?? "");
-          setPriority_level(a.priority_level ?? "");
-          setFrequency_type(a.frequency_type ?? "");
-          setFrequency_value(a.frequency_value ?? "");
+          setComplexity(Number(a.complexity_level) || 2);
+          setPriority(Number(a.priority_level) || 2);
+          setFrequencyType(a.frequency_type || "daily");
+          setFrequencyValue(Number(a.frequency_value) || 1);
         } else {
-          setError(res?.message || "No se pudo cargar el área");
+          showError(res?.message || "No se pudo cargar el área");
         }
       } catch (err) {
-        setError(err?.message || "Error cargando el área");
+        showError(err?.message || "Error cargando el área");
       } finally {
         setLoading(false);
       }
@@ -70,41 +71,32 @@ export default function AreasEditForm() {
     loadArea();
   }, [id]);
 
-  /* PAYLOAD */
-  const payload = useMemo(() => {
-    return cleanPayload({
-      name,
-      description,
-      zone,
-      complexity_level:
-        complexity_level !== "" ? Number(complexity_level) : undefined,
-      priority_level:
-        priority_level !== "" ? Number(priority_level) : undefined,
-      frequency_type,
-      frequency_value:
-        frequency_value !== "" ? Number(frequency_value) : undefined,
-    });
-  }, [
-    name,
-    description,
-    zone,
-    complexity_level,
-    priority_level,
-    frequency_type,
-    frequency_value,
-  ]);
+  const validate = () => {
+    const errs = {};
+    if (!name.trim()) errs.name = "Completa este campo";
+    if (!zone.trim()) errs.zone = "Completa este campo";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
-  /* SAVE */
-  const handleSubmit = async () => {
-    if (!Object.keys(payload).length) {
-      setError("No hay cambios para guardar");
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setSubmitting(true);
 
     try {
       const res = await apiFetch(`/areas/${id}`, {
         method: "PUT",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          name,
+          description,
+          zone,
+          complexity_level,
+          priority_level,
+          frequency_type,
+          frequency_value,
+        }),
       });
 
       if (res?.success) {
@@ -116,210 +108,193 @@ export default function AreasEditForm() {
       }
     } catch (err) {
       showError(err?.message || "Error al actualizar");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  if (loading)
-    return (
-      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-xl max-w-xl mx-auto">
-        Cargando área…
-      </p>
-    );
+  if (loading) return <Loading fullscreen={false} text="Cargando información del área..." />;
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setShowConfirm(true);
-      }}
-      className="max-w-2xl mx-auto bg-white rounded-2xl px-8 py-7
-                 shadow-[0_12px_30px_rgba(0,0,0,0.04)] space-y-8"
-    >
-      {/* HEADER */}
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
-          Editar área
-        </h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Actualiza la información del área de trabajo
-        </p>
-      </div>
+    <div className="w-full py-6 flex justify-center">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="w-full max-w-2xl bg-white rounded-3xl border border-gray-100 p-8 sm:p-10 space-y-8 shadow-xl shadow-gray-200/40"
+      >
+        {/* HEADER */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Editar área
+          </h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Actualiza la información y configuración operativa del área.
+          </p>
+        </div>
 
-      {error && (
-        <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>
-      )}
+        {/* INPUTS PRINCIPALES */}
+        <div className="space-y-5">
+          <Field label="Nombre del área" error={errors.name}>
+            <Input
+              value={name}
+              onChange={(val) => {
+                setName(val);
+                if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+              }}
+              hasError={Boolean(errors.name)}
+              placeholder="Ej. Salón Principal"
+            />
+          </Field>
 
-      {success && (
-        <p className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">
-          {success}
-        </p>
-      )}
+          <Field label="Descripción" hint="Opcional: detalles o notas sobre el área">
+            <Textarea
+              value={description}
+              onChange={setDescription}
+              placeholder="Escribe una pequeña descripción..."
+            />
+          </Field>
 
-      {/* INFO BÁSICA */}
-      <Section title="Información básica">
-        <Input label="Nombre" value={name} onChange={setName} />
-        <Textarea
-          label="Descripción"
-          value={description}
-          onChange={setDescription}
-        />
-        <Input label="Zona" value={zone} onChange={setZone} />
-      </Section>
+          <Field label="Zona" error={errors.zone}>
+            <Input
+              value={zone}
+              onChange={(val) => {
+                setZone(val);
+                if (errors.zone) setErrors((prev) => ({ ...prev, zone: null }));
+              }}
+              hasError={Boolean(errors.zone)}
+              placeholder="Ej. Sector Norte"
+            />
+          </Field>
+        </div>
 
-      {/* CONFIGURACIÓN */}
-      <Section title="Configuración">
-        <Select
-          label="Complejidad"
-          value={complexity_level}
-          onChange={setComplexity_level}
-          options={[
-            ["", "—"],
-            ["2", "Baja"],
-            ["4", "Media"],
-          ]}
-        />
-        <Select
-          label="Prioridad"
-          value={priority_level}
-          onChange={setPriority_level}
-          options={[
-            ["", "—"],
-            ["4", "Baja"],
-            ["3", "Media"],
-            ["2", "Alta"],
-            ["1", "Crítica"],
-          ]}
-        />
-      </Section>
+        {/* COMPLEJIDAD */}
+        <Section title="COMPLEJIDAD">
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[
+              { value: 2, label: "Baja", desc: "Liviana, rápida" },
+              { value: 4, label: "Media", desc: "Más esfuerzo" },
+            ].map((o) => (
+              <CardRadio
+                key={o.value}
+                active={complexity_level === o.value}
+                onClick={() => setComplexity(o.value)}
+                title={o.label}
+                subtitle={o.desc}
+              />
+            ))}
+          </div>
+        </Section>
 
-      {/* FRECUENCIA */}
-      <Section title="Frecuencia">
-        <Select
-          label="Tipo"
-          value={frequency_type}
-          onChange={setFrequency_type}
-          options={[
-            ["", "—"],
-            ["daily", "Diaria"],
-            ["weekly", "Semanal"],
-            ["monthly", "Mensual"],
-          ]}
-        />
-        <Input
-          label="Cantidad"
-          type="number"
-          value={frequency_value}
-          onChange={setFrequency_value}
-        />
-      </Section>
+        {/* PRIORIDAD */}
+        <Section title="PRIORIDAD DE ASEO">
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[
+              { value: 1, label: "Crítica" },
+              { value: 2, label: "Alta" },
+              { value: 3, label: "Media" },
+              { value: 4, label: "Baja" },
+            ].map((o) => (
+              <CardRadio
+                key={o.value}
+                active={priority_level === o.value}
+                onClick={() => setPriority(o.value)}
+                title={o.label}
+              />
+            ))}
+          </div>
+        </Section>
 
-      {/* CONFIRMACIÓN */}
-      {showConfirm && (
-        <div className="bg-gray-50 rounded-xl p-5 space-y-4 text-sm">
-          <p className="font-medium text-gray-800">Confirmar cambios</p>
+        {/* FRECUENCIA CON TABFILTER */}
+        <Section title="FRECUENCIA">
+          <TabFilter
+            options={FREQUENCY_OPTIONS}
+            value={frequency_type}
+            onChange={setFrequencyType}
+            fullWidth
+            size="md"
+            layoutId="frequency-type-edit-tab"
+          />
 
-          <pre className="bg-white rounded-lg p-3 text-xs text-gray-600 overflow-auto max-h-60">
-            {JSON.stringify(payload, null, 2)}
-          </pre>
-
-          <div className="flex justify-end gap-3">
+          <div className="flex items-center gap-3 mt-4">
             <button
               type="button"
-              onClick={() => setShowConfirm(false)}
-              className="px-4 py-2 rounded-lg bg-white border text-gray-600 hover:bg-gray-50"
+              onClick={() => setFrequencyValue((v) => Math.max(1, v - 1))}
+              className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition font-bold active:scale-95 cursor-pointer"
             >
-              Seguir editando
+              −
             </button>
+            <input
+              type="number"
+              value={frequency_value}
+              onChange={(e) => setFrequencyValue(Number(e.target.value))}
+              className="w-20 text-center py-2 bg-gray-50 border border-gray-200 rounded-xl font-bold text-gray-800 outline-none"
+            />
             <button
               type="button"
-              onClick={handleSubmit}
-              className="px-4 py-2 rounded-lg bg-[#FF3131] text-white hover:bg-[#e62b2b]"
+              onClick={() => setFrequencyValue((v) => v + 1)}
+              className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition font-bold active:scale-95 cursor-pointer"
             >
-              Guardar cambios
+              +
             </button>
           </div>
-        </div>
-      )}
+        </Section>
 
-      {!showConfirm && (
-        <div className="flex justify-between pt-2">
-          <ActionButton
-            icon="/left.svg"
-            alt="Volver"
+        {/* ACCIONES */}
+        <div className="flex justify-end items-center gap-3 border-t border-gray-100 pt-6">
+          <a
             href="/areas"
-            className="bg-gray-50 text-gray-600 hover:bg-gray-100"
-          />
-          <button className="px-5 py-2 rounded-lg bg-[#FF3131] text-white hover:bg-[#e62b2b]">
-            Confirmar cambios
+            className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition cursor-pointer"
+          >
+            Cancelar
+          </a>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-6 py-2.5 rounded-xl bg-[#FF3131] hover:bg-red-600 active:scale-95 text-white font-semibold text-xs transition shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50 flex items-center gap-2"
+          >
+            {submitting && (
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            {submitting ? "Guardando…" : "Guardar Cambios"}
           </button>
         </div>
-      )}
-    </form>
+      </form>
+    </div>
   );
 }
-
-/* ---------------- UI helpers ---------------- */
 
 function Section({ title, children }) {
   return (
-    <div className="space-y-4">
-      <p className="text-xs uppercase tracking-wide text-gray-400">{title}</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{children}</div>
+    <div className="space-y-2.5">
+      <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase">
+        {title}
+      </h3>
+      {children}
     </div>
   );
 }
 
-function Input({ label, value, onChange, type = "text" }) {
+function CardRadio({ title, subtitle, active, onClick }) {
   return (
-    <div className="space-y-1">
-      <label className="text-xs uppercase tracking-wide text-gray-400">
-        {label}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2
-                   focus:outline-none focus:ring-2 focus:ring-[#FF3131]/20"
-      />
-    </div>
-  );
-}
-
-function Textarea({ label, value, onChange }) {
-  return (
-    <div className="space-y-1 md:col-span-2">
-      <label className="text-xs uppercase tracking-wide text-gray-400">
-        {label}
-      </label>
-      <textarea
-        rows={3}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2
-                   focus:outline-none focus:ring-2 focus:ring-[#FF3131]/20"
-      />
-    </div>
-  );
-}
-
-function Select({ label, value, onChange, options }) {
-  return (
-    <div className="space-y-1">
-      <label className="text-xs uppercase tracking-wide text-gray-400">
-        {label}
-      </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 bg-white"
+    <div
+      onClick={onClick}
+      className={`p-4 rounded-2xl border cursor-pointer transition-all duration-200 flex items-center justify-between ${
+        active
+          ? "border-red-500/40 bg-white ring-2 ring-red-500/10 shadow-xs"
+          : "border-gray-200/80 bg-white hover:border-gray-300"
+      }`}
+    >
+      <div>
+        <p className="font-semibold text-sm text-gray-800">{title}</p>
+        {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+      </div>
+      <div
+        className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+          active ? "border-red-500" : "border-gray-300"
+        }`}
       >
-        {options.map(([v, l]) => (
-          <option key={v} value={v}>
-            {l}
-          </option>
-        ))}
-      </select>
+        {active && <div className="w-2.5 h-2.5 rounded-full bg-[#FF3131]" />}
+      </div>
     </div>
   );
 }

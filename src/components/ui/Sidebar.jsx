@@ -1,6 +1,6 @@
-// src/components/ui/Sidebar.jsx
 import { useState, useEffect } from "react";
 import { useStore } from "@nanostores/react";
+import { motion } from "framer-motion";
 import { user } from "../../lib/stores/userStore";
 import { logout } from "../../lib/utils/auth";
 
@@ -10,10 +10,14 @@ export default function Sidebar() {
   const role = currentUser?.role || "worker";
 
   useEffect(() => {
-    setActive(window.location.pathname);
+    const updateActivePath = () => setActive(window.location.pathname);
+    updateActivePath();
+
+    // Sincronización con las navegaciones SPA de Astro ClientRouter
+    document.addEventListener("astro:page-load", updateActivePath);
+    return () => document.removeEventListener("astro:page-load", updateActivePath);
   }, []);
 
-  // Iconos minimalistas en formato SVG inline
   const icons = {
     dashboard: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>,
     employees: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
@@ -26,7 +30,6 @@ export default function Sidebar() {
     home: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
   };
 
-  // Grupos organizados por categoría para dar estructura SaaS
   const navigationGroups = {
     super_admin: [
       {
@@ -99,7 +102,7 @@ export default function Sidebar() {
           { label: "Empleados", href: "/employees", icon: icons.employees },
           { label: "Turnos", href: "/shifts", icon: icons.shifts },
           { label: "Horarios", href: "/schedules", icon: icons.schedules },
-          { label: "Disponibilidad", href: "/availability", icon: icons.availability },
+          { label: "Disponibilidad", href: "/availability", icon: icons.availability }
         ]
       },
       {
@@ -131,7 +134,6 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 h-screen bg-slate-900 text-slate-300 flex flex-col justify-between p-4 border-r border-slate-800 select-none">
-      {/* Brand Header */}
       <div>
         <div className="flex items-center gap-3 px-3 py-4 mb-4 border-b border-slate-800/80">
           <div className="w-8 h-8 rounded-xl bg-[#FF3131] flex items-center justify-center text-white font-black text-sm shadow-lg shadow-red-500/20">
@@ -143,7 +145,6 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Dynamic Navigation Sections */}
         <nav className="space-y-6 overflow-y-auto max-h-[calc(100vh-220px)] pr-1">
           {currentMenu.map((group, idx) => (
             <div key={idx}>
@@ -157,16 +158,21 @@ export default function Sidebar() {
                     <a
                       key={item.href}
                       href={item.href}
-                      className={`
-                        flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150
-                        ${isActive
-                          ? "bg-[#FF3131] text-white shadow-md shadow-red-600/30"
-                          : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
-                        }
-                      `}
+                      className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 ${
+                        isActive ? "text-white" : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                      }`}
                     >
-                      <span className={isActive ? "text-white" : "text-slate-400"}>{item.icon}</span>
-                      {item.label}
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeIndicator"
+                          className="absolute inset-0 bg-[#FF3131] rounded-xl shadow-md shadow-red-600/30"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                      <span className={`relative z-10 ${isActive ? "text-white" : "text-slate-400"}`}>
+                        {item.icon}
+                      </span>
+                      <span className="relative z-10">{item.label}</span>
                     </a>
                   );
                 })}
@@ -174,7 +180,6 @@ export default function Sidebar() {
             </div>
           ))}
 
-          {/* Sitio Público Link */}
           <div>
             <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Acceso Directo</p>
             <a
@@ -188,7 +193,6 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Footer User Widget */}
       <div className="pt-4 border-t border-slate-800/80 space-y-3">
         {currentUser && (
           <a

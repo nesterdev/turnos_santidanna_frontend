@@ -1,10 +1,12 @@
+// src/components/availability/AvailabilityEditForm.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
-import ActionButton from "../ui/ActionButtom";
-import { showError, showSuccess } from "../../lib/utils/alert";
+import { showError, showSuccess } from "../../lib/utils/alerts";
 import { redirect } from "../../lib/utils/navigation";
+import Loading from "../ui/Loading";
+import EmployeeSelector from "../ui/EmployeeSelector";
 
-const days = [
+const DAYS_OPTIONS = [
   { value: 1, label: "Lunes" },
   { value: 2, label: "Martes" },
   { value: 3, label: "Miércoles" },
@@ -23,26 +25,26 @@ export default function AvailabilityEditForm() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const [id, setId] = useState(null);
-  // 👇 LEER QUERY PARAM EN CLIENTE
+
+  // Carga de parámetro ID de la URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const empId = params.get("id");
+    const availId = params.get("id");
 
-    console.log("id leída desde URL:", empId);
-
-    if (!empId) {
-      setError("ID de empleado inválido");
+    if (!availId) {
+      showError("ID de disponibilidad inválido");
       setLoading(false);
       return;
     }
 
-    setId(empId);
+    setId(availId);
   }, []);
 
+  // Carga inicial de datos
   useEffect(() => {
     if (!id) return;
+
     async function loadData() {
       try {
         const [empRes, availRes] = await Promise.all([
@@ -62,13 +64,13 @@ export default function AvailabilityEditForm() {
           const a = availRes.data;
           setEmployeeId(a.employee_id);
           setDayOfWeek(a.day_of_week);
-          setAvailable(a.available);
+          setAvailable(Boolean(a.available));
           setNotes(a.notes || "");
         } else {
-          setError("No se pudo cargar la disponibilidad");
+          showError("No se pudo cargar la información de disponibilidad");
         }
-      } catch {
-        setError("Error cargando la información");
+      } catch (err) {
+        showError(err?.message || "Error cargando la información");
       } finally {
         setLoading(false);
       }
@@ -79,17 +81,16 @@ export default function AvailabilityEditForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (employeeId === null || dayOfWeek === null) {
-      setError("Selecciona un empleado y un día");
+      showError("Debes seleccionar un empleado y un día de la semana.");
       return;
     }
 
     setSaving(true);
 
     try {
-      await apiFetch(`/availability/${id}`, {
+      const res = await apiFetch(`/availability/${id}`, {
         method: "PUT",
         body: JSON.stringify({
           employee_id: employeeId,
@@ -98,167 +99,152 @@ export default function AvailabilityEditForm() {
           notes: notes || null,
         }),
       });
-      showSuccess("Disponibilidad actualizada correctamente", {
-        onClose: () => redirect("/availability"),
-      });
+
+      if (res?.success || res) {
+        showSuccess("Disponibilidad actualizada correctamente", {
+          onClose: () => redirect("/availability"),
+        });
+      } else {
+        showError(res?.message || "Error actualizando la disponibilidad");
+      }
     } catch (err) {
-      showError(err?.message || "Error guardando cambios");
+      showError(err?.message || "Error guardando los cambios");
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="max-w-xl mx-auto p-6 rounded-2xl bg-white/70 border animate-pulse">
-        Cargando disponibilidad…
-      </div>
-    );
+    return <Loading fullscreen={false} text="Cargando disponibilidad..." />;
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-xl mx-auto bg-white/80 backdrop-blur-xl
-                 rounded-2xl shadow-sm p-8 space-y-6"
-    >
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900">
-          Editar disponibilidad
-        </h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Ajusta la disponibilidad del empleado
-        </p>
-      </div>
-
-      {error && (
-        <div className="text-sm text-red-600 bg-red-50 border rounded-lg px-4 py-3">
-          {error}
-        </div>
-      )}
-
-      {/* EMPLEADO */}
-      <Field label="Empleado">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {employees.map((emp) => (
-            <SelectCard
-              key={emp.id}
-              title={emp.name}
-              description={emp.role}
-              active={employeeId === emp.id}
-              onClick={() => setEmployeeId(emp.id)}
-            />
-          ))}
-        </div>
-      </Field>
-
-      {/* DÍA */}
-      <Field label="Día de la semana">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {days.map((d) => (
-            <SelectCard
-              key={d.value}
-              title={d.label}
-              active={dayOfWeek === d.value}
-              onClick={() => setDayOfWeek(d.value)}
-            />
-          ))}
-        </div>
-      </Field>
-
-      {/* DISPONIBLE */}
-      <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
+    <div className="w-full py-6 flex justify-center">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="w-full max-w-2xl bg-white rounded-3xl border border-gray-100 p-8 sm:p-10 space-y-8 shadow-xl shadow-gray-200/40"
+      >
+        {/* HEADER */}
         <div>
-          <p className="text-sm font-medium text-gray-800">
-            Disponible este día
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Editar disponibilidad
+          </h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Ajusta la configuración de disponibilidad del empleado seleccionado.
           </p>
-          <p className="text-xs text-gray-500">Permite asignarle turnos</p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setAvailable((v) => !v)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-            available ? "bg-black" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`inline-block h-4 w-4 bg-white rounded-full transform transition-transform duration-200 ease-out ${
-              available ? "translate-x-6" : "translate-x-1"
-            }`}
+        {/* SELECTOR DE EMPLEADO */}
+        <EmployeeSelector
+          label="EMPLEADO"
+          employees={employees}
+          selectedIds={employeeId ? [employeeId] : []}
+          onSelect={(selectedId) => setEmployeeId(selectedId)}
+          multiple={false}
+        />
+
+        {/* DÍA DE LA SEMANA */}
+        <Section title="DÍA DE LA SEMANA">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {DAYS_OPTIONS.map((d) => (
+              <CardRadio
+                key={d.value}
+                title={d.label}
+                active={dayOfWeek === d.value}
+                onClick={() => setDayOfWeek(d.value)}
+              />
+            ))}
+          </div>
+        </Section>
+
+        {/* DISPONIBILIDAD */}
+        <Section title="¿ESTÁ DISPONIBLE?">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <CardRadio
+              title="Sí (Disponible)"
+              subtitle="El trabajador podrá ser asignado a turnos este día"
+              active={available === true}
+              onClick={() => setAvailable(true)}
+            />
+            <CardRadio
+              title="No (Descanso / No disponible)"
+              subtitle="Marca este día como no disponible para la semana"
+              active={available === false}
+              onClick={() => setAvailable(false)}
+            />
+          </div>
+        </Section>
+
+        {/* NOTAS */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase">
+            Notas / Observación
+          </h3>
+          <textarea
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Ej: Solicitud médica, descanso acordado por administración..."
+            className="w-full text-sm p-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100 transition resize-none"
           />
-        </button>
-      </div>
+        </div>
 
-      {/* NOTAS */}
-      <Field label="Notas">
-        <textarea
-          rows={3}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Opcional"
-          className="w-full rounded-xl border px-4 py-2.5 text-sm resize-none
-                     focus:outline-none focus:ring-2 focus:ring-black/10"
-        />
-      </Field>
-
-      {/* ACTIONS */}
-      <div className="flex justify-between pt-4 border-t">
-        <ActionButton
-          icon="/left.svg"
-          alt="Volver"
-          href="/availability"
-          className="bg-gray-50 text-gray-600 hover:bg-gray-100"
-        />
-
-        <button
-          disabled={saving}
-          className="px-5 py-2.5 text-sm rounded-xl bg-black text-white
-                     hover:bg-gray-900 transition shadow-sm"
-        >
-          {saving ? "Guardando…" : "Guardar cambios"}
-        </button>
-      </div>
-    </form>
+        {/* ACCIONES */}
+        <div className="flex justify-end items-center gap-3 border-t border-gray-100 pt-6">
+          <a
+            href="/availability"
+            className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition cursor-pointer"
+          >
+            Cancelar
+          </a>
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-6 py-2.5 rounded-xl bg-[#FF3131] hover:bg-red-600 active:scale-95 text-white font-semibold text-xs transition shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50 flex items-center gap-2"
+          >
+            {saving && (
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            {saving ? "Guardando…" : "Guardar Cambios"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
 
-/* ===== UI ===== */
-
-function Field({ label, children }) {
+function Section({ title, children }) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
+    <div className="space-y-2.5">
+      <h3 className="text-xs font-bold tracking-wider text-gray-400 uppercase">
+        {title}
+      </h3>
       {children}
     </div>
   );
 }
 
-function SelectCard({ title, description, active, onClick }) {
+function CardRadio({ title, subtitle, active, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`cursor-pointer rounded-xl border p-4 transition
-        ${
-          active
-            ? "border-black bg-black/5"
-            : "border-gray-200 hover:bg-gray-50"
-        }`}
+      className={`p-4 rounded-2xl border cursor-pointer transition-all duration-200 flex items-center justify-between select-none ${
+        active
+          ? "border-red-500/40 bg-white ring-2 ring-red-500/10 shadow-xs"
+          : "border-gray-200/80 bg-white hover:border-gray-300"
+      }`}
     >
-      <div className="flex gap-3 items-start">
-        <input
-          type="radio"
-          checked={active}
-          readOnly
-          className="mt-1 h-4 w-4"
-        />
-        <div>
-          <p className="text-sm font-medium text-gray-900">{title}</p>
-          {description && (
-            <p className="text-xs text-gray-500">{description}</p>
-          )}
-        </div>
+      <div>
+        <p className="font-semibold text-sm text-gray-800">{title}</p>
+        {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+      </div>
+      <div
+        className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+          active ? "border-red-500" : "border-gray-300"
+        }`}
+      >
+        {active && <div className="w-2.5 h-2.5 rounded-full bg-[#FF3131]" />}
       </div>
     </div>
   );

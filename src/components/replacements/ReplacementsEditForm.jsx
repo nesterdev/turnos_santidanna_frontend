@@ -4,54 +4,64 @@ import { showError, showSuccess } from "../../lib/utils/alert";
 import { redirect } from "../../lib/utils/navigation";
 
 export default function ReplacementsEditForm() {
-  const [name, setName] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  // Estados para los campos editables del reemplazo
+  const [date, setDate] = useState("");
+  const [status, setStatus] = useState("pendiente");
+  const [notes, setNotes] = useState("");
+
+  // Estados informativos (para mostrar quién es quién gracias a las relaciones)
+  const [employeeName, setEmployeeName] = useState("");
+  const [replacerName, setReplacerName] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [id, setId] = useState(null);
-  // 👇 LEER QUERY PARAM EN CLIENTE
+
+  // 1. Efecto para leer el ID de la URL al montar
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const empId = params.get("id");
 
-    console.log("id leída desde URL:", empId);
-
     if (!empId) {
-      setError("ID de empleado inválido");
+      setError("ID de reemplazo inválido");
       setLoading(false);
       return;
     }
 
     setId(empId);
   }, []);
-  if (!id) return;
 
+  // 2. Efecto para cargar los datos del reemplazo usando el objeto que llega de la API
   useEffect(() => {
     if (!id) return;
-    async function loadShift() {
+
+    async function loadReplacement() {
       try {
         const res = await apiFetch(`/replacements/${id}`);
 
         if (res?.success) {
-          console.log("respuesta de replacements", res);
           const data = res.data;
-          setName(data.name || "");
-          setStartTime(data.start_time || "");
-          setEndTime(data.end_time || "");
+          
+          // Mapeamos los campos editables
+          setDate(data.date || "");
+          setStatus(data.status || "pendiente");
+          setNotes(data.notes || "");
+
+          // Mapeamos los nombres informativos de las relaciones
+          setEmployeeName(data.ReplacementEmployee?.name || "—");
+          setReplacerName(data.ReplacementReplacer?.name || "—");
         } else {
-          setError(res?.message || "No se pudo cargar el turno");
+          setError(res?.message || "No se pudo cargar el reemplazo");
         }
       } catch (err) {
-        setError(err?.message || "Error cargando el turno");
+        setError(err?.message || "Error cargando el reemplazo");
       } finally {
         setLoading(false);
       }
     }
 
-    loadShift();
+    loadReplacement();
   }, [id]);
 
   const handleSubmit = async (e) => {
@@ -63,28 +73,28 @@ export default function ReplacementsEditForm() {
       const res = await apiFetch(`/replacements/${id}`, {
         method: "PUT",
         body: JSON.stringify({
-          name,
-          start_time: startTime,
-          end_time: endTime,
+          date,
+          status,
+          notes,
         }),
       });
 
       if (res?.success) {
-        showSuccess("Remplazo actualizado correctamente", {
+        showSuccess("Reemplazo actualizado correctamente", {
           onClose: () => redirect("/replacements"),
         });
       } else {
-        showError(res?.message || "Error actualizando el turno");
+        showError(res?.message || "Error actualizando el reemplazo");
       }
     } catch (err) {
-      showError(err?.message || "Error al actualizar el turno");
+      showError(err?.message || "Error al actualizar el reemplazo");
     }
   };
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto p-6 rounded-2xl bg-white/70 border border-gray-100 shadow-sm text-gray-500 animate-pulse">
-        Cargando turno…
+      <div className="max-w-2xl mx-auto p-6 rounded-2xl bg-white/75 border border-gray-100 shadow-sm text-gray-500 animate-pulse">
+        Cargando reemplazo…
       </div>
     );
   }
@@ -94,7 +104,7 @@ export default function ReplacementsEditForm() {
       onSubmit={handleSubmit}
       className="
         max-w-2xl mx-auto
-        bg-white/80 backdrop-blur-xl
+        bg-white/90 backdrop-blur-xl
         rounded-2xl border border-gray-100
         shadow-sm
         p-8 space-y-6
@@ -102,9 +112,9 @@ export default function ReplacementsEditForm() {
     >
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Editar turno</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Editar reemplazo</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Actualiza la información del horario seleccionado
+          Actualiza los detalles y el estado de esta sustitución de turno
         </p>
       </div>
 
@@ -121,54 +131,68 @@ export default function ReplacementsEditForm() {
         </div>
       )}
 
+      {/* Info informativa de las relaciones (No editable directamente aquí) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50/70 rounded-xl border border-gray-100 text-xs">
+        <div>
+          <span className="text-gray-400 block mb-0.5 font-medium">Empleado titular:</span>
+          <span className="font-semibold text-gray-800 text-sm">{employeeName}</span>
+        </div>
+        <div>
+          <span className="text-gray-400 block mb-0.5 font-medium">Reemplazado por:</span>
+          <span className="font-semibold text-gray-800 text-sm">{replacerName}</span>
+        </div>
+      </div>
+
       {/* Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Nombre */}
+        {/* Fecha */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Fecha del reemplazo
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            className="
+              w-full rounded-xl border border-gray-200
+              px-4 py-2.5 text-sm
+              focus:outline-none focus:ring-2 focus:ring-black/10
+            "
+          />
+        </div>
+
+        {/* Estado */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Estado
+          </label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="
+              w-full rounded-xl border border-gray-200
+              px-4 py-2.5 text-sm bg-white
+              focus:outline-none focus:ring-2 focus:ring-black/10
+            "
+          >
+            <option value="pendiente">Pendiente</option>
+            <option value="aprobado">Aprobado</option>
+            <option value="rechazado">Rechazado</option>
+          </select>
+        </div>
+
+        {/* Notas */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre del turno
+            Notas u observaciones
           </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="
-              w-full rounded-xl border border-gray-200
-              px-4 py-2.5 text-sm
-              focus:outline-none focus:ring-2 focus:ring-black/10
-            "
-          />
-        </div>
-
-        {/* Hora inicio */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Hora de ingreso
-          </label>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            required
-            className="
-              w-full rounded-xl border border-gray-200
-              px-4 py-2.5 text-sm
-              focus:outline-none focus:ring-2 focus:ring-black/10
-            "
-          />
-        </div>
-
-        {/* Hora salida */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Hora de salida
-          </label>
-          <input
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            required
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows="3"
+            placeholder="Escribe alguna observación opcional..."
             className="
               w-full rounded-xl border border-gray-200
               px-4 py-2.5 text-sm
@@ -181,7 +205,7 @@ export default function ReplacementsEditForm() {
       {/* Actions */}
       <div className="flex justify-end gap-3 pt-4">
         <a
-          href="/shifts"
+          href="/replacements"
           className="
             px-5 py-2.5 text-sm rounded-xl
             border border-gray-200

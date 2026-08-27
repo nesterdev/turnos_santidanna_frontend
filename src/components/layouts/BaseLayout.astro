@@ -1,7 +1,8 @@
 ---
-// src/components/layouts/BaseLayout.astro
 import "../../styles/global.css";
-
+import { ClientRouter } from "astro:transitions";
+import ToastContainer from "../ui/ToastContainer.jsx"; // Importación correcta en el Frontmatter
+import ConfirmModalContainer from "../ui/ConfirmModalContainer.jsx";
 const { title = "Sistema de Turnos" } = Astro.props;
 ---
 
@@ -13,11 +14,18 @@ const { title = "Sistema de Turnos" } = Astro.props;
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#FF3131" />
     <link rel="icon" href="/favicon.svg" />
+    
+    {/* Mantiene el DOM vivo entre navegaciones */}
+    <ClientRouter />
   </head>
 
   <body
-    class="h-full bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 antialiased selection:bg-[#FF3131] selection:text-white"
+    class="h-full bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 antialiased selection:bg-[#FF3131] selection:text-white relative"
   >
     <slot />
+
+    {/* El ToastContainer debe ir dentro del body con la directiva client:only */}
+    <ToastContainer client:only="react" />
+    <ConfirmModalContainer client:only="react" />
   </body>
 </html>

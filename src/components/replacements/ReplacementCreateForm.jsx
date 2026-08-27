@@ -1,7 +1,12 @@
+// src/components/replacements/ReplacementCreateForm.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import Field from "../ui/Field";
+import Input from "../ui/Input";
+import Textarea from "../ui/Textarea";
 import SelectCard from "../ui/SelectCard";
+import CustomDatePicker from "../ui/CustomDatePicker";
+import EmployeeSelector from "../ui/EmployeeSelector";
 import { showError, showSuccess } from "../../lib/utils/alert";
 import { redirect } from "../../lib/utils/navigation";
 
@@ -85,7 +90,7 @@ export default function ReplacementCreateForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.employee_id, form.date]);
 
-  // free employees (usa endpoint que ya tienes)
+  // free employees
   async function loadFreeEmployees() {
     try {
       console.log(
@@ -110,7 +115,6 @@ export default function ReplacementCreateForm() {
   }
 
   // schedules del empleado ausente PARA LA FECHA SELECCIONADA
-  // dentro del componente React
   async function loadSchedulesForAbsent() {
     try {
       const start = form.date;
@@ -219,6 +223,20 @@ export default function ReplacementCreateForm() {
     }
   }
 
+  // Preparamos los datos estructurados para el EmployeeSelector del ausente
+  const absentEmployeesFormatted = absentEmployees.map((e) => ({
+    ...e,
+    disabled: false,
+    role: e.role || e.EmployeeRole?.name || "Trabajador",
+  }));
+
+  // Preparamos los datos estructurados para el EmployeeSelector del reemplazante
+  const replacementEmployeesFormatted = replacementEmployees.map((e) => ({
+    ...e,
+    disabled: false,
+    role: e.role || e.EmployeeRole?.name || "Trabajador",
+  }));
+
   return (
     <>
       {error && (
@@ -230,12 +248,12 @@ export default function ReplacementCreateForm() {
       <form
         onSubmit={handleSubmit}
         className="
-        max-w-2xl mx-auto
-        bg-white/80 backdrop-blur-xl
-        rounded-2xl border border-gray-100
-        shadow-sm
-        p-8 space-y-7
-      "
+          max-w-2xl mx-auto
+          bg-white/80 backdrop-blur-xl
+          rounded-2xl border border-gray-100
+          shadow-sm
+          p-8 space-y-7
+        "
       >
         {/* HEADER */}
         <div>
@@ -247,22 +265,16 @@ export default function ReplacementCreateForm() {
           </p>
         </div>
 
-        {/* FECHA */}
+        {/* FECHA CON CUSTOM DATE PICKER */}
         <Field label="Fecha">
-          <input
-            type="date"
-            required
+          <CustomDatePicker
             value={form.date}
-            onChange={(e) => updateField("date", e.target.value)}
-            className="
-            w-full rounded-xl border border-gray-200
-            px-4 py-2.5 text-sm
-            focus:outline-none focus:ring-2 focus:ring-black/10
-          "
+            onChange={(dateVal) => updateField("date", dateVal)}
+            label=""
           />
         </Field>
 
-        {/* EMPLEADO AUSENTE */}
+        {/* EMPLEADO AUSENTE CON EMPLOYEE SELECTOR */}
         {form.date && (
           <Field
             label="Empleado ausente"
@@ -276,25 +288,19 @@ export default function ReplacementCreateForm() {
               </p>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {absentEmployees.map((e) => (
-                <SelectCard
-                  key={e.id}
-                  title={e.name}
-                  description={
-                    e.EmployeeSchedules?.length
-                      ? `Turno: ${e.EmployeeSchedules[0].date}`
-                      : null
-                  }
-                  active={String(form.employee_id) === String(e.id)}
-                  onClick={() => updateField("employee_id", e.id)}
-                />
-              ))}
-            </div>
+            {!loading && absentEmployees.length > 0 && (
+              <EmployeeSelector
+                employees={absentEmployeesFormatted}
+                selectedIds={[form.employee_id].filter(Boolean)}
+                onSelect={(id) => updateField("employee_id", id)}
+                multiple={false}
+                label=""
+              />
+            )}
           </Field>
         )}
 
-        {/* REEMPLAZO */}
+        {/* REEMPLAZO CON EMPLOYEE SELECTOR */}
         {form.employee_id && (
           <Field label="Reemplazado por" hint="Empleados libres y disponibles">
             {replacementEmployees.length === 0 && (
@@ -303,16 +309,15 @@ export default function ReplacementCreateForm() {
               </p>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {replacementEmployees.map((e) => (
-                <SelectCard
-                  key={e.id}
-                  title={e.name}
-                  active={String(form.replaced_by) === String(e.id)}
-                  onClick={() => updateField("replaced_by", e.id)}
-                />
-              ))}
-            </div>
+            {replacementEmployees.length > 0 && (
+              <EmployeeSelector
+                employees={replacementEmployeesFormatted}
+                selectedIds={[form.replaced_by].filter(Boolean)}
+                onSelect={(id) => updateField("replaced_by", id)}
+                multiple={false}
+                label=""
+              />
+            )}
           </Field>
         )}
 
@@ -337,17 +342,13 @@ export default function ReplacementCreateForm() {
           </Field>
         )}
 
-        {/* NOTAS */}
+        {/* NOTAS CON TEXTAREA */}
         <Field label="Notas" hint="Opcional">
-          <textarea
+          <Textarea
             rows={3}
             value={form.notes}
-            onChange={(e) => updateField("notes", e.target.value)}
-            className="
-            w-full rounded-xl border border-gray-200
-            px-4 py-2.5 text-sm resize-none
-            focus:outline-none focus:ring-2 focus:ring-black/10
-          "
+            onChange={(val) => updateField("notes", val)}
+            placeholder="Añade notas adicionales si es necesario..."
           />
         </Field>
 
@@ -356,10 +357,10 @@ export default function ReplacementCreateForm() {
           <a
             href="/replacements"
             className="
-            px-5 py-2.5 text-sm rounded-xl
-            border border-gray-200
-            text-gray-700 hover:bg-gray-50 transition
-          "
+              px-5 py-2.5 text-sm rounded-xl
+              border border-gray-200
+              text-gray-700 hover:bg-gray-50 transition
+            "
           >
             Cancelar
           </a>
@@ -367,11 +368,11 @@ export default function ReplacementCreateForm() {
           <button
             type="submit"
             className="
-            px-5 py-2.5 text-sm rounded-xl
-            bg-black text-white
-            hover:bg-gray-900 transition
-            shadow-sm
-          "
+              px-5 py-2.5 text-sm rounded-xl
+              bg-black text-white
+              hover:bg-gray-900 transition
+              shadow-sm
+            "
           >
             Crear reemplazo
           </button>
