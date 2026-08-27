@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Input from "../ui/Input";
+import Field from "../ui/Field";
 import Button from "../ui/Button";
 import { registerApi } from "../../lib/api/auth";
 
@@ -7,7 +8,7 @@ export default function RegisterForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    role: "worker", // Envió fijo internamente
+    role: "worker", // Envío fijo internamente
   });
 
   const [error, setError] = useState("");
@@ -19,7 +20,7 @@ export default function RegisterForm() {
     try {
       const audio = new Audio(`/sounds/${soundName}.wav`);
       audio.volume = 0.4;
-      audio.play().catch(() => { });
+      audio.play().catch(() => {});
     } catch (e) {
       // Si el navegador bloquea autoplay o no encuentra el audio, continua suavemente
     }
@@ -32,7 +33,6 @@ export default function RegisterForm() {
 
   // Comprobaciones de validación dinámica
   const isNameValid = form.name.trim().split(/\s+/).filter(Boolean).length >= 2;
-  // 1. Expresión regular ajustada para gmail, hotmail y outlook (.com o .es)
   const isEmailValid = /^[a-zA-Z0-9._%+-]+@(gmail|hotmail|outlook)\.(com|es)$/i.test(form.email.trim());
 
   function validateForm() {
@@ -43,7 +43,6 @@ export default function RegisterForm() {
     }
 
     if (!isEmailValid) {
-      // 2. Mensaje de error actualizado
       setError("El correo debe pertenecer a @gmail, @hotmail o @outlook (.com o .es)");
       playAudio("error");
       return false;
@@ -109,7 +108,7 @@ export default function RegisterForm() {
           </p>
         </div>
 
-        {/* Mensaje de Error */}
+        {/* Mensaje de Error Global */}
         {error && (
           <div className="flex items-center gap-3 bg-red-50 text-red-600 border border-red-200/60 p-3.5 rounded-2xl mb-5 text-sm font-medium animate-shake">
             <svg className="w-5 h-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,38 +129,45 @@ export default function RegisterForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Campo Nombre */}
-          <div className="relative group">
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600">
-                NOMBRE COMPLETO <span className="text-red-500">*</span>
-              </label>
-              {form.name && (
-                <span className={`text-[11px] font-semibold transition-colors ${isNameValid ? 'text-emerald-500' : 'text-amber-500'}`}>
-                  {isNameValid ? "✓ Válido" : "Ingresa nombre y apellido"}
+          
+          {/* Campo Nombre con Field */}
+          <Field
+            label={
+              <div className="flex justify-between items-center w-full">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                  NOMBRE COMPLETO <span className="text-red-500">*</span>
                 </span>
-              )}
-            </div>
+                {form.name && (
+                  <span className={`text-[11px] font-semibold transition-colors ${isNameValid ? 'text-emerald-500' : 'text-amber-500'}`}>
+                    {isNameValid ? "✓ Válido" : "Ingresa nombre y apellido"}
+                  </span>
+                )}
+              </div>
+            }
+          >
             <Input
               placeholder="Ej. Carlos Muñoz"
               value={form.name}
               onChange={(v) => update("name", v)}
               disabled={loading}
             />
-          </div>
+          </Field>
 
-          {/* Campo Correo */}
-          <div className="relative group">
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600">
-                CORREO ELECTRÓNICO <span className="text-red-500">*</span>
-              </label>
-              {form.email && (
-                <span className={`text-[11px] font-semibold transition-colors ${isEmailValid ? 'text-emerald-500' : 'text-amber-500'}`}>
-                  {isEmailValid ? "✓ Dominio permitido" : "@gmail, @hotmail o @outlook (.com/.es)"}
+          {/* Campo Correo con Field */}
+          <Field
+            label={
+              <div className="flex justify-between items-center w-full">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                  CORREO ELECTRÓNICO <span className="text-red-500">*</span>
                 </span>
-              )}
-            </div>
+                {form.email && (
+                  <span className={`text-[11px] font-semibold transition-colors ${isEmailValid ? 'text-emerald-500' : 'text-amber-500'}`}>
+                    {isEmailValid ? "✓ Dominio permitido" : "@gmail, @hotmail o @outlook (.com/.es)"}
+                  </span>
+                )}
+              </div>
+            }
+          >
             <Input
               placeholder="tcncarlos392@gmail.com"
               type="email"
@@ -172,7 +178,7 @@ export default function RegisterForm() {
               inputMode="email"
               disabled={loading}
             />
-          </div>
+          </Field>
 
           {/* Botón de Enviar */}
           <div className="pt-3">

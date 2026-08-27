@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Input from "../ui/Input";
+import Field from "../ui/Field";
 import Button from "../ui/Button";
 import AnimatedMascot from "../ui/AnimatedMascot";
 import { loginApi } from "../../lib/api/auth";
@@ -14,7 +15,6 @@ export default function LoginForm() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Estados de foco independientes para controlar la mirada y animaciones
   const [isFocusEmail, setIsFocusEmail] = useState(false);
   const [isFocusPassword, setIsFocusPassword] = useState(false);
 
@@ -22,8 +22,8 @@ export default function LoginForm() {
     try {
       const audio = new Audio(`/sounds/${soundName}.wav`);
       audio.volume = 0.4;
-      audio.play().catch(() => { });
-    } catch (e) { }
+      audio.play().catch(() => {});
+    } catch (e) {}
   };
 
   async function handleSubmit(e) {
@@ -46,7 +46,6 @@ export default function LoginForm() {
       playAudio("success");
       setSuccess(true);
 
-      // Save Auth Data
       saveToken(res.token);
 
       if (res.user) {
@@ -76,7 +75,7 @@ export default function LoginForm() {
         {/* Mascota Animada Interactiva */}
         <AnimatedMascot
           email={email}
-          password={password} // <-- AGREGADO: Pasa la contraseña completa
+          password={password}
           emailLength={email.length}
           passLength={password.length}
           isFocusEmail={isFocusEmail}
@@ -97,7 +96,7 @@ export default function LoginForm() {
           </p>
         </div>
 
-        {/* Mensaje de Error */}
+        {/* Mensaje de Error Global */}
         {error && (
           <div className="flex items-center gap-3 bg-red-50 text-red-600 border border-red-200/60 p-3.5 rounded-2xl mb-5 text-sm font-medium animate-shake">
             <svg className="w-5 h-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,11 +107,9 @@ export default function LoginForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Correo Electrónico */}
-          <div className="relative">
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">
-              CORREO ELECTRÓNICO
-            </label>
+          
+          {/* Correo Electrónico usando Field */}
+          <Field label="Correo electrónico">
             <Input
               placeholder="tcncarlos392@gmail.com"
               type="email"
@@ -131,13 +128,10 @@ export default function LoginForm() {
               autoCorrect="off"
               inputMode="email"
             />
-          </div>
+          </Field>
 
-          {/* Contraseña con Botón de Mostrar / Ocultar */}
-          <div className="relative">
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1">
-              CONTRASEÑA
-            </label>
+          {/* Contraseña usando Field */}
+          <Field label="Contraseña">
             <div className="relative">
               <Input
                 placeholder="••••••••"
@@ -158,7 +152,7 @@ export default function LoginForm() {
               <button
                 type="button"
                 onMouseDown={(e) => {
-                  e.preventDefault(); // Evita perder foco innecesariamente
+                  e.preventDefault();
                 }}
                 onClick={() => {
                   setShowPassword(!showPassword);
@@ -178,7 +172,7 @@ export default function LoginForm() {
                 )}
               </button>
             </div>
-          </div>
+          </Field>
 
           {/* Botón de Enviar */}
           <div className="pt-2">

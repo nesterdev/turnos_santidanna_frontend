@@ -1,15 +1,29 @@
 ---
 import RegisterForm from "../../components/forms/RegisterForm.jsx";
-import "@/styles/global.css"; // ya usando tu alias @
+import "@/styles/global.css";
 ---
 
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Registro</title>
   </head>
 
-  <body class="h-screen flex justify-center items-center bg-gray-100">
+  <body
+    class="
+      min-h-screen
+      flex
+      items-center
+      justify-center
+      bg-gray-100
+      px-4
+      sm:px-0
+    "
+  >
     <RegisterForm client:visible />
   </body>
 </html>
