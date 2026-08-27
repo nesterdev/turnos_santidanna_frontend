@@ -1,11 +1,10 @@
-// src/components/availability/AvailabilityList.jsx
 import { useEffect, useState, useMemo } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
 import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 import Loading from "../ui/Loading";
-import TabFilter from "../ui/TabFilter"; // Importamos el componente selector
+import TabFilter from "../ui/TabFilter";
 
 const daysMap = {
   1: "Lunes",
@@ -27,7 +26,6 @@ const shortDaysMap = {
   0: "D",
 };
 
-// Función para formatear fechas a texto amigable (Ej: "25 Ago, 2026")
 function formatDate(dateStr) {
   if (!dateStr) return "";
   const [year, month, day] = dateStr.split("T")[0].split("-");
@@ -39,7 +37,6 @@ function formatDate(dateStr) {
   });
 }
 
-// Función para calcular la fecha exacta sumando días a week_start
 function getExactDate(weekStartStr, dayOfWeek) {
   if (!weekStartStr) return "";
   const [year, month, day] = weekStartStr.split("T")[0].split("-");
@@ -81,7 +78,6 @@ export default function AvailabilityList() {
     }
   }
 
-  // Extraer las semanas únicas disponibles para el filtro
   const availableWeeks = useMemo(() => {
     const weeksSet = new Set();
     availability.forEach((item) => {
@@ -90,7 +86,6 @@ export default function AvailabilityList() {
     return Array.from(weeksSet).sort();
   }, [availability]);
 
-  // Formatear las semanas para el componente TabFilter
   const weekTabOptions = useMemo(() => {
     const defaultOption = { id: "ALL", label: "Todas las semanas" };
     const dynamicOptions = availableWeeks.map((week) => ({
@@ -100,14 +95,12 @@ export default function AvailabilityList() {
     return [defaultOption, ...dynamicOptions];
   }, [availableWeeks]);
 
-  // Agrupar por EMPLEADO y por SEMANA
   const groupedData = useMemo(() => {
     const groups = {};
 
     availability.forEach((item) => {
       const week = item.week_start ? item.week_start.split("T")[0] : "sin-semana";
 
-      // Aplicar filtro de semana seleccionada
       if (selectedWeek !== "ALL" && week !== selectedWeek) return;
 
       const empId = item.AvailabilityEmployee?.id || item.employee_id || "desconocido";
@@ -126,7 +119,6 @@ export default function AvailabilityList() {
       groups[key].records.push(item);
     });
 
-    // Ordenar los registros internamente por día de la semana (Lunes a Domingo)
     Object.values(groups).forEach((group) => {
       group.records.sort((a, b) => {
         const orderA = a.day_of_week === 0 ? 7 : a.day_of_week;
@@ -160,10 +152,11 @@ export default function AvailabilityList() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-12">
-      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
+    <div className="max-w-5xl mx-auto pb-12 px-2 sm:px-0">
+      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-4 sm:p-7 space-y-6">
+        
         {/* HEADER SUPERIOR */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">
               Disponibilidad
@@ -173,38 +166,36 @@ export default function AvailabilityList() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* TAB FILTER POR SEMANA */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {availableWeeks.length > 0 && (
-              <TabFilter
-                options={weekTabOptions}
-                value={selectedWeek}
-                onChange={setSelectedWeek}
-                size="sm"
-                layoutId="availability-week-filter"
-              />
+              <div className="overflow-x-auto pb-1 sm:pb-0">
+                <TabFilter
+                  options={weekTabOptions}
+                  value={selectedWeek}
+                  onChange={setSelectedWeek}
+                  size="sm"
+                  layoutId="availability-week-filter"
+                />
+              </div>
             )}
 
             <a
               href="/availability/create"
-              className="inline-flex items-center justify-center px-4 py-2 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition shadow-sm"
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition shadow-sm whitespace-nowrap"
             >
               + Nueva disponibilidad
             </a>
           </div>
         </div>
 
-        {/* ESTADO DE CARGA */}
         {loading && <Loading fullscreen={false} text="Cargando disponibilidad…" />}
 
-        {/* ALERTA DE ERROR */}
         {error && (
           <div className="p-4 bg-red-50 text-red-600 text-xs font-semibold rounded-xl">
             {error}
           </div>
         )}
 
-        {/* EMPTY STATE */}
         {!loading && !error && groupedData.length === 0 && (
           <div className="py-16 text-center space-y-3">
             <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center mx-auto border border-gray-100">
@@ -221,7 +212,6 @@ export default function AvailabilityList() {
           </div>
         )}
 
-        {/* LISTA AGRUPADA POR EMPLEADO Y SEMANA */}
         {!loading && groupedData.length > 0 && (
           <div className="space-y-3">
             {groupedData.map((group) => {
@@ -232,22 +222,20 @@ export default function AvailabilityList() {
                   key={group.key}
                   className="border border-gray-100 rounded-xl overflow-hidden bg-white transition-all shadow-sm hover:border-gray-200"
                 >
-                  {/* VISTA PREVIA DEL EMPLEADO Y FECHA */}
                   <div
                     onClick={() => toggleExpand(group.key)}
                     className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
                   >
-                    {/* INFO EMPLEADO Y SEMANA */}
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-900 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                      <div className="w-9 h-9 rounded-full bg-gray-900 text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
                         {group.employeeName.charAt(0)}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-sm font-bold text-gray-900">
                             {group.employeeName}
                           </h3>
-                          <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-medium">
+                          <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
                             Semana del {formatDate(group.weekStart)}
                           </span>
                         </div>
@@ -257,9 +245,7 @@ export default function AvailabilityList() {
                       </div>
                     </div>
 
-                    {/* VISTA RÁPIDA DE DÍAS (MINI BADGES) & BOTÓN */}
                     <div className="flex items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-gray-100">
-                      {/* CÍRCULOS DE DÍAS (Semanas L-D) */}
                       <div className="flex items-center gap-1">
                         {group.records.map((rec) => (
                           <div
@@ -276,8 +262,7 @@ export default function AvailabilityList() {
                         ))}
                       </div>
 
-                      {/* BOTÓN EXPANDIR */}
-                      <button className="text-xs font-medium text-gray-600 hover:text-black flex items-center gap-1.5 bg-gray-100/80 hover:bg-gray-200/70 px-3 py-1.5 rounded-xl transition">
+                      <button className="text-xs font-medium text-gray-600 hover:text-black flex items-center gap-1.5 bg-gray-100/80 hover:bg-gray-200/70 px-3 py-1.5 rounded-xl transition shrink-0">
                         <span>{isExpanded ? "Ocultar" : "Detalles"}</span>
                         <svg
                           className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -293,30 +278,29 @@ export default function AvailabilityList() {
                     </div>
                   </div>
 
-                  {/* TABLA DETALLADA EXPANDIDA */}
                   {isExpanded && (
-                    <div className="border-t border-gray-100 bg-gray-50/40 p-4">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                    <div className="border-t border-gray-100 bg-gray-50/40 p-3 sm:p-4">
+                      <div className="w-full overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+                        <table className="w-full text-left border-collapse min-w-[600px]">
                           <thead>
                             <tr className="border-b border-gray-200/60 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                              <th className="pb-2 px-3">DÍA Y FECHA</th>
-                              <th className="pb-2 px-3">ESTADO</th>
+                              <th className="pb-2 px-3 whitespace-nowrap">DÍA Y FECHA</th>
+                              <th className="pb-2 px-3 whitespace-nowrap">ESTADO</th>
                               <th className="pb-2 px-3">NOTAS / RESTRICCIÓN</th>
-                              <th className="pb-2 px-3 text-right">ACCIONES</th>
+                              <th className="pb-2 px-3 text-right whitespace-nowrap">ACCIONES</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100 text-xs">
                             {group.records.map((a) => (
                               <tr key={a.id} className="hover:bg-white transition-colors">
-                                <td className="py-2.5 px-3 font-semibold text-gray-800">
+                                <td className="py-2.5 px-3 font-semibold text-gray-800 whitespace-nowrap">
                                   {daysMap[a.day_of_week]}
                                   <span className="text-[11px] text-gray-400 font-normal ml-1.5">
                                     ({getExactDate(a.week_start, a.day_of_week)})
                                   </span>
                                 </td>
 
-                                <td className="py-2.5 px-3">
+                                <td className="py-2.5 px-3 whitespace-nowrap">
                                   <span
                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${
                                       a.available
@@ -328,15 +312,15 @@ export default function AvailabilityList() {
                                   </span>
                                 </td>
 
-                                <td className="py-2.5 px-3 text-gray-500 max-w-xs truncate">
+                                <td className="py-2.5 px-3 text-gray-500 max-w-xs">
                                   {a.notes ? (
-                                    <span className="text-gray-700 font-medium">{a.notes}</span>
+                                    <span className="text-gray-700 font-medium block break-words">{a.notes}</span>
                                   ) : (
                                     <span className="text-gray-300">—</span>
                                   )}
                                 </td>
 
-                                <td className="py-2.5 px-3 text-right">
+                                <td className="py-2.5 px-3 text-right whitespace-nowrap">
                                   <div className="inline-flex items-center justify-end gap-1.5">
                                     <ActionButton
                                       icon="/eye.svg"

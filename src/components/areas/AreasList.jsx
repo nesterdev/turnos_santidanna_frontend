@@ -45,9 +45,9 @@ export default function AreasList() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
+    <div className="max-w-6xl mx-auto pb-12 px-2 sm:px-0">
       {/* CONTENEDOR UNIFICADO ESTILO EMPLEADOS / TURNOS */}
-      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
+      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-4 sm:p-7 space-y-6">
         
         {/* HEADER SUPERIOR */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -62,7 +62,7 @@ export default function AreasList() {
 
           <a
             href="/areas/create"
-            className="inline-flex items-center justify-center px-4 py-2 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition self-start sm:self-auto"
+            className="inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition self-start sm:self-auto"
           >
             + Nueva Área
           </a>
@@ -97,29 +97,29 @@ export default function AreasList() {
 
         {/* TABLA PRINCIPAL */}
         {!loading && areas.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left border-collapse min-w-[850px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="pb-3 px-3">ID</th>
-                  <th className="pb-3 px-3">NOMBRE</th>
-                  <th className="pb-3 px-3">DESCRIPCIÓN</th>
-                  <th className="pb-3 px-3">ZONA</th>
-                  <th className="pb-3 px-3">PRIORIDAD</th>
-                  <th className="pb-3 px-3">COMPLEJIDAD</th>
-                  <th className="pb-3 px-3">FRECUENCIA</th>
-                  <th className="pb-3 px-3 text-right">ACCIONES</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">ID</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">NOMBRE</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">DESCRIPCIÓN</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">ZONA</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">PRIORIDAD</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">COMPLEJIDAD</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">FRECUENCIA</th>
+                  <th className="pb-3 px-3 text-right whitespace-nowrap">ACCIONES</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-50 text-xs">
                 {areas.map((a) => (
                   <tr key={a.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3.5 px-3 font-mono text-gray-400 font-medium">
+                    <td className="py-3.5 px-3 font-mono text-gray-400 font-medium whitespace-nowrap">
                       #{a.id}
                     </td>
 
-                    <td className="py-3.5 px-3 font-semibold text-gray-900">
+                    <td className="py-3.5 px-3 font-semibold text-gray-900 whitespace-nowrap">
                       {a.name}
                     </td>
 
@@ -127,7 +127,7 @@ export default function AreasList() {
                       {a.description || "—"}
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       {a.zone ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
                           {a.zone}
@@ -137,15 +137,15 @@ export default function AreasList() {
                       )}
                     </td>
 
-                    <td className="py-3.5 px-3 font-medium text-gray-700">
+                    <td className="py-3.5 px-3 font-medium text-gray-700 whitespace-nowrap">
                       {a.priority_level ?? "—"}
                     </td>
 
-                    <td className="py-3.5 px-3 font-medium text-gray-700">
+                    <td className="py-3.5 px-3 font-medium text-gray-700 whitespace-nowrap">
                       {a.complexity_level ?? "—"}
                     </td>
 
-                    <td className="py-3.5 px-3 capitalize text-gray-600">
+                    <td className="py-3.5 px-3 capitalize text-gray-600 whitespace-nowrap">
                       {a.frequency_type ? (
                         <span>
                           {a.frequency_type} {a.frequency_value ? `(${a.frequency_value})` : ""}
@@ -155,7 +155,7 @@ export default function AreasList() {
                       )}
                     </td>
 
-                    <td className="py-3.5 px-3 text-right">
+                    <td className="py-3.5 px-3 text-right whitespace-nowrap">
                       <div className="inline-flex items-center justify-end gap-1.5">
                         <ActionButton
                           icon="/eye.svg"

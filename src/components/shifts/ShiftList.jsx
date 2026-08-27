@@ -44,8 +44,8 @@ export default function ShiftList() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-12">
-      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
+    <div className="max-w-5xl mx-auto pb-12 px-2 sm:px-0">
+      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/85 p-4 sm:p-7 space-y-6">
         
         {/* HEADER SUPERIOR */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -60,7 +60,7 @@ export default function ShiftList() {
 
           <a
             href="/shifts/create"
-            className="inline-flex items-center justify-center px-4 py-2 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition self-start sm:self-auto"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition"
           >
             + Nuevo turno
           </a>
@@ -95,8 +95,8 @@ export default function ShiftList() {
 
         {/* TABLA PRINCIPAL */}
         {!loading && shifts.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left border-collapse min-w-[650px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   <th className="pb-3 px-3">ID</th>
@@ -112,38 +112,38 @@ export default function ShiftList() {
               <tbody className="divide-y divide-gray-50 text-xs">
                 {shifts.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3.5 px-3 font-mono text-gray-400 font-medium">
+                    <td className="py-3.5 px-3 font-mono text-gray-400 font-medium whitespace-nowrap">
                       #{s.id}
                     </td>
 
-                    <td className="py-3.5 px-3 font-semibold text-gray-900">
+                    <td className="py-3.5 px-3 font-semibold text-gray-900 whitespace-nowrap">
                       {s.name}
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 font-mono">
                         {s.start_time}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 font-mono">
                         {s.end_time}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 font-mono">
                         {s.break_time ? `${s.break_time} min` : "0 min"}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-3 text-gray-500 max-w-xs truncate">
+                    <td className="py-3.5 px-3 text-gray-500 max-w-[150px] truncate">
                       {s.notes || "—"}
                     </td>
 
-                    <td className="py-3.5 px-3 text-right">
-                      <div className="inline-flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center justify-end gap-1">
                         <ActionButton
                           icon="/eye.svg"
                           alt="Ver"

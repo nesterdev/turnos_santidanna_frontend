@@ -5,11 +5,9 @@ export default function CustomDatePicker({ value, onChange, label = "FECHA:" }) 
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  // Fecha seleccionada o fecha actual por defecto
   const selectedDate = value ? dayjs(value) : dayjs();
   const [viewDate, setViewDate] = useState(selectedDate);
 
-  // Cerrar al hacer clic fuera del componente
   useEffect(() => {
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -20,14 +18,12 @@ export default function CustomDatePicker({ value, onChange, label = "FECHA:" }) 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Actualizar la vista interna si cambia el prop `value` exteriormente
   useEffect(() => {
     if (value) setViewDate(dayjs(value));
   }, [value]);
 
   const startOfMonth = viewDate.startOf("month");
   const daysInMonth = viewDate.daysInMonth();
-  // Ajuste para iniciar la semana en Lunes (0 = Lun, 6 = Dom)
   const startDayOfWeek = (startOfMonth.day() + 6) % 7;
 
   const days = [];
@@ -49,9 +45,9 @@ export default function CustomDatePicker({ value, onChange, label = "FECHA:" }) 
   };
 
   return (
-    <div className="relative inline-block text-left" ref={containerRef}>
+    <div className="relative inline-block text-left w-full sm:w-auto" ref={containerRef}>
       {/* BOTÓN TRIGGER / INPUT VISUAL */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between sm:justify-start gap-2">
         {label && (
           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
             {label}
@@ -60,7 +56,7 @@ export default function CustomDatePicker({ value, onChange, label = "FECHA:" }) 
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between gap-3 bg-gray-50/70 border border-gray-200/80 hover:bg-white hover:border-gray-300 text-gray-800 text-xs font-semibold rounded-xl px-3.5 py-1.5 transition shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF3131]/20 focus:border-[#FF3131]"
+          className="flex-1 sm:flex-none flex items-center justify-between gap-3 bg-gray-50/70 border border-gray-200/80 hover:bg-white hover:border-gray-300 text-gray-800 text-xs font-semibold rounded-xl px-3.5 py-2 transition shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF3131]/20 focus:border-[#FF3131]"
         >
           <span>{selectedDate.format("DD/MM/YYYY")}</span>
           <svg
@@ -81,7 +77,7 @@ export default function CustomDatePicker({ value, onChange, label = "FECHA:" }) 
 
       {/* POPOVER POPUP */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 z-50 w-72 bg-white border border-gray-100 rounded-2xl shadow-xl p-4 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 z-50 w-full sm:w-72 bg-white border border-gray-100 rounded-2xl shadow-xl p-4 animate-in fade-in zoom-in-95 duration-150">
           {/* HEADER DEL CALENDARIO */}
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
             <button
@@ -118,7 +114,7 @@ export default function CustomDatePicker({ value, onChange, label = "FECHA:" }) 
             ))}
           </div>
 
-          {/* MÁSGRID DE DÍAS */}
+          {/* GRID DE DÍAS */}
           <div className="grid grid-cols-7 gap-1 text-center">
             {days.map((day, idx) => {
               if (day === null) return <div key={`empty-${idx}`} />;

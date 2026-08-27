@@ -3,7 +3,7 @@ import React from "react";
 interface ActionButtonProps {
   icon: string;
   alt: string;
-  onClick: () => void; // opcional
+  onClick: () => void;
   className?: string;
 }
 
@@ -14,7 +14,7 @@ export default function DeleteButton({
   className = "",
 }: ActionButtonProps) {
   const baseClasses =
-    "px-3 py-1 rounded flex items-center justify-center transition hover:brightness-90";
+    "px-2 sm:px-3 py-1 rounded-lg flex items-center justify-center transition hover:brightness-90 shrink-0";
 
   return (
     <button
@@ -26,7 +26,7 @@ export default function DeleteButton({
       }}
       className={`${baseClasses} ${className}`}
     >
-      <img src={icon} alt={alt} className="w-5 h-5" />
+      <img src={icon} alt={alt} className="w-4 h-4 sm:w-5 sm:h-5" />
     </button>
   );
 }

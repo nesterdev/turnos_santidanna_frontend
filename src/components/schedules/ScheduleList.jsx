@@ -58,11 +58,11 @@ export default function ScheduleList() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-12">
-      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-7 space-y-6">
+    <div className="max-w-5xl mx-auto pb-12 px-2 sm:px-0">
+      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-4 sm:p-7 space-y-6">
         
         {/* HEADER SUPERIOR */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900">
               Horarios
@@ -72,7 +72,7 @@ export default function ScheduleList() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CustomDatePicker
               value={filterDate}
               onChange={(newDate) => setFilterDate(newDate)}
@@ -80,7 +80,7 @@ export default function ScheduleList() {
             />
             <a
               href="/schedules/create"
-              className="inline-flex items-center justify-center px-4 py-2 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition"
             >
               + Nuevo Horario
             </a>
@@ -116,27 +116,26 @@ export default function ScheduleList() {
 
         {/* TABLA PRINCIPAL */}
         {!loading && schedules.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="pb-3 px-3">EMPLEADO ASIGNADO</th>
-                  <th className="pb-3 px-3">TURNO</th>
-                  <th className="pb-3 px-3">ÁREAS</th>
-                  <th className="pb-3 px-3">FECHA</th>
-                  <th className="pb-3 px-3 text-right">ACCIONES</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">EMPLEADO ASIGNADO</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">TURNO</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">ÁREAS</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">FECHA</th>
+                  <th className="pb-3 px-3 text-right whitespace-nowrap">ACCIONES</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-50 text-xs">
                 {schedules.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <div className="font-medium text-gray-900">
                         {s.ScheduleEmployee?.name || "N/A"}
                       </div>
                       
-                      {/* INFORMACIÓN DEL REEMPLAZO SI EXISTE */}
                       {(s.is_replacement || s.was_replaced) && s.OriginalEmployee && (
                         <span className="inline-flex items-center text-[10px] text-amber-600 font-medium mt-0.5">
                           ↳ Reemplaza a: {s.OriginalEmployee.name}
@@ -144,7 +143,7 @@ export default function ScheduleList() {
                       )}
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       {s.is_rest_day ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-500">
                           Descanso
@@ -156,20 +155,20 @@ export default function ScheduleList() {
                       )}
                     </td>
 
-                    <td className="py-3.5 px-3 text-gray-500 max-w-xs truncate">
+                    <td className="py-3.5 px-3 text-gray-500 max-w-[150px] truncate">
                       {s.areas?.length
                         ? s.areas.map((a) => a.name).join(", ")
                         : "Sin asignar"}
                     </td>
 
-                    <td className="py-3.5 px-3">
+                    <td className="py-3.5 px-3 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700">
                         {dayjs(s.date).format("DD MMM YYYY")}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-3 text-right">
-                      <div className="inline-flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center justify-end gap-1">
                         <ActionButton
                           icon="/eye.svg"
                           alt="Ver"
