@@ -278,7 +278,7 @@ export default function ReplacementCreateForm() {
         {form.date && (
           <Field
             label="Empleado ausente"
-            hint="Empleados que tienen turno asignado ese día"
+            hint="Colaboradores que tienen turno asignado ese día"
           >
             {loading && <p className="text-sm text-gray-500">Cargando…</p>}
 
@@ -302,7 +302,7 @@ export default function ReplacementCreateForm() {
 
         {/* REEMPLAZO CON EMPLOYEE SELECTOR */}
         {form.employee_id && (
-          <Field label="Reemplazado por" hint="Empleados libres y disponibles">
+          <Field label="Reemplazado por" hint="Colaboradores libres y disponibles">
             {replacementEmployees.length === 0 && (
               <p className="text-sm text-gray-500">
                 No hay empleados disponibles.

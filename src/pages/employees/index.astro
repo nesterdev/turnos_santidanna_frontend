@@ -4,7 +4,7 @@ import EmployeesTable from "../../components/employees/EmployeesTable.jsx";
 import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
-<DashboardLayout title="Empleados">
+<DashboardLayout title="Colaboradores">
   <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <EmployeesTable client:only="react" />
   </AuthGuard>

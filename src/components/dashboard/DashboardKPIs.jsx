@@ -1,7 +1,7 @@
 export default function DashboardKPIs({ resumen = {} }) {
   const cards = [
     {
-      title: "Empleados Totales",
+      title: "Colaboradores Totales",
       value: resumen.empleados ?? 0,
       badge: "Registrados",
       color: "border-l-4 border-l-blue-500",

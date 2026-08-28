@@ -42,7 +42,7 @@ export default function Sidebar() {
       {
         title: "Gestión Operativa",
         items: [
-          { label: "Empleados", href: "/employees", icon: icons.employees },
+          { label: "Colaboradores", href: "/employees", icon: icons.employees },
           { label: "Turnos", href: "/shifts", icon: icons.shifts },
           { label: "Horarios", href: "/schedules", icon: icons.schedules },
           { label: "Áreas", href: "/areas", icon: icons.areas }
@@ -74,7 +74,7 @@ export default function Sidebar() {
       {
         title: "Gestión Operativa",
         items: [
-          { label: "Empleados", href: "/employees", icon: icons.employees },
+          { label: "Colaboradores", href: "/employees", icon: icons.employees },
           { label: "Turnos", href: "/shifts", icon: icons.shifts },
           { label: "Horarios", href: "/schedules", icon: icons.schedules },
           { label: "Áreas", href: "/areas", icon: icons.areas }
@@ -99,7 +99,7 @@ export default function Sidebar() {
       {
         title: "Operación",
         items: [
-          { label: "Empleados", href: "/employees", icon: icons.employees },
+          { label: "Colaboradores", href: "/employees", icon: icons.employees },
           { label: "Turnos", href: "/shifts", icon: icons.shifts },
           { label: "Horarios", href: "/schedules", icon: icons.schedules },
           { label: "Disponibilidad", href: "/availability", icon: icons.availability }

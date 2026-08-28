@@ -4,7 +4,7 @@ import AvailabilityList from "../../components/availability/AvailabilityList.jsx
 import AuthGuard from "../../components/auth/AuthGuard";
 ---
 
-<DashboardLayout title="Disponibilidad de Empleados">
+<DashboardLayout title="Disponibilidad de Colaboradores">
   <AuthGuard allowedRoles={["admin", "supervisor", "super_admin"]} client:only="react">
     <AvailabilityList client:load />
   </AuthGuard>
