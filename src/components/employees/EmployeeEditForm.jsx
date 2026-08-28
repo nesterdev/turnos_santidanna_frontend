@@ -119,11 +119,11 @@ export default function EmployeeEditForm() {
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#FF3131]" />
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Editar empleado
+              Editar colaborador
             </h2>
           </div>
           <p className="text-sm text-gray-400 mt-1">
-            Actualiza la información básica, rol y permisos del empleado.
+            Actualiza la información básica, rol y permisos del colaborador.
           </p>
         </div>
 

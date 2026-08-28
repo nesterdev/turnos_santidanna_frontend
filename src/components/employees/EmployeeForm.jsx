@@ -73,10 +73,10 @@ export default function EmployeeForm() {
         {/* HEADER */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Crear nuevo empleado
+            Crear nuevo colaborador
           </h2>
           <p className="text-sm text-gray-400 mt-1">
-            Agrega un empleado para asignarle turnos y áreas de trabajo.
+            Agrega un colaborador para asignarle turnos y áreas de trabajo.
           </p>
         </div>
 
