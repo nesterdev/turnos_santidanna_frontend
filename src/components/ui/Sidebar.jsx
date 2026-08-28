@@ -137,10 +137,10 @@ export default function Sidebar() {
       <div>
         <div className="flex items-center gap-3 px-3 py-4 mb-4 border-b border-slate-800/80">
           <div className="w-8 h-8 rounded-xl bg-[#FF3131] flex items-center justify-center text-white font-black text-sm shadow-lg shadow-red-500/20">
-            GT
+            vs
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-white text-base tracking-tight leading-none">TurnosPro</span>
+            <span className="font-extrabold text-white text-base tracking-tight leading-none">SantiDanna</span>
             <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">Enterprise UI</span>
           </div>
         </div>
