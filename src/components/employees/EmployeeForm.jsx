@@ -1,4 +1,3 @@
-// src/components/employees/EmployeeForm.jsx
 import { useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import { showError, showSuccess } from "../../lib/utils/alerts";
@@ -64,11 +63,11 @@ export default function EmployeeForm() {
   };
 
   return (
-    <div className="w-full py-6 flex justify-center">
+    <div className="w-full py-0 sm:py-6 flex justify-center">
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="w-full max-w-2xl bg-white rounded-3xl border border-gray-100 p-8 sm:p-10 space-y-8 shadow-xl shadow-gray-200/40"
+        className="w-full max-w-2xl bg-transparent sm:bg-white rounded-none sm:rounded-3xl border-0 sm:border sm:border-gray-100 p-4 sm:p-10 space-y-8 shadow-none sm:shadow-xl sm:shadow-gray-200/40"
       >
         {/* HEADER */}
         <div>
@@ -138,17 +137,17 @@ export default function EmployeeForm() {
         </Field>
 
         {/* ACCIONES */}
-        <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-6 border-t border-gray-100">
           <a
             href="/employees"
-            className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition cursor-pointer"
+            className="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition cursor-pointer"
           >
             Cancelar
           </a>
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2.5 rounded-xl bg-[#FF3131] hover:bg-red-600 active:scale-95 text-white font-semibold text-xs transition shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50 flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-6 py-2.5 rounded-xl bg-[#FF3131] hover:bg-red-600 active:scale-95 text-white font-semibold text-xs transition shadow-md shadow-red-500/20 cursor-pointer disabled:opacity-50 flex items-center gap-2"
           >
             {submitting && (
               <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
