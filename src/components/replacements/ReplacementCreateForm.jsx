@@ -1,4 +1,3 @@
-// src/components/replacements/ReplacementCreateForm.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import Field from "../ui/Field";
@@ -238,146 +237,133 @@ export default function ReplacementCreateForm() {
   }));
 
   return (
-    <>
+    <div className="max-w-5xl mx-auto pb-12 px-0 sm:px-2">
       {error && (
         <div className="max-w-xl mx-auto mb-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
           {error}
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="
-          max-w-2xl mx-auto
-          bg-white/80 backdrop-blur-xl
-          rounded-2xl border border-gray-100
-          shadow-sm
-          p-8 space-y-7
-        "
-      >
-        {/* HEADER */}
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Crear reemplazo
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Asigna un reemplazo para un turno específico
-          </p>
-        </div>
+      <div className="bg-transparent sm:bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-[0_10px_30px_rgba(0,0,0,0.04)] border-0 sm:border sm:border-gray-100/80 p-4 sm:p-7 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full space-y-8"
+        >
+          {/* HEADER */}
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-gray-900">
+              Crear reemplazo
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Asigna un reemplazo para un turno específico
+            </p>
+          </div>
 
-        {/* FECHA CON CUSTOM DATE PICKER */}
-        <Field label="Fecha">
-          <CustomDatePicker
-            value={form.date}
-            onChange={(dateVal) => updateField("date", dateVal)}
-            label=""
-          />
-        </Field>
-
-        {/* EMPLEADO AUSENTE CON EMPLOYEE SELECTOR */}
-        {form.date && (
-          <Field
-            label="Empleado ausente"
-            hint="Colaboradores que tienen turno asignado ese día"
-          >
-            {loading && <p className="text-sm text-gray-500">Cargando…</p>}
-
-            {!loading && absentEmployees.length === 0 && (
-              <p className="text-sm text-gray-500">
-                No hay empleados con turno ese día.
-              </p>
-            )}
-
-            {!loading && absentEmployees.length > 0 && (
-              <EmployeeSelector
-                employees={absentEmployeesFormatted}
-                selectedIds={[form.employee_id].filter(Boolean)}
-                onSelect={(id) => updateField("employee_id", id)}
-                multiple={false}
-                label=""
-              />
-            )}
+          {/* FECHA CON CUSTOM DATE PICKER */}
+          <Field label="Fecha">
+            <CustomDatePicker
+              value={form.date}
+              onChange={(dateVal) => updateField("date", dateVal)}
+              label=""
+            />
           </Field>
-        )}
 
-        {/* REEMPLAZO CON EMPLOYEE SELECTOR */}
-        {form.employee_id && (
-          <Field label="Reemplazado por" hint="Colaboradores libres y disponibles">
-            {replacementEmployees.length === 0 && (
-              <p className="text-sm text-gray-500">
-                No hay empleados disponibles.
-              </p>
-            )}
+          {/* EMPLEADO AUSENTE CON EMPLOYEE SELECTOR */}
+          {form.date && (
+            <Field
+              label="Empleado ausente"
+              hint="Colaboradores que tienen turno asignado ese día"
+            >
+              {loading && <p className="text-sm text-gray-500">Cargando…</p>}
 
-            {replacementEmployees.length > 0 && (
-              <EmployeeSelector
-                employees={replacementEmployeesFormatted}
-                selectedIds={[form.replaced_by].filter(Boolean)}
-                onSelect={(id) => updateField("replaced_by", id)}
-                multiple={false}
-                label=""
-              />
-            )}
-          </Field>
-        )}
+              {!loading && absentEmployees.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  No hay empleados con turno ese día.
+                </p>
+              )}
 
-        {/* TURNO */}
-        {form.employee_id && schedules.length > 0 && (
-          <Field label="Turno del empleado ausente">
-            <div className="grid grid-cols-1 gap-3">
-              {schedules.map((s) => (
-                <SelectCard
-                  key={s.id}
-                  title={s.shift_name}
-                  description={
-                    s.ScheduleShift?.start_time
-                      ? `${s.ScheduleShift.start_time} – ${s.ScheduleShift.end_time} · ${s.date}`
-                      : s.date
-                  }
-                  active={String(form.schedule_id) === String(s.id)}
-                  onClick={() => updateField("schedule_id", s.id)}
+              {!loading && absentEmployees.length > 0 && (
+                <EmployeeSelector
+                  employees={absentEmployeesFormatted}
+                  selectedIds={[form.employee_id].filter(Boolean)}
+                  onSelect={(id) => updateField("employee_id", id)}
+                  multiple={false}
+                  label=""
                 />
-              ))}
-            </div>
+              )}
+            </Field>
+          )}
+
+          {/* REEMPLAZO CON EMPLOYEE SELECTOR */}
+          {form.employee_id && (
+            <Field label="Reemplazado por" hint="Colaboradores libres y disponibles">
+              {replacementEmployees.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  No hay empleados disponibles.
+                </p>
+              )}
+
+              {replacementEmployees.length > 0 && (
+                <EmployeeSelector
+                  employees={replacementEmployeesFormatted}
+                  selectedIds={[form.replaced_by].filter(Boolean)}
+                  onSelect={(id) => updateField("replaced_by", id)}
+                  multiple={false}
+                  label=""
+                />
+              )}
+            </Field>
+          )}
+
+          {/* TURNO */}
+          {form.employee_id && schedules.length > 0 && (
+            <Field label="Turno del empleado ausente">
+              <div className="grid grid-cols-1 gap-3">
+                {schedules.map((s) => (
+                  <SelectCard
+                    key={s.id}
+                    title={s.shift_name}
+                    description={
+                      s.ScheduleShift?.start_time
+                        ? `${s.ScheduleShift.start_time} – ${s.ScheduleShift.end_time} · ${s.date}`
+                        : s.date
+                    }
+                    active={String(form.schedule_id) === String(s.id)}
+                    onClick={() => updateField("schedule_id", s.id)}
+                  />
+                ))}
+              </div>
+            </Field>
+          )}
+
+          {/* NOTAS CON TEXTAREA */}
+          <Field label="Notas" hint="Opcional">
+            <Textarea
+              rows={3}
+              value={form.notes}
+              onChange={(val) => updateField("notes", val)}
+              placeholder="Añade notas adicionales si es necesario..."
+            />
           </Field>
-        )}
 
-        {/* NOTAS CON TEXTAREA */}
-        <Field label="Notas" hint="Opcional">
-          <Textarea
-            rows={3}
-            value={form.notes}
-            onChange={(val) => updateField("notes", val)}
-            placeholder="Añade notas adicionales si es necesario..."
-          />
-        </Field>
+          {/* ACTIONS */}
+          <div className="flex justify-end items-center gap-3 border-t border-gray-100 pt-6">
+            <a
+              href="/replacements"
+              className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition cursor-pointer text-center"
+            >
+              Cancelar
+            </a>
 
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <a
-            href="/replacements"
-            className="
-              px-5 py-2.5 text-sm rounded-xl
-              border border-gray-200
-              text-gray-700 hover:bg-gray-50 transition
-            "
-          >
-            Cancelar
-          </a>
-
-          <button
-            type="submit"
-            className="
-              px-5 py-2.5 text-sm rounded-xl
-              bg-black text-white
-              hover:bg-gray-900 transition
-              shadow-sm
-            "
-          >
-            Crear reemplazo
-          </button>
-        </div>
-      </form>
-    </>
+            <button
+              type="submit"
+              className="px-6 py-2.5 rounded-xl bg-black hover:bg-gray-800 active:scale-95 text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+            >
+              Crear reemplazo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
