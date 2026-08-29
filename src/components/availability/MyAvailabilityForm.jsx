@@ -34,7 +34,9 @@ const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Vierne
 // Correos exentos de las reglas de restricciones de descanso (personal de solo fines de semana)
 const EXEMPT_EMAILS = [
   "tcncarlos392@gmail.com",
-  "dannafer_2000@gmail.com"
+  "dannafer_2000@gmail.com",
+  "Paolaandreacava08@gmail.com",
+  "a16760480@gmail.com"
 ];
 
 export default function MyAvailabilityForm() {
