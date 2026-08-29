@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 
 export default function SchedulePrintModal({ isOpen, onClose, schedules, filterDate }) {
   const [dailyValues, setDailyValues] = useState({});
+  const [laborValues, setLaborValues] = useState({});
   const [defaultRate, setDefaultRate] = useState("");
   const [companyInfo, setCompanyInfo] = useState({
     name: "NESTFAC S.A.S.",
@@ -13,12 +14,17 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
 
   useEffect(() => {
     if (isOpen && schedules?.length > 0) {
-      const initial = {};
+      const initialValues = {};
+      const initialLabors = {};
       schedules.forEach((s) => {
         const empId = s.ScheduleEmployee?.id;
-        if (empId) initial[empId] = "";
+        if (empId) {
+          initialValues[empId] = "";
+          initialLabors[empId] = s.is_rest_day ? "Descanso" : "";
+        }
       });
-      setDailyValues(initial);
+      setDailyValues(initialValues);
+      setLaborValues(initialLabors);
     }
   }, [isOpen, schedules]);
 
@@ -34,6 +40,11 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
     setDailyValues(updated);
   };
 
+  const totalCalculated = Object.values(dailyValues).reduce((acc, val) => {
+    const num = parseFloat(val);
+    return acc + (isNaN(num) ? 0 : num);
+  }, 0);
+
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
@@ -44,11 +55,12 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
     const formattedDate = dayjs(filterDate).format("DD/MM/YYYY");
 
     const rowsHtml = schedules.map((s, index) => {
+      const empId = s.ScheduleEmployee?.id;
       const empName = s.ScheduleEmployee?.name || "N/A";
-      const shiftName = s.is_rest_day ? "Descanso" : (s.ScheduleShift?.name || "Sin turno");
+      const laborText = laborValues[empId] || (s.is_rest_day ? "Descanso" : "");
       const isReplacement = s.is_replacement || s.was_replaced;
       const replacementText = isReplacement && s.OriginalEmployee ? `(Reemplaza a: ${s.OriginalEmployee.name})` : "";
-      const paymentValue = dailyValues[s.ScheduleEmployee?.id] || "";
+      const paymentValue = dailyValues[empId] || "";
       const formattedPayment = paymentValue ? `$ ${Number(paymentValue).toLocaleString("es-CO")}` : "_________________";
 
       return `
@@ -58,7 +70,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             <strong>${empName}</strong>
             ${replacementText ? `<br/><span style="font-size: 9px; color: #b45309;">${replacementText}</span>` : ""}
           </td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: center; vertical-align: middle;">${shiftName}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: center; vertical-align: middle;">${laborText}</td>
           <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: right; font-weight: bold; vertical-align: middle;">${formattedPayment}</td>
           <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; height: 24px; vertical-align: middle;"></td>
         </tr>
@@ -81,6 +93,8 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
       }
     }
 
+    const formattedTotal = `$ ${totalCalculated.toLocaleString("es-CO")}`;
+
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -94,8 +108,10 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             .header h2 { font-size: 10px; text-transform: uppercase; margin: 0 0 1px 0; font-weight: 600; color: #374151; }
             .header p { font-size: 9px; color: #4b5563; margin: 0; }
             .meta-info { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; font-weight: 600; background: #f3f4f6; padding: 5px 8px; border-radius: 4px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
             th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 10px; text-transform: uppercase; text-align: left; }
+            .total-section { display: flex; justify-content: flex-end; margin-bottom: 15px; font-size: 11px; font-weight: bold; }
+            .total-box { background: #f3f4f6; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 4px; }
             .signatures { margin-top: 25px; display: flex; justify-content: space-between; page-break-inside: avoid; }
             .signature-box { width: 45%; text-align: center; border-top: 1px solid #111827; padding-top: 4px; font-size: 10px; font-weight: 600; color: #1f2937; }
           </style>
@@ -115,7 +131,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
               <tr>
                 <th style="width: 28px; text-align: center;">#</th>
                 <th>Empleado / Colaborador (Reemplazos)</th>
-                <th style="text-align: center; width: 80px;">Turno</th>
+                <th style="text-align: center; width: 110px;">Labor</th>
                 <th style="text-align: right; width: 95px;">Valor Día</th>
                 <th style="text-align: center; width: 110px;">Firma de Recibido</th>
               </tr>
@@ -125,6 +141,11 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
               ${emptyRowsHtml}
             </tbody>
           </table>
+          <div class="total-section">
+            <div class="total-box">
+              TOTAL PAGOS DEL DÍA: ${formattedTotal}
+            </div>
+          </div>
           <div class="signatures">
             <div class="signature-box">
               Firma del ${companyInfo.managerTitle}
@@ -148,11 +169,11 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-xl max-h-[90vh] flex flex-col">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Configurar Acta de Pago Diaria</h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Ingresa los montos individuales o masivos para estructurar el acta en formato tamaño carta.
+            Asigna las labores (ej. papelería, olla, caja) y montos para estructurar el acta.
           </p>
         </div>
 
@@ -199,22 +220,30 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
           </button>
         </div>
 
-        {/* LISTA DE EMPLEADOS PARA VALORES INDIVIDUALES */}
+        {/* LISTA DE EMPLEADOS: LABORES Y VALORES */}
         <div className="overflow-y-auto space-y-2.5 flex-1 pr-1">
           {schedules.map((s) => {
             const empId = s.ScheduleEmployee?.id;
             const empName = s.ScheduleEmployee?.name || "N/A";
             const isReplacement = s.is_replacement || s.was_replaced;
             return (
-              <div key={s.id} className="flex items-center justify-between gap-3 p-2 bg-gray-50/50 border border-gray-100 rounded-xl">
-                <div className="truncate">
+              <div key={s.id} className="grid grid-cols-12 gap-2 items-center p-2.5 bg-gray-50/50 border border-gray-100 rounded-xl">
+                <div className="col-span-5 truncate">
                   <p className="text-xs font-semibold text-gray-900 truncate">{empName}</p>
                   <p className="text-[10px] text-gray-500 truncate">
-                    {s.is_rest_day ? "Descanso" : (s.ScheduleShift?.name || "Turno regular")}
-                    {isReplacement && s.OriginalEmployee ? ` • Reemplaza a ${s.OriginalEmployee.name}` : ""}
+                    {isReplacement && s.OriginalEmployee ? `Reemplaza a ${s.OriginalEmployee.name}` : "Colaborador activo"}
                   </p>
                 </div>
-                <div className="w-32 flex-shrink-0">
+                <div className="col-span-4">
+                  <input
+                    type="text"
+                    placeholder="Ej. Papelería, Caja..."
+                    value={laborValues[empId] ?? ""}
+                    onChange={(e) => setLaborValues({ ...laborValues, [empId]: e.target.value })}
+                    className="w-full px-2.5 py-1 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 font-medium"
+                  />
+                </div>
+                <div className="col-span-3">
                   <input
                     type="number"
                     placeholder="$ Valor día"
@@ -226,6 +255,12 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
               </div>
             );
           })}
+        </div>
+
+        {/* TOTAL EN PANTALLA */}
+        <div className="flex justify-between items-center bg-gray-100 px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-800">
+          <span>TOTAL CALCULADO EN PAGOS:</span>
+          <span className="text-emerald-700 text-sm">$ {totalCalculated.toLocaleString("es-CO")}</span>
         </div>
 
         {/* ACCIONES */}
