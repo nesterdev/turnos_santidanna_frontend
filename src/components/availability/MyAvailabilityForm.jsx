@@ -31,6 +31,12 @@ const DAYS_OF_WEEK = [
 const REVERSE_DAY_MAP = { 1: "lunes", 2: "martes", 3: "miercoles", 4: "jueves", 5: "viernes", 6: "sabado", 0: "domingo" };
 const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
+// Correos exentos de las reglas de restricciones de descanso (personal de solo fines de semana)
+const EXEMPT_EMAILS = [
+  "tcncarlos392@gmail.com",
+  "dannafer_2000@gmail.com"
+];
+
 export default function MyAvailabilityForm() {
   const currentUser = useStore(user);
   const [loading, setLoading] = useState(true);
@@ -48,6 +54,10 @@ export default function MyAvailabilityForm() {
     sabado: { isAvailable: true, notes: "" },
     domingo: { isAvailable: true, notes: "" }
   });
+
+  // Verificar si el usuario actual está exento basado en su correo
+  const isExemptUser = currentUser?.email && EXEMPT_EMAILS.includes(currentUser.email);
+  const maxAllowedRest = isExemptUser ? 5 : 2;
 
   useEffect(() => {
     if (!currentUser?.id) return;
@@ -113,10 +123,12 @@ export default function MyAvailabilityForm() {
     if (isLocked) return;
     const isCurrentlyAvailable = daysState[dayKey].isAvailable;
 
-    if (isCurrentlyAvailable && unavailableCount >= 2) {
+    if (isCurrentlyAvailable && unavailableCount >= maxAllowedRest) {
       setFeedback({
         type: "warning",
-        text: "Límite alcanzado: Máximo 2 días de descanso permitidos por semana."
+        text: isExemptUser
+          ? "Límite alcanzado: Máximo 5 días de descanso permitidos por semana."
+          : "Límite alcanzado: Máximo 2 días de descanso permitidos por semana."
       });
       return;
     }
@@ -126,7 +138,8 @@ export default function MyAvailabilityForm() {
       [dayKey]: { ...daysState[dayKey], isAvailable: !isCurrentlyAvailable }
     };
 
-    if (isCurrentlyAvailable && checkConsecutiveRest(nextState)) {
+    // Validar descanso consecutivo solo si NO es un usuario exento
+    if (!isExemptUser && isCurrentlyAvailable && checkConsecutiveRest(nextState)) {
       setFeedback({
         type: "warning",
         text: "Regla de descanso: No se permiten días de descanso consecutivos."
@@ -152,15 +165,18 @@ export default function MyAvailabilityForm() {
 
     setFeedback(null);
 
-    if (unavailableCount < 1 || unavailableCount > 2) {
+    const minRest = isExemptUser ? 0 : 1;
+    if (unavailableCount < minRest || unavailableCount > maxAllowedRest) {
       setFeedback({
         type: "warning",
-        text: "Debes programar entre 1 y 2 días de descanso."
+        text: isExemptUser
+          ? "Debes programar una cantidad válida de días de descanso."
+          : "Debes programar entre 1 y 2 días de descanso."
       });
       return;
     }
 
-    if (checkConsecutiveRest(daysState)) {
+    if (!isExemptUser && checkConsecutiveRest(daysState)) {
       setFeedback({
         type: "warning",
         text: "No se permiten 2 días consecutivos de descanso."
@@ -239,6 +255,7 @@ export default function MyAvailabilityForm() {
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
             Configura tu disponibilidad semanal dentro de la ventana habilitada (Viernes a Lunes).
+            {isExemptUser && <span className="block text-indigo-600 font-semibold mt-1">✨ Modo Fin de Semana (Exento de restricciones estándar)</span>}
           </p>
         </div>
 
@@ -294,10 +311,11 @@ export default function MyAvailabilityForm() {
               return (
                 <div
                   key={item.id}
-                  className={`p-2.5 rounded-xl border text-center transition-all ${item.available
+                  className={`p-2.5 rounded-xl border text-center transition-all ${
+                    item.available
                       ? "bg-slate-50 border-slate-200/70 text-slate-700"
                       : "bg-red-50/80 border-red-200 text-red-900"
-                    }`}
+                  }`}
                 >
                   <p className="text-[10px] font-black uppercase text-slate-400">{dayObj?.short}</p>
                   <p className={`text-xs font-bold mt-0.5 ${item.available ? "text-slate-800" : "text-red-600"}`}>
@@ -344,28 +362,31 @@ export default function MyAvailabilityForm() {
               <CalendarOff size={16} className={unavailableCount > 0 ? "text-[#FF3131]" : "text-slate-400"} />
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Descansos</p>
-                <p className="text-xs font-black text-slate-900">{unavailableCount} de 2 máx.</p>
+                <p className="text-xs font-black text-slate-900">{unavailableCount} de {maxAllowedRest} máx.</p>
               </div>
             </div>
 
-            <div className="flex gap-1.5 border-l border-slate-100 pl-4">
-              <div className={`w-2 h-5 rounded-full transition-all ${unavailableCount >= 1 ? "bg-[#FF3131]" : "bg-slate-200"}`} />
-              <div className={`w-2 h-5 rounded-full transition-all ${unavailableCount === 2 ? "bg-[#FF3131]" : "bg-slate-200"}`} />
-            </div>
+            {!isExemptUser && (
+              <div className="flex gap-1.5 border-l border-slate-100 pl-4">
+                <div className={`w-2 h-5 rounded-full transition-all ${unavailableCount >= 1 ? "bg-[#FF3131]" : "bg-slate-200"}`} />
+                <div className={`w-2 h-5 rounded-full transition-all ${unavailableCount === 2 ? "bg-[#FF3131]" : "bg-slate-200"}`} />
+              </div>
+            )}
           </div>
         </div>
 
         {/* FEEDBACK MSG */}
         {feedback && (
           <div
-            className={`m-5 p-4 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all ${feedback.type === "success"
+            className={`m-5 p-4 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all ${
+              feedback.type === "success"
                 ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
                 : feedback.type === "info"
                   ? "bg-blue-50 text-blue-900 border border-blue-200"
                   : feedback.type === "warning"
                     ? "bg-amber-50 text-amber-900 border border-amber-200"
                     : "bg-red-50 text-red-900 border border-red-200"
-              }`}
+            }`}
           >
             {feedback.type === "success" && <CheckCircle2 size={17} className="text-emerald-600 shrink-0" />}
             {feedback.type === "warning" && <ShieldAlert size={17} className="text-amber-600 shrink-0" />}
@@ -376,7 +397,6 @@ export default function MyAvailabilityForm() {
         )}
 
         {/* GRID DE DÍAS */}
-        {/* GRID DE DÍAS - REFACTORIZADO */}
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {DAYS_OF_WEEK.map(({ key, label, short }, index) => {
@@ -387,24 +407,28 @@ export default function MyAvailabilityForm() {
                 <div
                   key={key}
                   onClick={() => toggleDay(key)}
-                  className={`group relative p-4 rounded-2xl border transition-all duration-200 select-none flex flex-col justify-between ${isSunday ? "sm:col-span-2 lg:col-span-1" : ""
-                    } ${isLocked
+                  className={`group relative p-4 rounded-2xl border transition-all duration-200 select-none flex flex-col justify-between ${
+                    isSunday ? "sm:col-span-2 lg:col-span-1" : ""
+                  } ${
+                    isLocked
                       ? "cursor-not-allowed opacity-70"
                       : "cursor-pointer hover:shadow-md hover:-translate-y-0.5"
-                    } ${isAvailable
+                  } ${
+                    isAvailable
                       ? "bg-white border-slate-200/90 hover:border-slate-300"
                       : "bg-red-50/40 border-red-200 ring-1 ring-red-500/10"
-                    }`}
+                  }`}
                 >
                   {/* HEADER DE TARJETA */}
                   <div>
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <div className="flex items-center gap-2.5">
                         <span
-                          className={`px-2 py-1 rounded-md text-[11px] font-black tracking-wider transition-colors ${isAvailable
+                          className={`px-2 py-1 rounded-md text-[11px] font-black tracking-wider transition-colors ${
+                            isAvailable
                               ? "bg-slate-100 text-slate-700 group-hover:bg-slate-200/70"
                               : "bg-red-100 text-red-700"
-                            }`}
+                          }`}
                         >
                           {short}
                         </span>
@@ -420,14 +444,16 @@ export default function MyAvailabilityForm() {
 
                       {/* PILL / BADGE TACTIL */}
                       <div
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${isAvailable
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                          isAvailable
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
                             : "bg-red-100 text-red-800 border border-red-200"
-                          }`}
+                        }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${isAvailable ? "bg-emerald-500" : "bg-red-500 animate-pulse"
-                            }`}
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isAvailable ? "bg-emerald-500" : "bg-red-500 animate-pulse"
+                          }`}
                         />
                         <span>{isAvailable ? "Disponible" : "Descanso"}</span>
                       </div>
@@ -444,10 +470,11 @@ export default function MyAvailabilityForm() {
                         value={daysState[key].notes}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) => handleNoteChange(key, e.target.value)}
-                        className={`w-full text-xs px-3 py-2 rounded-xl border outline-none transition-all placeholder:text-slate-400 disabled:cursor-not-allowed ${isAvailable
+                        className={`w-full text-xs px-3 py-2 rounded-xl border outline-none transition-all placeholder:text-slate-400 disabled:cursor-not-allowed ${
+                          isAvailable
                             ? "bg-slate-50/80 border-slate-200/80 focus:bg-white focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
                             : "bg-white border-red-200 text-red-950 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                          }`}
+                        }`}
                       />
                     </div>
                   </div>
@@ -461,7 +488,9 @@ export default function MyAvailabilityForm() {
             <p className="text-xs text-slate-400 text-center sm:text-left">
               {isLocked
                 ? "Formulario bloqueado o fuera del rango de modificación."
-                : "Se requiere programar entre 1 y 2 días de descanso no consecutivos."}
+                : isExemptUser
+                  ? "Modo exento activo: Puedes configurar tus días de descanso libremente sin restricciones de días consecutivos."
+                  : "Se requiere programar entre 1 y 2 días de descanso no consecutivos."}
             </p>
 
             <button
