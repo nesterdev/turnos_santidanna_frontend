@@ -57,6 +57,33 @@ export default function ScheduleList() {
     }
   };
 
+  // Función para eliminar masivamente todos los horarios del día cargados en pantalla
+  const deleteAllSchedulesForDay = async () => {
+    if (schedules.length === 0) return;
+
+    const confirmed = await openConfirmModal({
+      title: "Eliminar todos los horarios",
+      message: `¿Estás seguro de eliminar los ${schedules.length} turnos registrados para el día ${dayjs(filterDate).format("DD/MM/YYYY")}? Esta acción es irreversible.`,
+      confirmText: "Eliminar todos",
+    });
+
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      // Disparamos todas las peticiones DELETE en paralelo de forma limpia
+      await Promise.all(
+        schedules.map((s) => apiFetch(`/schedules/${s.id}`, { method: "DELETE" }))
+      );
+      setSchedules([]);
+    } catch (err) {
+      alert("Ocurrió un error al intentar eliminar algunos horarios.");
+      loadSchedules(filterDate); // Sincronizamos si hubo fallas parciales
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto pb-12 px-2 sm:px-0">
       <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-4 sm:p-7 space-y-6">
@@ -78,12 +105,24 @@ export default function ScheduleList() {
               onChange={(newDate) => setFilterDate(newDate)}
               label="FECHA:"
             />
-            <a
-              href="/schedules/create"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition"
-            >
-              + Nuevo Horario
-            </a>
+
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+              {schedules.length > 0 && (
+                <button
+                  type="button"
+                  onClick={deleteAllSchedulesForDay}
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-xl transition border border-red-200"
+                >
+                  🗑️ Eliminar todos del día
+                </button>
+              )}
+              <a
+                href="/schedules/create"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition"
+              >
+                + Nuevo Horario
+              </a>
+            </div>
           </div>
         </div>
 
