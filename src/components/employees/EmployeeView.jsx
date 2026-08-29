@@ -4,12 +4,14 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import DeleteButton from "../ui/deleteButtom";
 import ActionButton from "../ui/ActionButtom";
 import Loading from "../ui/Loading";
+import { showError, showSuccess } from "../../lib/utils/alerts";
 
 export default function EmployeeView() {
   const [id, setId] = useState(null);
   const [empleado, setEmpleado] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [generatingPassword, setGeneratingPassword] = useState(false);
 
   const deleteEmployee = async () => {
     const confirmed = await openConfirmModal({
@@ -24,7 +26,41 @@ export default function EmployeeView() {
       await apiFetch(`/employees/${id}`, { method: "DELETE" });
       window.location.href = "/employees";
     } catch {
-      alert("Error eliminando el empleado");
+      showError("Error eliminando el empleado");
+    }
+  };
+
+  const generatePassword = async () => {
+    const confirmed = await openConfirmModal({
+      title: "Generar nueva contraseña",
+      message: "¿Estás seguro de generar una nueva contraseña para este empleado? Se sobrescribirá la actual.",
+      confirmText: "Generar",
+    });
+
+    if (!confirmed) return;
+
+    setGeneratingPassword(true);
+    try {
+      const res = await apiFetch(`/employees/${id}/generate-password`, {
+        method: "POST",
+      });
+      
+      // Si el backend devuelve la contraseña en texto plano para que el admin la vea/copie
+      const newPass = res?.data?.password || res?.password;
+      
+      if (newPass) {
+        openConfirmModal({
+          title: "Contraseña generada",
+          message: `La nueva contraseña es: ${newPass}`,
+          confirmText: "Entendido",
+        });
+      } else {
+        showSuccess("Contraseña generada y actualizada correctamente.");
+      }
+    } catch (err) {
+      showError(err?.message || "Error al generar la contraseña.");
+    } finally {
+      setGeneratingPassword(false);
     }
   };
 
@@ -125,7 +161,19 @@ export default function EmployeeView() {
           className="bg-gray-50 text-gray-600 hover:bg-gray-100"
         />
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
+          <button
+            type="button"
+            onClick={generatePassword}
+            disabled={generatingPassword}
+            className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold rounded-xl border border-gray-200 transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {generatingPassword && (
+              <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+            )}
+            Generar Contraseña
+          </button>
+
           <ActionButton
             icon="/edit.svg"
             alt="Editar"
