@@ -47,6 +47,42 @@ export default function BulkManualMode({
     }));
   };
 
+  // Función para randomizar áreas a los empleados seleccionados sin áreas
+  const handleRandomizeAreas = () => {
+    setBulkData((prev) => {
+      // Copiamos las asignaciones actuales y el listado de áreas ya tomadas globalmente
+      let currentAssignments = [...prev.assignments];
+      
+      currentAssignments.forEach((assignment) => {
+        // Solo actuamos sobre empleados que no tienen áreas seleccionadas
+        if (!assignment.area_ids || assignment.area_ids.length === 0) {
+          // Filtrar cuáles áreas están disponibles para este empleado en particular
+          const currentGlobalTaken = currentAssignments.flatMap((a) => a.area_ids);
+          
+          const availableAreasForEmp = areas.filter((a) => {
+            if (a.disabled) return false;
+            if (currentGlobalTaken.includes(a.id)) return false;
+            // Validar restricciones de compatibilidad o reglas del sistema
+            const selectedObjects = areas.filter((x) => assignment.area_ids.includes(x.id));
+            return canSelectArea(a, selectedObjects);
+          });
+
+          // Si hay áreas disponibles, barajamos y asignamos al menos una (o las que gustes, aquí asignamos una aleatoria por rapidez)
+          if (availableAreasForEmp.length > 0) {
+            // Shuffle aleatorio simple
+            const randomArea = availableAreasForEmp[Math.floor(Math.random() * availableAreasForEmp.length)];
+            assignment.area_ids = [randomArea.id];
+          }
+        }
+      });
+
+      return {
+        ...prev,
+        assignments: currentAssignments,
+      };
+    });
+  };
+
   const selectedEmployeeIds = bulkData.assignments.map((a) => a.employee_id);
 
   return (
@@ -71,11 +107,22 @@ export default function BulkManualMode({
           <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
             Selección y Asignación por Empleado
           </label>
-          {loadingContext && (
-            <p className="text-xs text-gray-400 animate-pulse">
-              Validando disponibilidades...
-            </p>
-          )}
+          <div className="flex items-center gap-3">
+            {loadingContext && (
+              <p className="text-xs text-gray-400 animate-pulse">
+                Validando disponibilidades...
+              </p>
+            )}
+            {bulkData.assignments.length > 0 && (
+              <button
+                type="button"
+                onClick={handleRandomizeAreas}
+                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition flex items-center gap-1.5 shadow-sm"
+              >
+                🎲 Asignar áreas al azar
+              </button>
+            )}
+          </div>
         </div>
 
         {!bulkData.date && (

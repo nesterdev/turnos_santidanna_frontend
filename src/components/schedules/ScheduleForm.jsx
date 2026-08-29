@@ -12,22 +12,15 @@ import AutomaticMode from "./AutomaticMode";
 import ManualMode from "./ManualMode";
 import BulkManualMode from "./BulkManualMode";
 
-// Convierte y asegura formato YYYY-MM-DD según hora local de Colombia
 export const formatDateToISO = (dateStr) => {
   if (!dateStr) return "";
-
-  // Si ya viene con formato de barras (DD/MM/YYYY)
   if (dateStr.includes("/")) {
     const [day, month, year] = dateStr.split("/");
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
-
-  // Si ya viene en formato YYYY-MM-DD (o similar), evitamos crear un Date que lo convierta a UTC
   if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr.slice(0, 10))) {
     return dateStr.slice(0, 10);
   }
-
-  // Si es un objeto Date u otro formato, lo procesamos de manera segura usando los componentes locales
   const dateObj = new Date(dateStr);
   if (!isNaN(dateObj.getTime())) {
     const year = dateObj.getFullYear();
@@ -35,11 +28,9 @@ export const formatDateToISO = (dateStr) => {
     const day = String(dateObj.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
-
   return dateStr;
 };
 
-// Obtiene la fecha actual formateada a YYYY-MM-DD en hora colombiana
 export const getTodayColombia = () => {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Bogota",
@@ -82,7 +73,6 @@ export default function ScheduleForm() {
     assignments: [],
   });
 
-  // Cargar disponibilidad y restricciones en modo Manual
   useEffect(() => {
     if (mode !== "manual" || !manualData.date) {
       setManualAreas([]);
@@ -112,7 +102,6 @@ export default function ScheduleForm() {
     loadContext();
   }, [mode, manualData.date, manualData.employee_id]);
 
-  // Cargar disponibilidad y restricciones en modo Bulk
   useEffect(() => {
     if (mode !== "bulk" || !bulkData.date) {
       setBulkEmployees([]);
