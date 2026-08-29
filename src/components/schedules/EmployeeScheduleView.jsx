@@ -103,7 +103,7 @@ export default function EmployeeScheduleView() {
       <div className="bg-white rounded-2xl border border-gray-100/80 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <span className="text-[10px] font-bold text-[#FF3131] uppercase tracking-wider bg-red-50 px-2.5 py-1 rounded-full">
-            Panel de Empleado
+            Panel de Horarios
           </span>
           <h1 className="text-xl font-bold text-gray-900 mt-2">
             Hola, {isMounted ? currentUser?.name || "Empleado" : "Empleado"}
