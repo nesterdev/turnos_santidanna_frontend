@@ -8,6 +8,7 @@ import DeleteButton from "../ui/deleteButtom";
 import { openConfirmModal } from "../../lib/utils/modal";
 import Loading from "../ui/Loading";
 import CustomDatePicker from "../ui/CustomDatePicker";
+import SchedulePrintModal from "./SchedulePrintModal";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -19,6 +20,7 @@ export default function ScheduleList() {
   const [filterDate, setFilterDate] = useState(
     dayjs().tz("America/Bogota").format("YYYY-MM-DD")
   );
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   useEffect(() => {
     loadSchedules(filterDate);
@@ -107,13 +109,23 @@ export default function ScheduleList() {
 
             <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
               {schedules.length > 0 && (
-                <button
-                  type="button"
-                  onClick={deleteAllSchedulesForDay}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-xl transition border border-red-200"
-                >
-                  🗑️ Eliminar todos del día
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsPrintModalOpen(true)}
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition shadow-sm"
+                  >
+                    🖨️ Acta de Pago del Día
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={deleteAllSchedulesForDay}
+                    className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-xl transition border border-red-200"
+                  >
+                    🗑️ Eliminar todos del día
+                  </button>
+                </>
               )}
               <a
                 href="/schedules/create"
@@ -234,6 +246,14 @@ export default function ScheduleList() {
           </div>
         )}
       </div>
+
+      {/* MODAL AISLADO PARA CONFIGURAR E IMPRIMIR EL ACTA */}
+      <SchedulePrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        schedules={schedules}
+        filterDate={filterDate}
+      />
     </div>
   );
 }
