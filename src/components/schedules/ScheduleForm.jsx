@@ -186,74 +186,76 @@ export default function ScheduleForm() {
   if (loading) return <Loading fullscreen text="Cargando formulario…" />;
 
   return (
-    <form
-      onSubmit={submit}
-      className="max-w-4xl mx-auto bg-white rounded-2xl p-8 sm:p-10 space-y-8 shadow-[0_12px_30px_rgba(0,0,0,0.04)]"
-    >
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Asignación de horarios</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Configura asignación automática, manual o asignación masiva de áreas.
-        </p>
-      </div>
+    <div className="max-w-4xl mx-auto pb-12 px-0 sm:px-2">
+      <form
+        onSubmit={submit}
+        className="bg-transparent sm:bg-white sm:rounded-2xl p-4 sm:p-10 space-y-8 sm:shadow-[0_12px_30px_rgba(0,0,0,0.04)]"
+      >
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Asignación de horarios</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Configura asignación automática, manual o asignación masiva de áreas.
+          </p>
+        </div>
 
-      <TabFilter
-        size="lg"
-        value={mode}
-        onChange={setMode}
-        options={[
-          { id: "automatic", label: "Automático" },
-          { id: "manual", label: "Manual" },
-          { id: "bulk", label: "Manual Masivo" },
-        ]}
-      />
-
-      {mode === "automatic" && (
-        <AutomaticMode
-          autoData={autoData}
-          setAutoData={setAutoData}
-          shifts={shifts}
+        <TabFilter
+          size="lg"
+          value={mode}
+          onChange={setMode}
+          options={[
+            { id: "automatic", label: "Automático" },
+            { id: "manual", label: "Manual" },
+            { id: "bulk", label: "Manual Masivo" },
+          ]}
         />
-      )}
 
-      {mode === "manual" && (
-        <ManualMode
-          manualData={manualData}
-          setManualData={setManualData}
-          manualEmployees={manualEmployees}
-          manualAreas={manualAreas}
-          shifts={shifts}
-          loadingAreas={loadingAreas}
-          employeeFilter={employeeFilter}
-          setEmployeeFilter={setEmployeeFilter}
-          canSelectArea={canSelectArea}
-        />
-      )}
+        {mode === "automatic" && (
+          <AutomaticMode
+            autoData={autoData}
+            setAutoData={setAutoData}
+            shifts={shifts}
+          />
+        )}
 
-      {mode === "bulk" && (
-        <BulkManualMode
-          bulkData={bulkData}
-          setBulkData={setBulkData}
-          employees={bulkEmployees.length ? bulkEmployees : employees}
-          areas={bulkAreas.length ? bulkAreas : areas}
-          shifts={shifts}
-          loadingContext={loadingBulkContext}
-          canSelectArea={canSelectArea}
-        />
-      )}
+        {mode === "manual" && (
+          <ManualMode
+            manualData={manualData}
+            setManualData={setManualData}
+            manualEmployees={manualEmployees}
+            manualAreas={manualAreas}
+            shifts={shifts}
+            loadingAreas={loadingAreas}
+            employeeFilter={employeeFilter}
+            setEmployeeFilter={setEmployeeFilter}
+            canSelectArea={canSelectArea}
+          />
+        )}
 
-      <div className="flex justify-end border-t border-gray-100 pt-6">
-        <button
-          type="submit"
-          className="px-6 py-3 rounded-xl bg-[#FF3131] hover:bg-red-600 text-white font-semibold shadow-md shadow-red-500/10 transition active:scale-[0.98]"
-        >
-          {mode === "automatic"
-            ? "Generar horarios"
-            : mode === "manual"
-            ? "Crear horario"
-            : "Asignar masivamente"}
-        </button>
-      </div>
-    </form>
+        {mode === "bulk" && (
+          <BulkManualMode
+            bulkData={bulkData}
+            setBulkData={setBulkData}
+            employees={bulkEmployees.length ? bulkEmployees : employees}
+            areas={bulkAreas.length ? bulkAreas : areas}
+            shifts={shifts}
+            loadingContext={loadingBulkContext}
+            canSelectArea={canSelectArea}
+          />
+        )}
+
+        <div className="flex justify-end border-t border-gray-100 pt-6">
+          <button
+            type="submit"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#FF3131] hover:bg-red-600 text-white font-semibold shadow-md shadow-red-500/10 transition active:scale-[0.98]"
+          >
+            {mode === "automatic"
+              ? "Generar horarios"
+              : mode === "manual"
+              ? "Crear horario"
+              : "Asignar masivamente"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
