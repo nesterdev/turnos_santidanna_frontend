@@ -5,13 +5,26 @@ import { showError, showSuccess } from "../../lib/utils/alerts";
 import { redirect } from "../../lib/utils/navigation";
 import EmployeeSelector from "../ui/EmployeeSelector";
 
-// Utility para calcular el Lunes de la semana en formato YYYY-MM-DD
+// Utility corregida usando zona horaria de Colombia para evitar desfases UTC
 function getMondayOfWeek(offsetWeeks = 0) {
-  const d = new Date();
+  const nowStr = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Bogota",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  const [year, month, dayNum] = nowStr.split("-").map(Number);
+  const d = new Date(year, month - 1, dayNum);
+  
   const day = d.getDay(); // 0 = Dom, 1 = Lun...
   const diffToMonday = d.getDate() - day + (day === 0 ? -6 : 1) + offsetWeeks * 7;
-  const monday = new Date(d.setDate(diffToMonday));
-  return monday.toISOString().split("T")[0];
+  d.setDate(diffToMonday);
+
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dayStr = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dayStr}`;
 }
 
 export default function AvailabilityForm({ availability = null }) {
