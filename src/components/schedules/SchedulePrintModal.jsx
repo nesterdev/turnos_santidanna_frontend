@@ -65,14 +65,14 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
 
       return `
         <tr>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; font-size: 10px; vertical-align: middle;">${index + 1}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; vertical-align: middle;">
+          <td style="border: 1px solid #cbd5e1; padding: 10px 6px; text-align: center; font-size: 10px; vertical-align: middle;">${index + 1}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 10px 6px; font-size: 11px; vertical-align: middle;">
             <strong>${empName}</strong>
             ${replacementText ? `<br/><span style="font-size: 9px; color: #b45309;">${replacementText}</span>` : ""}
           </td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: center; vertical-align: middle;">${laborText}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: right; font-weight: bold; vertical-align: middle;">${formattedPayment}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; height: 24px; vertical-align: middle;"></td>
+          <td style="border: 1px solid #cbd5e1; padding: 10px 6px; font-size: 11px; text-align: center; vertical-align: middle;">${laborText}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 10px 6px; font-size: 11px; text-align: right; font-weight: bold; vertical-align: middle;">${formattedPayment}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 10px 6px; text-align: center; height: 38px; vertical-align: middle;"></td>
         </tr>
       `;
     }).join("");
@@ -83,11 +83,11 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
       for (let i = schedules.length; i < minRows; i++) {
         emptyRowsHtml += `
           <tr>
-            <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; font-size: 10px; color: transparent; vertical-align: middle;">${i + 1}</td>
-            <td style="border: 1px solid #cbd5e1; padding: 5px 6px; vertical-align: middle;">&nbsp;</td>
-            <td style="border: 1px solid #cbd5e1; padding: 5px 6px; vertical-align: middle;">&nbsp;</td>
-            <td style="border: 1px solid #cbd5e1; padding: 5px 6px; vertical-align: middle;">&nbsp;</td>
-            <td style="border: 1px solid #cbd5e1; padding: 5px 6px; height: 24px; vertical-align: middle;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 10px 6px; text-align: center; font-size: 10px; color: transparent; vertical-align: middle;">${i + 1}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 10px 6px; vertical-align: middle;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 10px 6px; vertical-align: middle;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 10px 6px; vertical-align: middle;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 10px 6px; height: 38px; vertical-align: middle;">&nbsp;</td>
           </tr>
         `;
       }
@@ -109,11 +109,11 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             .header p { font-size: 9px; color: #4b5563; margin: 0; }
             .meta-info { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; font-weight: 600; background: #f3f4f6; padding: 5px 8px; border-radius: 4px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
-            th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 10px; text-transform: uppercase; text-align: left; }
-            .total-section { display: flex; justify-content: flex-end; margin-bottom: 15px; font-size: 11px; font-weight: bold; }
+            th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 6px 6px; font-size: 10px; text-transform: uppercase; text-align: left; }
+            .total-section { display: flex; justify-content: flex-end; margin-bottom: 25px; font-size: 11px; font-weight: bold; }
             .total-box { background: #f3f4f6; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 4px; }
-            .signatures { margin-top: 25px; display: flex; justify-content: space-between; page-break-inside: avoid; }
-            .signature-box { width: 45%; text-align: center; border-top: 1px solid #111827; padding-top: 4px; font-size: 10px; font-weight: 600; color: #1f2937; }
+            .signatures { margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .signature-box { width: 42%; text-align: center; border-top: 1px solid #111827; padding-top: 6px; font-size: 10px; font-weight: 600; color: #1f2937; }
           </style>
         </head>
         <body>
@@ -131,7 +131,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
               <tr>
                 <th style="width: 28px; text-align: center;">#</th>
                 <th>Empleado / Colaborador (Reemplazos)</th>
-                <th style="text-align: center; width: 110px;">Labor</th>
+                <th style="text-align: center; width: 130px;">Labor</th>
                 <th style="text-align: right; width: 95px;">Valor Día</th>
                 <th style="text-align: center; width: 110px;">Firma de Recibido</th>
               </tr>
