@@ -6,8 +6,8 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
   const [laborValues, setLaborValues] = useState({});
   const [defaultRate, setDefaultRate] = useState("");
   const [companyInfo, setCompanyInfo] = useState({
-    name: "NESTFAC S.A.S.",
-    nit: "901.xxx.xxx-x",
+    name: "Variedades Santidana",
+    nit: "265.602.51-9",
     subtitle: "Acta de Control Diario y Soporte de Pago de Turnos",
     managerTitle: "Administrador / Encargado de Pagos"
   });
