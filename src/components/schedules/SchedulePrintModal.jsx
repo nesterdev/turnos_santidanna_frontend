@@ -114,6 +114,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             .total-box { background: #f3f4f6; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 4px; }
             .signatures { margin-top: 45px; display: flex; justify-content: space-between; page-break-inside: avoid; }
             .signature-box { width: 45%; text-align: center; border-top: 1px solid #111827; padding-top: 4px; font-size: 10px; font-weight: 600; color: #1f2937; }
+            .signature-box span { display: block; font-weight: normal; font-size: 9px; color: #4b5563; margin-top: 2px; }
           </style>
         </head>
         <body>
@@ -152,6 +153,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             </div>
             <div class="signature-box">
               Vo.Bo. Gerencia / Dirección
+              <span>Orlinda Guerrero Corredor</span>
             </div>
           </div>
           <script>
