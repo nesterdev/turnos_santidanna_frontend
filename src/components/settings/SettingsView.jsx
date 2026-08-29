@@ -1,3 +1,4 @@
+/*
 import { useState, useEffect } from "react";
 import { useStore } from "@nanostores/react";
 import { settingsStore, loadSettings } from "../../lib/stores/settingsStore";
@@ -89,4 +90,4 @@ export default function SettingsView() {
       </div>
     </div>
   );
-}
+}*/
