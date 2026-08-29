@@ -57,7 +57,6 @@ export default function ScheduleList() {
     }
   };
 
-  // Función para eliminar masivamente todos los horarios del día cargados en pantalla
   const deleteAllSchedulesForDay = async () => {
     if (schedules.length === 0) return;
 
@@ -71,22 +70,22 @@ export default function ScheduleList() {
 
     setLoading(true);
     try {
-      // Disparamos todas las peticiones DELETE en paralelo de forma limpia
       await Promise.all(
         schedules.map((s) => apiFetch(`/schedules/${s.id}`, { method: "DELETE" }))
       );
       setSchedules([]);
     } catch (err) {
       alert("Ocurrió un error al intentar eliminar algunos horarios.");
-      loadSchedules(filterDate); // Sincronizamos si hubo fallas parciales
+      loadSchedules(filterDate);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-12 px-2 sm:px-0">
-      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-4 sm:p-7 space-y-6">
+    <div className="max-w-5xl mx-auto pb-12 px-0 sm:px-2">
+      {/* Contenedor sin fondo ni bordes en móvil (px-4 para respirar), y con tarjeta blanca en sm: en adelante */}
+      <div className="bg-transparent sm:bg-white sm:rounded-2xl sm:shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:border sm:border-gray-100/80 p-4 sm:p-7 space-y-6">
         
         {/* HEADER SUPERIOR */}
         <div className="flex flex-col gap-4">
