@@ -152,8 +152,9 @@ export default function AvailabilityList() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-12 px-2 sm:px-0">
-      <div className="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gray-100/80 p-4 sm:p-7 space-y-6">
+    <div className="max-w-5xl mx-auto pb-12 px-0 sm:px-2">
+      {/* CONTENEDOR UNIFICADO ESTILO ÁREAS / DISPONIBILIDAD */}
+      <div className="bg-transparent sm:bg-white rounded-none sm:rounded-2xl shadow-none sm:shadow-[0_10px_30px_rgba(0,0,0,0.04)] border-0 sm:border sm:border-gray-100/80 p-4 sm:p-7 space-y-6">
         
         {/* HEADER SUPERIOR */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -181,7 +182,7 @@ export default function AvailabilityList() {
 
             <a
               href="/availability/create"
-              className="inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition shadow-sm whitespace-nowrap"
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-xs font-semibold rounded-xl transition shadow-sm whitespace-nowrap text-center"
             >
               + Nueva disponibilidad
             </a>
