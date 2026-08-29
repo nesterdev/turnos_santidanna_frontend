@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 
 export default function SchedulePrintModal({ isOpen, onClose, schedules, filterDate }) {
@@ -53,30 +53,29 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
 
       return `
         <tr>
-          <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center; font-size: 11px;">${index + 1}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 10px; font-size: 12px;">
+          <td style="border: 1px solid #cbd5e1; padding: 6px 8px; text-align: center; font-size: 10px;">${index + 1}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px;">
             <strong>${empName}</strong>
-            ${replacementText ? `<br/><span style="font-size: 10px; color: #b45309;">${replacementText}</span>` : ""}
+            ${replacementText ? `<br/><span style="font-size: 9px; color: #b45309;">${replacementText}</span>` : ""}
           </td>
-          <td style="border: 1px solid #cbd5e1; padding: 10px; font-size: 12px; text-align: center;">${shiftName}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 10px; font-size: 12px; text-align: right; font-weight: bold;">${formattedPayment}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center; height: 40px;"></td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px; text-align: center;">${shiftName}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px; text-align: right; font-weight: bold;">${formattedPayment}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 6px 8px; text-align: center; height: 28px;"></td>
         </tr>
       `;
     }).join("");
 
-    // Filas vacías de relleno si hay pocos empleados para ocupar la hoja tamaño carta de forma profesional
     const minRows = 8;
     let emptyRowsHtml = "";
     if (schedules.length < minRows) {
       for (let i = schedules.length; i < minRows; i++) {
         emptyRowsHtml += `
           <tr>
-            <td style="border: 1px solid #cbd5e1; padding: 10px; text-align: center; font-size: 11px; color: transparent;">${i + 1}</td>
-            <td style="border: 1px solid #cbd5e1; padding: 10px;">&nbsp;</td>
-            <td style="border: 1px solid #cbd5e1; padding: 10px;">&nbsp;</td>
-            <td style="border: 1px solid #cbd5e1; padding: 10px;">&nbsp;</td>
-            <td style="border: 1px solid #cbd5e1; padding: 10px; height: 40px;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 6px 8px; text-align: center; font-size: 10px; color: transparent;">${i + 1}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 6px 8px;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 6px 8px;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 6px 8px;">&nbsp;</td>
+            <td style="border: 1px solid #cbd5e1; padding: 6px 8px; height: 28px;">&nbsp;</td>
           </tr>
         `;
       }
@@ -88,17 +87,17 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
         <head>
           <title>Acta Diaria de Pagos - ${formattedDate}</title>
           <style>
-            @page { size: letter; margin: 1.2cm; }
+            @page { size: letter; margin: 1cm; }
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #111827; margin: 0; padding: 0; }
-            .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #111827; padding-bottom: 10px; }
-            .header h1 { font-size: 16px; text-transform: uppercase; margin: 0 0 2px 0; font-weight: 800; }
-            .header h2 { font-size: 13px; text-transform: uppercase; margin: 0 0 4px 0; font-weight: 600; color: #374151; }
-            .header p { font-size: 11px; color: #4b5563; margin: 0; }
-            .meta-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 14px; font-weight: 600; background: #f3f4f6; padding: 8px 12px; border-radius: 6px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 8px; font-size: 11px; text-transform: uppercase; text-align: left; }
-            .signatures { margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid; }
-            .signature-box { width: 45%; text-align: center; border-top: 1px solid #111827; padding-top: 6px; font-size: 11px; font-weight: 600; color: #1f2937; }
+            .header { text-align: center; margin-bottom: 12px; border-bottom: 2px solid #111827; padding-bottom: 6px; }
+            .header h1 { font-size: 14px; text-transform: uppercase; margin: 0 0 2px 0; font-weight: 800; }
+            .header h2 { font-size: 11px; text-transform: uppercase; margin: 0 0 2px 0; font-weight: 600; color: #374151; }
+            .header p { font-size: 10px; color: #4b5563; margin: 0; }
+            .meta-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 10px; font-weight: 600; background: #f3f4f6; padding: 6px 10px; border-radius: 4px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 10px; text-transform: uppercase; text-align: left; }
+            .signatures { margin-top: 35px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .signature-box { width: 45%; text-align: center; border-top: 1px solid #111827; padding-top: 4px; font-size: 10px; font-weight: 600; color: #1f2937; }
           </style>
         </head>
         <body>
@@ -114,11 +113,11 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
           <table>
             <thead>
               <tr>
-                <th style="width: 35px; text-align: center;">#</th>
+                <th style="width: 30px; text-align: center;">#</th>
                 <th>Empleado / Colaborador (Reemplazos)</th>
-                <th style="text-align: center; width: 95px;">Turno</th>
-                <th style="text-align: right; width: 115px;">Valor Día</th>
-                <th style="text-align: center; width: 140px;">Firma de Recibido</th>
+                <th style="text-align: center; width: 85px;">Turno</th>
+                <th style="text-align: right; width: 105px;">Valor Día</th>
+                <th style="text-align: center; width: 120px;">Firma de Recibido</th>
               </tr>
             </thead>
             <tbody>
