@@ -1,4 +1,3 @@
-// src/components/employees/EmployeesTable.jsx
 import { useEffect, useState } from "react";
 import { apiFetch } from "../../lib/utils/fetch";
 import ActionButton from "../ui/ActionButtom";
@@ -51,12 +50,12 @@ export default function EmployeesTable() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 px-0 sm:px-2">
       {/* TARJETA UNIFICADA */}
-      <div className="bg-white/80 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-transparent sm:bg-white/80 sm:backdrop-blur-xl sm:border sm:border-gray-100 sm:rounded-2xl sm:shadow-sm overflow-hidden">
         
         {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-5 border-b border-gray-100">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Colaboradores</h2>
             <p className="text-sm text-gray-500 mt-0.5">
@@ -68,7 +67,7 @@ export default function EmployeesTable() {
 
         {/* ESTADO DE ERROR */}
         {error && (
-          <div className="m-6 rounded-xl bg-red-50 p-4 text-sm text-red-600 border border-red-100">
+          <div className="m-4 sm:m-6 rounded-xl bg-red-50 p-4 text-sm text-red-600 border border-red-100">
             {error}
           </div>
         )}
@@ -78,7 +77,7 @@ export default function EmployeesTable() {
 
         {/* TABLA DE EMPLEADOS */}
         {!loading && !error && (
-          <div className="relative overflow-x-auto">
+          <div className="relative overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             <table className="w-full min-w-[700px] text-sm text-left">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50 text-xs font-semibold text-gray-400 uppercase tracking-wider">
