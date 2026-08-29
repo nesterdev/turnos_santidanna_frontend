@@ -36,7 +36,8 @@ export default function Sidebar() {
         title: "Principal",
         items: [
           { label: "Dashboard", href: "/dashboard", icon: icons.dashboard },
-          { label: "Estadísticas", href: "/stats", icon: icons.stats }
+          { label: "Estadísticas", href: "/stats", icon: icons.stats },
+          { label: "Configuración", href: "/settings", icon: icons.dashboard }
         ]
       },
       {
@@ -68,7 +69,8 @@ export default function Sidebar() {
         title: "Principal",
         items: [
           { label: "Dashboard", href: "/dashboard", icon: icons.dashboard },
-          { label: "Estadísticas", href: "/stats", icon: icons.stats }
+          { label: "Estadísticas", href: "/stats", icon: icons.stats },
+          { label: "Configuración", href: "/settings", icon: icons.dashboard }
         ]
       },
       {

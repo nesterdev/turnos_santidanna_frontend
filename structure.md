@@ -92,6 +92,8 @@
 │   │   │   ├── 📄 SchedulePrintModal.jsx
 │   │   │   ├── 📄 SchedulePublicView.jsx
 │   │   │   └── 📄 ScheduleView.jsx
+│   │   ├── 📁 settings/
+│   │   │   └── 📄 SettingsView.jsx
 │   │   ├── 📁 shifts/
 │   │   │   ├── 📄 ShiftList.jsx
 │   │   │   ├── 📄 ShiftsEditForm.jsx
