@@ -112,7 +112,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 10px; text-transform: uppercase; text-align: left; }
             .total-section { display: flex; justify-content: flex-end; margin-bottom: 15px; font-size: 11px; font-weight: bold; }
             .total-box { background: #f3f4f6; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 4px; }
-            .signatures { margin-top: 35px; display: flex; justify-content: space-between; page-break-inside: avoid; }
+            .signatures { margin-top: 45px; display: flex; justify-content: space-between; page-break-inside: avoid; }
             .signature-box { width: 45%; text-align: center; border-top: 1px solid #111827; padding-top: 4px; font-size: 10px; font-weight: 600; color: #1f2937; }
           </style>
         </head>
