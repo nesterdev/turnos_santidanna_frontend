@@ -143,7 +143,7 @@ export default function ReplacementsView() {
         {/* EMPLEADO TITULAR */}
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-sm p-6 space-y-2">
           <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
-            Empleado Titular
+            Colaborador Titular
           </p>
           <div>
             <p className="text-base font-semibold text-gray-900">

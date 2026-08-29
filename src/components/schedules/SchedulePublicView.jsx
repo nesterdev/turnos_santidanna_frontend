@@ -23,7 +23,7 @@ export function ScheduleTable({ schedules }) {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-            <th className="pb-3 px-3">EMPLEADO</th>
+            <th className="pb-3 px-3">COLABORADOR</th>
             <th className="pb-3 px-3">TURNO</th>
             <th className="pb-3 px-3">ÁREAS</th>
             <th className="pb-3 px-3">DESCRIPCIÓN</th>

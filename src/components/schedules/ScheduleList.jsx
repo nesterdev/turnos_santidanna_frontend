@@ -159,7 +159,7 @@ export default function ScheduleList() {
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="pb-3 px-3 whitespace-nowrap">EMPLEADO ASIGNADO</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">USUARIO ASIGNADO</th>
                   <th className="pb-3 px-3 whitespace-nowrap">TURNO</th>
                   <th className="pb-3 px-3 whitespace-nowrap">ÁREAS</th>
                   <th className="pb-3 px-3 whitespace-nowrap">FECHA</th>

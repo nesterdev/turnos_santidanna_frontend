@@ -107,7 +107,7 @@ export default function ReplacementsList() {
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="pb-3 px-3 whitespace-nowrap">EMPLEADO TITULAR</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">COLABORADOR TITULAR</th>
                   <th className="pb-3 px-3 whitespace-nowrap">REEMPLAZADO POR</th>
                   <th className="pb-3 px-3 whitespace-nowrap">FECHA</th>
                   <th className="pb-3 px-3 whitespace-nowrap">TURNO DETALLE</th>
