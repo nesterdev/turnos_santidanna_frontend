@@ -9,6 +9,7 @@ export default function AreasView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [id, setId] = useState(null);
+
   // 👇 LEER QUERY PARAM EN CLIENTE
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,7 +25,6 @@ export default function AreasView() {
 
     setId(empId);
   }, []);
-
 
   const deleteArea = async () => {
     const confirmed = await openConfirmModal({
@@ -97,6 +97,15 @@ export default function AreasView() {
         <InfoItem
           label="Descripción"
           value={area.description || "—"}
+        />
+        {/* 🔥 NUEVO CAMPO: MODO DE ASIGNACIÓN */}
+        <InfoItem
+          label="Modo de asignación"
+          value={
+            area.is_manual
+              ? "Exclusiva Manual (Solo para fechas especiales)"
+              : "Automática / Normal"
+          }
         />
       </div>
 

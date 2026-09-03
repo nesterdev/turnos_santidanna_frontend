@@ -24,6 +24,7 @@ export default function AreasEditForm() {
   const [priority_level, setPriority] = useState(2);
   const [frequency_type, setFrequencyType] = useState("daily");
   const [frequency_value, setFrequencyValue] = useState(1);
+  const [is_manual, setIsManual] = useState(false); // 🔥 NUEVO ESTADO
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -59,6 +60,7 @@ export default function AreasEditForm() {
           setPriority(Number(a.priority_level) || 2);
           setFrequencyType(a.frequency_type || "daily");
           setFrequencyValue(Number(a.frequency_value) || 1);
+          setIsManual(Boolean(a.is_manual)); // 🔥 CARGAMOS EL VALOR
         } else {
           showError(res?.message || "No se pudo cargar el área");
         }
@@ -96,6 +98,7 @@ export default function AreasEditForm() {
           priority_level,
           frequency_type,
           frequency_value,
+          is_manual, // 🔥 ENVIAMOS EL VALOR
         }),
       });
 
@@ -166,6 +169,24 @@ export default function AreasEditForm() {
             />
           </Field>
         </div>
+
+        {/* 🔥 NUEVA SECCIÓN: MODO DE ASIGNACIÓN */}
+        <Section title="MODO DE ASIGNACIÓN">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <CardRadio
+              active={!is_manual}
+              onClick={() => setIsManual(false)}
+              title="Automática / Normal"
+              subtitle="Se asigna de forma regular según rutinas"
+            />
+            <CardRadio
+              active={is_manual}
+              onClick={() => setIsManual(true)}
+              title="Exclusiva Manual"
+              subtitle="Solo para fechas especiales (Evita auto-asignación)"
+            />
+          </div>
+        </Section>
 
         {/* COMPLEJIDAD */}
         <Section title="COMPLEJIDAD">
