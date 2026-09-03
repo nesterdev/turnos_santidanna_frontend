@@ -2,6 +2,14 @@
 
 <!-- PROJECT_STRUCTURE_START -->
 ```
+├── 📁 .astro/
+│   ├── 📁 collections/
+│   ├── 📄 content-assets.mjs
+│   ├── 📄 content-modules.mjs
+│   ├── 📄 data-store.json
+│   ├── 📄 dev.json
+│   ├── 📄 settings.json
+│   └── 📄 types.d.ts
 ├── 📄 .gitignore
 ├── 📁 .vscode/
 │   ├── 📄 extensions.json

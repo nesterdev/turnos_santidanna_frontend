@@ -1,6 +1,8 @@
+import { useState } from "react";
 import CustomDatePicker from "../ui/CustomDatePicker";
 import ShiftSelector from "../ui/ShiftSelector";
 import EmployeeSelector from "../ui/EmployeeSelector";
+import Button from "../ui/Button";
 
 export default function BulkManualMode({
   bulkData,
@@ -11,6 +13,9 @@ export default function BulkManualMode({
   loadingContext,
   canSelectArea,
 }) {
+  // Estado local para controlar si la sección general de áreas está expandida o contraída
+  const [isAssignmentsExpanded, setIsAssignmentsExpanded] = useState(true);
+
   const operationalEmployees = employees.filter(
     (e) => e.role !== "admin" && e.role !== "ADMIN"
   );
@@ -47,30 +52,27 @@ export default function BulkManualMode({
     }));
   };
 
-  // Función para randomizar áreas a los empleados seleccionados sin áreas
   const handleRandomizeAreas = () => {
     setBulkData((prev) => {
-      // Copiamos las asignaciones actuales y el listado de áreas ya tomadas globalmente
       let currentAssignments = [...prev.assignments];
-      
+
       currentAssignments.forEach((assignment) => {
-        // Solo actuamos sobre empleados que no tienen áreas seleccionadas
         if (!assignment.area_ids || assignment.area_ids.length === 0) {
-          // Filtrar cuáles áreas están disponibles para este empleado en particular
           const currentGlobalTaken = currentAssignments.flatMap((a) => a.area_ids);
-          
-          const availableAreasForEmp = areas.filter((a) => {
+
+          const availableAreas = areas.filter((a) => {
             if (a.disabled) return false;
             if (currentGlobalTaken.includes(a.id)) return false;
-            // Validar restricciones de compatibilidad o reglas del sistema
+
             const selectedObjects = areas.filter((x) => assignment.area_ids.includes(x.id));
             return canSelectArea(a, selectedObjects);
           });
 
-          // Si hay áreas disponibles, barajamos y asignamos al menos una (o las que gustes, aquí asignamos una aleatoria por rapidez)
-          if (availableAreasForEmp.length > 0) {
-            // Shuffle aleatorio simple
-            const randomArea = availableAreasForEmp[Math.floor(Math.random() * availableAreasForEmp.length)];
+          if (availableAreas.length > 0) {
+            const areasWithoutYesterday = availableAreas.filter((a) => !a.worked_yesterday);
+            const poolToChooseFrom = areasWithoutYesterday.length > 0 ? areasWithoutYesterday : availableAreas;
+
+            const randomArea = poolToChooseFrom[Math.floor(Math.random() * poolToChooseFrom.length)];
             assignment.area_ids = [randomArea.id];
           }
         }
@@ -84,6 +86,12 @@ export default function BulkManualMode({
   };
 
   const selectedEmployeeIds = bulkData.assignments.map((a) => a.employee_id);
+
+  // Conteo total de áreas seleccionadas para mostrar en la cabecera del desplegable
+  const totalAssignedAreasCount = bulkData.assignments.reduce(
+    (acc, curr) => acc + (curr.area_ids?.length || 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -114,13 +122,14 @@ export default function BulkManualMode({
               </p>
             )}
             {bulkData.assignments.length > 0 && (
-              <button
+              <Button
                 type="button"
                 onClick={handleRandomizeAreas}
-                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition flex items-center gap-1.5 shadow-sm"
-              >
-                🎲 Asignar áreas al azar
-              </button>
+                variant="outline"
+                size="sm"
+                icon="🎲"
+                text="Asignar áreas al azar (Evitando repetición)"
+              />
             )}
           </div>
         </div>
@@ -139,80 +148,123 @@ export default function BulkManualMode({
           multiple={true}
         />
 
-        {/* Áreas por cada empleado seleccionado */}
-        <div className="space-y-4 mt-4">
-          {bulkData.assignments.map((assignment) => {
-            const emp = operationalEmployees.find(
-              (e) => e.id === assignment.employee_id
-            );
-            if (!emp || emp.disabled) return null;
-
-            const selectedAreaIds = assignment.area_ids || [];
-
-            return (
-              <div
-                key={emp.id}
-                className="p-4 border border-gray-200 rounded-2xl bg-gray-50/50 space-y-3"
-              >
-                <p className="text-xs font-bold text-gray-600 uppercase">
-                  Áreas asignadas a <span className="text-[#FF3131]">{emp.name}</span>:
-                </p>
-
-                <div className="grid sm:grid-cols-3 gap-2">
-                  {areas.map((a) => {
-                    const checked = selectedAreaIds.includes(a.id);
-                    const takenByOther =
-                      !checked && globallySelectedAreaIds.includes(a.id);
-                    const selectedAreasObj = areas.filter((x) =>
-                      selectedAreaIds.includes(x.id)
-                    );
-                    const disabled =
-                      a.disabled ||
-                      takenByOther ||
-                      (!checked && !canSelectArea(a, selectedAreasObj));
-
-                    return (
-                      <label
-                        key={a.id}
-                        className={`flex items-start gap-2 p-2.5 rounded-xl border text-xs transition-all ${
-                          disabled
-                            ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-200"
-                            : "cursor-pointer bg-white border-gray-200 hover:border-gray-300"
-                        } ${
-                          checked ? "border-[#FF3131] bg-red-50/10 font-medium" : ""
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          disabled={disabled}
-                          onChange={() => toggleAreaForEmployee(emp.id, a.id)}
-                          className="accent-[#FF3131] mt-0.5"
-                        />
-                        <div>
-                          <p className="text-gray-800 font-medium">{a.name}</p>
-                          <p className="text-[10px] text-gray-400">
-                            Z-{a.zone} · Nivel {a.complexity_level}
-                          </p>
-                          {takenByOther && (
-                            <p className="text-[10px] text-amber-600 font-semibold mt-0.5">
-                              Asignada a otro empleado
-                            </p>
-                          )}
-                          {a.disabled && !takenByOther && (
-                            <p className="text-[10px] text-red-500 font-medium mt-0.5">
-                              {a.reason}
-                            </p>
-                          )}
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
+        {/* CONTENEDOR GENERAL CON DESPLEGABLE (ACORDEÓN) */}
+        {bulkData.assignments.length > 0 && (
+          <div className="border border-gray-200 rounded-2xl bg-gray-50/50 overflow-hidden transition-all mt-4">
+            {/* Cabecera del desplegable general */}
+            <div
+              onClick={() => setIsAssignmentsExpanded(!isAssignmentsExpanded)}
+              className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-100/65 transition select-none"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-gray-700 uppercase">
+                  Detalle de Áreas por Empleado
+                </span>
+                <span className="text-xs text-gray-400">|</span>
+                <span className="text-xs text-gray-500 font-medium">
+                  Empleados seleccionados: <span className="text-[#FF3131] font-semibold">{bulkData.assignments.length}</span>
+                </span>
               </div>
-            );
-          })}
-        </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] bg-white border border-gray-200 px-2 py-0.5 rounded-full text-gray-600 shadow-sm">
+                  {totalAssignedAreasCount} área(s) en total
+                </span>
+                <svg
+                  className={`w-4 h-4 text-gray-500 transform transition-transform duration-200 ${isAssignmentsExpanded ? "rotate-180" : ""
+                    }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Listado de empleados dentro del desplegable */}
+            {isAssignmentsExpanded && (
+              <div className="p-4 border-t border-gray-200 bg-white space-y-4">
+                {bulkData.assignments.map((assignment) => {
+                  const emp = operationalEmployees.find(
+                    (e) => e.id === assignment.employee_id
+                  );
+                  if (!emp || emp.disabled) return null;
+
+                  const selectedAreaIds = assignment.area_ids || [];
+
+                  return (
+                    <div
+                      key={emp.id}
+                      className="p-4 border border-gray-200 rounded-2xl bg-gray-50/50 space-y-3"
+                    >
+                      <p className="text-xs font-bold text-gray-600 uppercase">
+                        Áreas asignadas a <span className="text-[#FF3131]">{emp.name}</span>:
+                      </p>
+
+                      <div className="grid sm:grid-cols-3 gap-2">
+                        {areas.map((a) => {
+                          const checked = selectedAreaIds.includes(a.id);
+                          const takenByOther =
+                            !checked && globallySelectedAreaIds.includes(a.id);
+
+                          const selectedAreasObj = areas.filter((x) =>
+                            selectedAreaIds.includes(x.id)
+                          );
+
+                          const disabled =
+                            a.disabled ||
+                            takenByOther ||
+                            (!checked && !canSelectArea(a, selectedAreasObj));
+
+                          return (
+                            <label
+                              key={a.id}
+                              className={`flex items-start gap-2 p-2.5 rounded-xl border text-xs transition-all ${disabled
+                                  ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-200"
+                                  : "cursor-pointer bg-white border-gray-200 hover:border-gray-300"
+                                } ${checked ? "border-[#FF3131] bg-red-50/10 font-medium" : ""
+                                }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                disabled={disabled}
+                                onChange={() => toggleAreaForEmployee(emp.id, a.id)}
+                                className="accent-[#FF3131] mt-0.5"
+                              />
+                              <div>
+                                <p className="text-gray-800 font-medium">{a.name}</p>
+                                <p className="text-[10px] text-gray-400">
+                                  Z-{a.zone} · Nivel {a.complexity_level}
+                                </p>
+                                {takenByOther && (
+                                  <p className="text-[10px] text-amber-600 font-semibold mt-0.5">
+                                    Asignada a otro empleado hoy
+                                  </p>
+                                )}
+                                {!takenByOther && a.worked_yesterday && (
+                                  <p className="text-[10px] text-amber-500 font-medium mt-0.5">
+                                    ⚠️ Trabajó esta área ayer (Rotación sugerida)
+                                  </p>
+                                )}
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

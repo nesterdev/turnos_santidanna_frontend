@@ -22,8 +22,8 @@ export default function LoginForm() {
     try {
       const audio = new Audio(`/sounds/${soundName}.wav`);
       audio.volume = 0.4;
-      audio.play().catch(() => {});
-    } catch (e) {}
+      audio.play().catch(() => { });
+    } catch (e) { }
   };
 
   async function handleSubmit(e) {
@@ -35,13 +35,6 @@ export default function LoginForm() {
 
     try {
       const res = await loginApi(email, password);
-
-      if (!res || !res.token) {
-        setError(res?.message || "Credenciales incorrectas");
-        playAudio("error");
-        setLoading(false);
-        return;
-      }
 
       playAudio("success");
       setSuccess(true);
@@ -58,7 +51,8 @@ export default function LoginForm() {
         window.location.assign(redirectPath);
       }, 1200);
     } catch (err) {
-      setError("Error de conexión con el servidor");
+      // 🔥 Aquí capturamos el mensaje exacto que viene del backend a través de apiFetch
+      setError(err.message || "Error de conexión con el servidor");
       playAudio("error");
       setLoading(false);
     }
@@ -107,7 +101,7 @@ export default function LoginForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           {/* Correo Electrónico usando Field */}
           <Field label="Correo electrónico">
             <Input
@@ -176,9 +170,10 @@ export default function LoginForm() {
 
           {/* Botón de Enviar */}
           <div className="pt-2">
-            <Button
-              text={
-                loading ? (
+            {/* Botón de Enviar */}
+            <div className="pt-2">
+              <Button type="submit" disabled={loading}>
+                {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -188,11 +183,9 @@ export default function LoginForm() {
                   </span>
                 ) : (
                   "Iniciar sesión"
-                )
-              }
-              type="submit"
-              disabled={loading}
-            />
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Footer */}
