@@ -62,6 +62,7 @@ export default function BulkManualMode({
 
           const availableAreas = areas.filter((a) => {
             if (a.disabled) return false;
+            if (a.is_manual) return false; // 🔥 EXCLUIMOS LAS ÁREAS MANUALES DE LA ASIGNACIÓN AL AZAR
             if (currentGlobalTaken.includes(a.id)) return false;
 
             const selectedObjects = areas.filter((x) => assignment.area_ids.includes(x.id));
@@ -171,8 +172,9 @@ export default function BulkManualMode({
                   {totalAssignedAreasCount} área(s) en total
                 </span>
                 <svg
-                  className={`w-4 h-4 text-gray-500 transform transition-transform duration-200 ${isAssignmentsExpanded ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 text-gray-500 transform transition-transform duration-200 ${
+                    isAssignmentsExpanded ? "rotate-180" : ""
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -225,11 +227,13 @@ export default function BulkManualMode({
                           return (
                             <label
                               key={a.id}
-                              className={`flex items-start gap-2 p-2.5 rounded-xl border text-xs transition-all ${disabled
+                              className={`flex items-start gap-2 p-2.5 rounded-xl border text-xs transition-all ${
+                                disabled
                                   ? "opacity-50 cursor-not-allowed bg-gray-100 border-gray-200"
                                   : "cursor-pointer bg-white border-gray-200 hover:border-gray-300"
-                                } ${checked ? "border-[#FF3131] bg-red-50/10 font-medium" : ""
-                                }`}
+                              } ${
+                                checked ? "border-[#FF3131] bg-red-50/10 font-medium" : ""
+                              }`}
                             >
                               <input
                                 type="checkbox"
@@ -238,8 +242,16 @@ export default function BulkManualMode({
                                 onChange={() => toggleAreaForEmployee(emp.id, a.id)}
                                 className="accent-[#FF3131] mt-0.5"
                               />
-                              <div>
-                                <p className="text-gray-800 font-medium">{a.name}</p>
+                              <div className="w-full">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-gray-800 font-medium">{a.name}</p>
+                                  {/* 🔥 ETIQUETA VISUAL PARA DIFERENCIAR LAS ÁREAS MANUALES / ESPECIALES */}
+                                  {a.is_manual && (
+                                    <span className="text-[9px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-md">
+                                      Manual / Especial
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="text-[10px] text-gray-400">
                                   Z-{a.zone} · Nivel {a.complexity_level}
                                 </p>
