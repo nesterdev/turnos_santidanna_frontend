@@ -14,7 +14,7 @@ export default function BulkManualMode({
   canSelectArea,
 }) {
   // Estado local para controlar si la sección general de áreas está expandida o contraída
-  const [isAssignmentsExpanded, setIsAssignmentsExpanded] = useState(true);
+  const [isAssignmentsExpanded, setIsAssignmentsExpanded] = useState(false);
 
   const operationalEmployees = employees.filter(
     (e) => e.role !== "admin" && e.role !== "ADMIN"
