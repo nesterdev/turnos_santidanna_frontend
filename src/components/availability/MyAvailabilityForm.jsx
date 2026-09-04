@@ -37,7 +37,8 @@ const EXEMPT_EMAILS = [
   "dannafer_2000@gmail.com",
   "Paolaandreacava08@gmail.com",
   "a16760480@gmail.com",
-  "lauravalentinayara242@gmail.com"
+  "lauravalentinayara242@gmail.com",
+  "karolayaparicio2008@gmail.com"
 ];
 
 export default function MyAvailabilityForm() {

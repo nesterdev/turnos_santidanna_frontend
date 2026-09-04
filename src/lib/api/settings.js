@@ -4,9 +4,20 @@ export function getSettings() {
   return apiFetch("/settings");
 }
 
-export function updateSettings(data) {
-  return apiFetch("/settings", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-}
+export const settingsApi = {
+  async getAll() {
+    return await apiFetch("/settings");
+  },
+  async create(data) {
+    return await apiFetch("/settings", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+  async update(data) {
+    return await apiFetch("/settings", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+};

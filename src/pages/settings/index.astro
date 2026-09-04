@@ -1,9 +1,12 @@
 ---
 import AuthGuard from "../../components/auth/AuthGuard";
 import DashboardLayout from "../../components/layouts/DashboardLayout.astro";
+import SettingsView from "../../components/settings/SettingsView";
 //import SettingsView from "../../components/settings/SettingsView.jsx";
 ---
 
 <DashboardLayout title="Configuración del Sistema">
-
+    <AuthGuard allowedRoles={["admin", "super_admin"]} client:only="react">
+        <SettingsView client:load />
+    </AuthGuard>
 </DashboardLayout>

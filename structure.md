@@ -101,6 +101,7 @@
 │   │   │   ├── 📄 SchedulePublicView.jsx
 │   │   │   └── 📄 ScheduleView.jsx
 │   │   ├── 📁 settings/
+│   │   │   ├── 📄 SettingsList.jsx
 │   │   │   └── 📄 SettingsView.jsx
 │   │   ├── 📁 shifts/
 │   │   │   ├── 📄 ShiftList.jsx
