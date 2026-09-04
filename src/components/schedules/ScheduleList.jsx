@@ -9,6 +9,7 @@ import { openConfirmModal } from "../../lib/utils/modal";
 import Loading from "../ui/Loading";
 import CustomDatePicker from "../ui/CustomDatePicker";
 import SchedulePrintModal from "./SchedulePrintModal";
+import ScheduleAttendanceModal from "./ScheduleAttendanceModal";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -18,9 +19,14 @@ export default function ScheduleList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filterDate, setFilterDate] = useState(
-    dayjs().tz("America/Bogota").format("YYYY-MM-DD")
+    dayjs().tz("America/Bogota").format("YYYY-MM-DD"),
   );
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+
+  // NUEVOS ESTADOS PARA GESTIONAR LA ASISTENCIA DESDE EL MODAL
+  const [selectedScheduleForAttendance, setSelectedScheduleForAttendance] =
+    useState(null);
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
 
   useEffect(() => {
     loadSchedules(filterDate);
@@ -32,6 +38,7 @@ export default function ScheduleList() {
 
     try {
       const res = await apiFetch(`/schedules?start=${date}&end=${date}`);
+      console.log("Respuesta de la API de horarios:", res);
       if (res?.success) setSchedules(res.data || []);
       else setError(res?.message || "No se pudieron cargar los horarios.");
     } catch (err) {
@@ -73,7 +80,9 @@ export default function ScheduleList() {
     setLoading(true);
     try {
       await Promise.all(
-        schedules.map((s) => apiFetch(`/schedules/${s.id}`, { method: "DELETE" }))
+        schedules.map((s) =>
+          apiFetch(`/schedules/${s.id}`, { method: "DELETE" }),
+        ),
       );
       setSchedules([]);
     } catch (err) {
@@ -88,7 +97,6 @@ export default function ScheduleList() {
     <div className="max-w-5xl mx-auto pb-12 px-0 sm:px-2">
       {/* Contenedor sin fondo ni bordes en móvil (px-4 para respirar), y con tarjeta blanca en sm: en adelante */}
       <div className="bg-transparent sm:bg-white sm:rounded-2xl sm:shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:border sm:border-gray-100/80 p-4 sm:p-7 space-y-6">
-        
         {/* HEADER SUPERIOR */}
         <div className="flex flex-col gap-4">
           <div>
@@ -151,12 +159,24 @@ export default function ScheduleList() {
         {!loading && !error && schedules.length === 0 && (
           <div className="py-16 text-center space-y-3">
             <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center mx-auto border border-gray-100">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-700">No hay horarios para esta fecha</p>
+              <p className="text-xs font-semibold text-gray-700">
+                No hay horarios para esta fecha
+              </p>
               <p className="text-[11px] text-gray-400 mt-0.5">
                 Selecciona otra fecha o crea un nuevo registro.
               </p>
@@ -170,27 +190,36 @@ export default function ScheduleList() {
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="pb-3 px-3 whitespace-nowrap">USUARIO ASIGNADO</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">
+                    USUARIO ASIGNADO
+                  </th>
                   <th className="pb-3 px-3 whitespace-nowrap">TURNO</th>
+                  <th className="pb-3 px-3 whitespace-nowrap">ASISTENCIA</th>
                   <th className="pb-3 px-3 whitespace-nowrap">ÁREAS</th>
                   <th className="pb-3 px-3 whitespace-nowrap">FECHA</th>
-                  <th className="pb-3 px-3 text-right whitespace-nowrap">ACCIONES</th>
+                  <th className="pb-3 px-3 text-right whitespace-nowrap">
+                    ACCIONES
+                  </th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-50 text-xs">
                 {schedules.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr
+                    key={s.id}
+                    className="hover:bg-gray-50/50 transition-colors"
+                  >
                     <td className="py-3.5 px-3 whitespace-nowrap">
                       <div className="font-medium text-gray-900">
                         {s.ScheduleEmployee?.name || "N/A"}
                       </div>
-                      
-                      {(s.is_replacement || s.was_replaced) && s.OriginalEmployee && (
-                        <span className="inline-flex items-center text-[10px] text-amber-600 font-medium mt-0.5">
-                          ↳ Reemplaza a: {s.OriginalEmployee.name}
-                        </span>
-                      )}
+
+                      {(s.is_replacement || s.was_replaced) &&
+                        s.OriginalEmployee && (
+                          <span className="inline-flex items-center text-[10px] text-amber-600 font-medium mt-0.5">
+                            ↳ Reemplaza a: {s.OriginalEmployee.name}
+                          </span>
+                        )}
                     </td>
 
                     <td className="py-3.5 px-3 whitespace-nowrap">
@@ -201,6 +230,39 @@ export default function ScheduleList() {
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-600">
                           {s.ScheduleShift?.name || "Sin turno"}
+                        </span>
+                      )}
+                    </td>
+
+                    {/* 👈 CELDA PARA RENDERIZAR EL ESTADO DE ASISTENCIA CON DISEÑO CONDICIONAL */}
+                    <td className="py-3.5 px-3 whitespace-nowrap">
+                      {s.attendance_status === "asistira" && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700">
+                          Asistirá
+                        </span>
+                      )}
+                      {s.attendance_status === "falta_justificada" && (
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700"
+                          title={s.absence_reason}
+                        >
+                          Falta Justificada
+                        </span>
+                      )}
+                      {s.attendance_status === "falta_injustificada" && (
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-700"
+                          title={s.absence_reason}
+                        >
+                          Falta Injustificada
+                        </span>
+                      )}
+                      {s.attendance_status === "sin_reemplazo" && (
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700"
+                          title={s.absence_reason}
+                        >
+                          Sin Reemplazo
                         </span>
                       )}
                     </td>
@@ -219,6 +281,19 @@ export default function ScheduleList() {
 
                     <td className="py-3.5 px-3 text-right whitespace-nowrap">
                       <div className="inline-flex items-center justify-end gap-1">
+                        {/* NUEVO BOTÓN PARA ABRIR EL MODAL DE ASISTENCIA */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedScheduleForAttendance(s);
+                            setIsAttendanceModalOpen(true);
+                          }}
+                          title="Gestionar Asistencia"
+                          className="p-1.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                        >
+                          📋
+                        </button>
+
                         <ActionButton
                           icon="/eye.svg"
                           alt="Ver"
@@ -253,6 +328,17 @@ export default function ScheduleList() {
         onClose={() => setIsPrintModalOpen(false)}
         schedules={schedules}
         filterDate={filterDate}
+      />
+
+      {/* NUEVO MODAL DE ASISTENCIA */}
+      <ScheduleAttendanceModal
+        isOpen={isAttendanceModalOpen}
+        onClose={() => {
+          setIsAttendanceModalOpen(false);
+          setSelectedScheduleForAttendance(null);
+        }}
+        schedule={selectedScheduleForAttendance}
+        onSuccess={() => loadSchedules(filterDate)}
       />
     </div>
   );

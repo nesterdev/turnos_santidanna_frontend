@@ -21,3 +21,11 @@ export function updateSchedule(id, data) {
 export function deleteSchedule(id) {
   return apiFetch(`/schedules/${id}`, { method: "DELETE" });
 }
+
+// En tu librería de api para schedules
+export async function updateScheduleAttendance(id, attendanceData) {
+  return await apiFetch(`/schedules/${id}/attendance`, {
+    method: "PUT",
+    body: JSON.stringify(attendanceData),
+  });
+}

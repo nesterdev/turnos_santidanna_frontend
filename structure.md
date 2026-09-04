@@ -93,6 +93,7 @@
 │   │   │   ├── 📄 BulkManualMode.jsx
 │   │   │   ├── 📄 EmployeeScheduleView.jsx
 │   │   │   ├── 📄 ManualMode.jsx
+│   │   │   ├── 📄 ScheduleAttendanceModal.jsx
 │   │   │   ├── 📄 ScheduleDayCard.jsx
 │   │   │   ├── 📄 ScheduleEditForm.jsx
 │   │   │   ├── 📄 ScheduleForm.jsx

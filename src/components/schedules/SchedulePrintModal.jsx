@@ -19,8 +19,21 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
       schedules.forEach((s) => {
         const empId = s.ScheduleEmployee?.id;
         if (empId) {
-          initialValues[empId] = "";
-          initialLabors[empId] = s.is_rest_day ? "Descanso" : "";
+          const isNonWorking = s.is_rest_day || (s.attendance_status && s.attendance_status !== "asistira");
+          initialValues[empId] = isNonWorking ? "0" : "";
+          
+          if (s.is_rest_day) {
+            initialLabors[empId] = "Descanso";
+          } else if (s.attendance_status && s.attendance_status !== "asistira") {
+            const labels = {
+              falta_justificada: "Falta Justificada",
+              falta_injustificada: "Falta Injustificada",
+              sin_reemplazo: "Sin Reemplazo"
+            };
+            initialLabors[empId] = labels[s.attendance_status] || "Inasistencia";
+          } else {
+            initialLabors[empId] = "";
+          }
         }
       });
       setDailyValues(initialValues);
@@ -35,7 +48,12 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
     const updated = {};
     schedules.forEach((s) => {
       const empId = s.ScheduleEmployee?.id;
-      if (empId) updated[empId] = defaultRate;
+      if (empId) {
+        const isNonWorking = s.is_rest_day || (s.attendance_status && s.attendance_status !== "asistira");
+        if (!isNonWorking) {
+          updated[empId] = defaultRate;
+        }
+      }
     });
     setDailyValues(updated);
   };
@@ -57,22 +75,52 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
     const rowsHtml = schedules.map((s, index) => {
       const empId = s.ScheduleEmployee?.id;
       const empName = s.ScheduleEmployee?.name || "N/A";
-      const laborText = laborValues[empId] || (s.is_rest_day ? "Descanso" : "");
+      
+      const isRest = s.is_rest_day;
+      const attendance = s.attendance_status || "asistira";
+      const isAbsent = attendance !== "asistira";
+      
+      let laborText = laborValues[empId] || "";
+      if (isRest) {
+        laborText = "Descanso";
+      } else if (isAbsent) {
+        const absentLabels = {
+          falta_justificada: "Falta Justificada",
+          falta_injustificada: "Falta Injustificada",
+          sin_reemplazo: "Sin Reemplazo"
+        };
+        laborText = absentLabels[attendance] || "Inasistencia";
+        if (s.absence_reason) {
+          laborText += ` (${s.absence_reason})`;
+        }
+      }
+
       const isReplacement = s.is_replacement || s.was_replaced;
       const replacementText = isReplacement && s.OriginalEmployee ? `(Reemplaza a: ${s.OriginalEmployee.name})` : "";
+      
       const paymentValue = dailyValues[empId] || "";
-      const formattedPayment = paymentValue ? `$ ${Number(paymentValue).toLocaleString("es-CO")}` : "_________________";
+      let formattedPayment = "";
+      
+      if (isRest || isAbsent) {
+        formattedPayment = `<span style="color: #9ca3af; font-style: italic;">No aplica ($ 0)</span>`;
+      } else {
+        formattedPayment = paymentValue ? `$ ${Number(paymentValue).toLocaleString("es-CO")}` : "_________________";
+      }
+
+      const rowBackground = (isRest || isAbsent) ? "background-color: #f9fafb;" : "";
 
       return `
-        <tr>
+        <tr style="${rowBackground}">
           <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; font-size: 10px; vertical-align: middle;">${index + 1}</td>
           <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; vertical-align: middle;">
             <strong>${empName}</strong>
             ${replacementText ? `<br/><span style="font-size: 9px; color: #b45309;">${replacementText}</span>` : ""}
           </td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: center; vertical-align: middle;">${laborText}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: center; vertical-align: middle; ${isAbsent ? 'color: #dc2626; font-weight: bold;' : ''}">${laborText}</td>
           <td style="border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 11px; text-align: right; font-weight: bold; vertical-align: middle;">${formattedPayment}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; height: 24px; vertical-align: middle;"></td>
+          <td style="border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; height: 24px; vertical-align: middle; font-size: 9px; color: #6b7280;">
+            ${isRest ? '<i>(Descanso)</i>' : (isAbsent ? '<span style="color: #dc2626; font-weight: bold;">NO FIRMA</span>' : '')}
+          </td>
         </tr>
       `;
     }).join("");
@@ -132,7 +180,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
               <tr>
                 <th style="width: 28px; text-align: center;">#</th>
                 <th>Auxiliar / Colaborador (Reemplazos)</th>
-                <th style="text-align: center; width: 130px;">Labor</th>
+                <th style="text-align: center; width: 130px;">Labor / Estado</th>
                 <th style="text-align: right; width: 95px;">Valor Día</th>
                 <th style="text-align: center; width: 110px;">Firma de Recibido</th>
               </tr>
@@ -173,9 +221,9 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-xl max-h-[90vh] flex flex-col">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Configurar Acta de Pago Diaria</h2>
+          <h2 className="text-lg font-bold text-gray-900">Configurar Acta de Pago Diaria y Asistencias</h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Asigna las labores (ej. papelería, olla, caja) y montos para estructurar el acta.
+            Los estados de descanso y faltas se reflejan automáticamente en el acta con valor de $0.
           </p>
         </div>
 
@@ -204,7 +252,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
         {/* APLICAR VALOR GENERAL */}
         <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-center gap-3">
           <div className="flex-1">
-            <label className="block text-[11px] font-semibold text-gray-600 mb-1">Asignar valor general a todos:</label>
+            <label className="block text-[11px] font-semibold text-gray-600 mb-1">Asignar valor general a activos:</label>
             <input
               type="number"
               placeholder="Ej: 45000"
@@ -228,12 +276,32 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
             const empId = s.ScheduleEmployee?.id;
             const empName = s.ScheduleEmployee?.name || "N/A";
             const isReplacement = s.is_replacement || s.was_replaced;
+            const isRest = s.is_rest_day;
+            const attendance = s.attendance_status || "asistira";
+            const isAbsent = attendance !== "asistira";
+
             return (
-              <div key={s.id} className="grid grid-cols-12 gap-2 items-center p-2.5 bg-gray-50/50 border border-gray-100 rounded-xl">
+              <div 
+                key={s.id} 
+                className={`grid grid-cols-12 gap-2 items-center p-2.5 border rounded-xl ${
+                  isRest || isAbsent ? 'bg-amber-50/30 border-amber-100' : 'bg-gray-50/50 border-gray-100'
+                }`}
+              >
                 <div className="col-span-5 truncate">
                   <p className="text-xs font-semibold text-gray-900 truncate">{empName}</p>
-                  <p className="text-[10px] text-gray-500 truncate">
-                    {isReplacement && s.OriginalEmployee ? `Reemplaza a ${s.OriginalEmployee.name}` : "Colaborador activo"}
+                  <p className="text-[10px] text-gray-500 truncate flex items-center gap-1">
+                    {isRest ? (
+                      <span className="text-amber-600 font-bold">🟢 Día de Descanso</span>
+                    ) : isAbsent ? (
+                      <span className="text-red-600 font-bold">
+                        🔴 {attendance === 'falta_justificada' ? 'Falta Justificada' : attendance === 'falta_injustificada' ? 'Falta Injustificada' : 'Sin Reemplazo'}
+                        {s.absence_reason ? ` (${s.absence_reason})` : ''}
+                      </span>
+                    ) : isReplacement && s.OriginalEmployee ? (
+                      <span>Reemplaza a {s.OriginalEmployee.name}</span>
+                    ) : (
+                      <span>Colaborador activo</span>
+                    )}
                   </p>
                 </div>
                 <div className="col-span-4">
@@ -241,8 +309,9 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
                     type="text"
                     placeholder="Ej. Papelería, Caja..."
                     value={laborValues[empId] ?? ""}
+                    disabled={isRest || isAbsent}
                     onChange={(e) => setLaborValues({ ...laborValues, [empId]: e.target.value })}
-                    className="w-full px-2.5 py-1 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 font-medium"
+                    className="w-full px-2.5 py-1 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 font-medium disabled:bg-gray-100 disabled:text-gray-400"
                   />
                 </div>
                 <div className="col-span-3">
@@ -250,8 +319,9 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
                     type="number"
                     placeholder="$ Valor día"
                     value={dailyValues[empId] || ""}
+                    disabled={isRest || isAbsent}
                     onChange={(e) => setDailyValues({ ...dailyValues, [empId]: e.target.value })}
-                    className="w-full px-2.5 py-1 text-xs text-right bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 font-medium"
+                    className="w-full px-2.5 py-1 text-xs text-right bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 font-medium disabled:bg-gray-100 disabled:text-gray-400"
                   />
                 </div>
               </div>
