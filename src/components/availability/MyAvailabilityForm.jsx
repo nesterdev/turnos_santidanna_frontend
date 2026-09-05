@@ -31,11 +31,11 @@ const DAYS_OF_WEEK = [
 const REVERSE_DAY_MAP = { 1: "lunes", 2: "martes", 3: "miercoles", 4: "jueves", 5: "viernes", 6: "sabado", 0: "domingo" };
 const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-// Correos exentos de las reglas de restricciones de descanso (personal de solo fines de semana)
+// Correos exentos en minúsculas para evitar problemas de mayúsculas/minúsculas
 const EXEMPT_EMAILS = [
   "tcncarlos392@gmail.com",
   "dannafer_2000@gmail.com",
-  "Paolaandreacava08@gmail.com",
+  "paolaandreacava08@gmail.com",
   "a16760480@gmail.com",
   "lauravalentinayara242@gmail.com",
   "karolayaparicio2008@gmail.com"
@@ -59,8 +59,9 @@ export default function MyAvailabilityForm() {
     domingo: { isAvailable: true, notes: "" }
   });
 
-  // Verificar si el usuario actual está exento basado en su correo
-  const isExemptUser = currentUser?.email && EXEMPT_EMAILS.includes(currentUser.email);
+  // Verificación de correo insensible a mayúsculas/minúsculas (.toLowerCase())
+  const userEmail = currentUser?.email ? currentUser.email.toLowerCase().trim() : "";
+  const isExemptUser = userEmail && EXEMPT_EMAILS.includes(userEmail);
   const maxAllowedRest = isExemptUser ? 5 : 2;
 
   useEffect(() => {
@@ -142,7 +143,6 @@ export default function MyAvailabilityForm() {
       [dayKey]: { ...daysState[dayKey], isAvailable: !isCurrentlyAvailable }
     };
 
-    // Validar descanso consecutivo solo si NO es un usuario exento
     if (!isExemptUser && isCurrentlyAvailable && checkConsecutiveRest(nextState)) {
       setFeedback({
         type: "warning",
@@ -227,9 +227,12 @@ export default function MyAvailabilityForm() {
     }
   };
 
-  const getDaysUntilFriday = (dayOfWeek) => {
-    if (dayOfWeek < 5 && dayOfWeek > 1) return 5 - dayOfWeek;
-    return 0;
+  // Cálculo ajustado para la apertura en Jueves (día 4)
+  const getDaysUntilThursday = (dayOfWeek) => {
+    // Si ya pasó el jueves (ej. Viernes=5, Sábado=6, Domingo=0, Lunes=1, Martes=2, Miércoles=3)
+    if (dayOfWeek === 4) return 0;
+    if (dayOfWeek > 4) return (7 - dayOfWeek) + 4;
+    return 4 - dayOfWeek;
   };
 
   if (loading) {
@@ -241,7 +244,7 @@ export default function MyAvailabilityForm() {
   }
 
   const todayDayName = statusData ? DAY_NAMES[statusData.currentDayOfWeek] : "";
-  const daysToFriday = statusData ? getDaysUntilFriday(statusData.currentDayOfWeek) : 0;
+  const daysToThursday = statusData ? getDaysUntilThursday(statusData.currentDayOfWeek) : 0;
   const currentWeekInfo = statusData?.currentWeek;
 
   return (
@@ -258,7 +261,7 @@ export default function MyAvailabilityForm() {
             Gestión de Agenda
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
-            Configura tu disponibilidad semanal dentro de la ventana habilitada (Viernes a Lunes).
+            Configura tu disponibilidad semanal dentro de la ventana habilitada (Jueves a Domingo).
             {isExemptUser && <span className="block text-indigo-600 font-semibold mt-1">✨ Modo Fin de Semana (Exento de restricciones estándar)</span>}
           </p>
         </div>
@@ -283,7 +286,7 @@ export default function MyAvailabilityForm() {
               </div>
               <div>
                 <p className="text-xs font-bold text-amber-900 uppercase tracking-wider">Ventana Cerrada</p>
-                <p className="text-[11px] text-amber-700">Abre en {daysToFriday} {daysToFriday === 1 ? "día" : "días"} (Viernes)</p>
+                <p className="text-[11px] text-amber-700">Abre en {daysToThursday} {daysToThursday === 1 ? "día" : "días"} (Jueves)</p>
               </div>
             </div>
           )}
@@ -342,7 +345,6 @@ export default function MyAvailabilityForm() {
       {/* 3. FORMULARIO PRÓXIMA SEMANA */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
 
-        {/* HEADER DEL FORMULARIO CON COUNTER COMPACTO */}
         <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -360,7 +362,6 @@ export default function MyAvailabilityForm() {
             </p>
           </div>
 
-          {/* KPI BAR RESUMEN */}
           <div className="bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 shadow-2xs flex items-center gap-4 w-full sm:w-auto justify-between">
             <div className="flex items-center gap-2.5">
               <CalendarOff size={16} className={unavailableCount > 0 ? "text-[#FF3131]" : "text-slate-400"} />
@@ -379,7 +380,6 @@ export default function MyAvailabilityForm() {
           </div>
         </div>
 
-        {/* FEEDBACK MSG */}
         {feedback && (
           <div
             className={`m-5 p-4 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all ${
@@ -400,10 +400,9 @@ export default function MyAvailabilityForm() {
           </div>
         )}
 
-        {/* GRID DE DÍAS */}
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {DAYS_OF_WEEK.map(({ key, label, short }, index) => {
+            {DAYS_OF_WEEK.map(({ key, label, short }) => {
               const isAvailable = daysState[key].isAvailable;
               const isSunday = key === "domingo";
 
@@ -423,7 +422,6 @@ export default function MyAvailabilityForm() {
                       : "bg-red-50/40 border-red-200 ring-1 ring-red-500/10"
                   }`}
                 >
-                  {/* HEADER DE TARJETA */}
                   <div>
                     <div className="flex items-center justify-between gap-3 mb-3">
                       <div className="flex items-center gap-2.5">
@@ -446,7 +444,6 @@ export default function MyAvailabilityForm() {
                         </div>
                       </div>
 
-                      {/* PILL / BADGE TACTIL */}
                       <div
                         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
                           isAvailable
@@ -464,7 +461,6 @@ export default function MyAvailabilityForm() {
                     </div>
                   </div>
 
-                  {/* INPUT DE OBSERVACIÓN INTEGRADO */}
                   <div className="mt-3 pt-3 border-t border-slate-100/80">
                     <div className="relative flex items-center">
                       <input
@@ -487,7 +483,6 @@ export default function MyAvailabilityForm() {
             })}
           </div>
 
-          {/* BOTTOM ACTIONS */}
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-400 text-center sm:text-left">
               {isLocked
