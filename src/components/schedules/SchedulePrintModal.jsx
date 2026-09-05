@@ -150,13 +150,40 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
           <title>Acta Diaria de Pagos - ${formattedDate}</title>
           <style>
             @page { size: letter; margin: 0.8cm; }
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #111827; margin: 0; padding: 0; }
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+              color: #111827; 
+              margin: 0; 
+              padding: 0; 
+              position: relative;
+            }
+            /* MARCA DE AGUA PROFESIONAL */
+            .watermark {
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 420px;
+              height: 420px;
+              opacity: 0.07;
+              z-index: -1000;
+              pointer-events: none;
+            }
+            .watermark img {
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+            }
+            .content-wrapper {
+              position: relative;
+              z-index: 1;
+            }
             .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #111827; padding-bottom: 4px; }
             .header h1 { font-size: 13px; text-transform: uppercase; margin: 0 0 1px 0; font-weight: 800; }
             .header h2 { font-size: 10px; text-transform: uppercase; margin: 0 0 1px 0; font-weight: 600; color: #374151; }
             .header p { font-size: 9px; color: #4b5563; margin: 0; }
             .meta-info { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; font-weight: 600; background: #f3f4f6; padding: 5px 8px; border-radius: 4px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; background-color: transparent; }
             th { background-color: #e5e7eb; border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 10px; text-transform: uppercase; text-align: left; }
             .total-section { display: flex; justify-content: flex-end; margin-bottom: 15px; font-size: 11px; font-weight: bold; }
             .total-box { background: #f3f4f6; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 4px; }
@@ -166,44 +193,52 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>${companyInfo.name}</h1>
-            <h2>NIT: ${companyInfo.nit}</h2>
-            <p>${companyInfo.subtitle}</p>
+          <!-- Marca de agua con el SVG -->
+          <div class="watermark">
+            <img src="/variedades_santidana_borders.svg" alt="Marca de Agua" />
           </div>
-          <div class="meta-info">
-            <div>FECHA DE OPERACIÓN: ${formattedDate}</div>
-            <div>TOTAL PERSONAL: ${schedules.length}</div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 28px; text-align: center;">#</th>
-                <th>Auxiliar / Colaborador (Reemplazos)</th>
-                <th style="text-align: center; width: 130px;">Labor / Estado</th>
-                <th style="text-align: right; width: 95px;">Valor Día</th>
-                <th style="text-align: center; width: 110px;">Firma de Recibido</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-              ${emptyRowsHtml}
-            </tbody>
-          </table>
-          <div class="total-section">
-            <div class="total-box">
-              TOTAL PAGOS DEL DÍA: ${formattedTotal}
+
+          <div class="content-wrapper">
+            <div class="header">
+              <h1>${companyInfo.name}</h1>
+              <h2>NIT: ${companyInfo.nit}</h2>
+              <p>${companyInfo.subtitle}</p>
+            </div>
+            <div class="meta-info">
+              <div>FECHA DE OPERACIÓN: ${formattedDate}</div>
+              <div>TOTAL PERSONAL: ${schedules.length}</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 28px; text-align: center;">#</th>
+                  <th>Auxiliar / Colaborador (Reemplazos)</th>
+                  <th style="text-align: center; width: 130px;">Labor / Estado</th>
+                  <th style="text-align: right; width: 95px;">Valor Día</th>
+                  <th style="text-align: center; width: 110px;">Firma de Recibido</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+                ${emptyRowsHtml}
+              </tbody>
+            </table>
+            <div class="total-section">
+              <div class="total-box">
+                TOTAL PAGOS DEL DÍA: ${formattedTotal}
+              </div>
+            </div>
+            <div class="signatures">
+              <div class="signature-box">
+                Firma del ${companyInfo.managerTitle}
+              </div>
+              <div class="signature-box">
+                Vo.Bo. Gerencia / Dirección
+                <span>Orlinda Guerrero Corredor</span>
+              </div>
             </div>
           </div>
-          <div class="signatures">
-            <div class="signature-box">
-              Firma del ${companyInfo.managerTitle}
-            </div>
-            <div class="signature-box">
-              Vo.Bo. Gerencia / Dirección
-              <span>Orlinda Guerrero Corredor</span>
-            </div>
-          </div>
+
           <script>
             window.onload = function() {
               window.print();
@@ -339,6 +374,7 @@ export default function SchedulePrintModal({ isOpen, onClose, schedules, filterD
         <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
           <button
             type="button"
+            onClose={onClose}
             onClick={onClose}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl transition"
           >

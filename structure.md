@@ -25,16 +25,24 @@
 │   ├── 📄 delete.svg
 │   ├── 📄 edit.svg
 │   ├── 📄 eye.svg
-│   ├── 📄 favicon.svg
 │   ├── 📄 left.svg
 │   ├── 📄 manifest.json
 │   ├── 📁 sounds/
 │   │   ├── 📄 error.wav
 │   │   ├── 📄 info.wav
 │   │   └── 📄 success.wav
-│   └── 📄 sw.js
+│   ├── 📄 sw.js
+│   ├── 📄 variedades_santidana_192x192.png
+│   ├── 📄 variedades_santidana_500x500.png
+│   ├── 📄 variedades_santidana_512x512.png
+│   └── 📄 variedades_santidana_borders.svg
 ├── 📄 README.md
 ├── 📁 src/
+│   ├── 📁 assets/
+│   │   ├── 📄 variedades_santidana_192x192.png
+│   │   ├── 📄 variedades_santidana_500x500.png
+│   │   ├── 📄 variedades_santidana_512x512.png
+│   │   └── 📄 variedades_santidana_borders.svg
 │   ├── 📁 components/
 │   │   ├── 📁 areas/
 │   │   │   ├── 📄 AreasEditForm.jsx
@@ -126,6 +134,7 @@
 │   │       ├── 📄 EmployeeSelector.jsx
 │   │       ├── 📄 Field.jsx
 │   │       ├── 📄 Input.jsx
+│   │       ├── 📄 InstallPWA.jsx
 │   │       ├── 📄 Loading.tsx
 │   │       ├── 📄 PublicHeader.astro
 │   │       ├── 📄 SelectCard.jsx

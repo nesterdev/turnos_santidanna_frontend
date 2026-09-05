@@ -1,9 +1,12 @@
 ---
 import "../../styles/global.css";
 import { ClientRouter } from "astro:transitions";
-import ToastContainer from "../ui/ToastContainer.jsx"; // Importación correcta en el Frontmatter
+import ToastContainer from "../ui/ToastContainer.jsx"; 
 import ConfirmModalContainer from "../ui/ConfirmModalContainer.jsx";
+import InstallPWA from "../ui/InstallPWA.jsx";
 const { title = "Sistema de Turnos" } = Astro.props;
+
+import logoImage from "../../assets/variedades_santidana_500x500.png";
 ---
 
 <html lang="es" class="h-full">
@@ -13,9 +16,9 @@ const { title = "Sistema de Turnos" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#FF3131" />
-    <link rel="icon" href="/favicon.svg" />
     
-    {/* Mantiene el DOM vivo entre navegaciones */}
+    <link rel="icon" type="image/png" href={logoImage.src} />
+    
     <ClientRouter />
   </head>
 
@@ -24,8 +27,10 @@ const { title = "Sistema de Turnos" } = Astro.props;
   >
     <slot />
 
-    {/* El ToastContainer debe ir dentro del body con la directiva client:only */}
     <ToastContainer client:only="react" />
     <ConfirmModalContainer client:only="react" />
+    
+    {/* 2. Añade el componente de instalación con directiva client:only */}
+    <InstallPWA client:only="react" />
   </body>
 </html>
