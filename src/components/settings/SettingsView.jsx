@@ -1,6 +1,7 @@
 // src/components/settings/SettingsView.jsx
 import React from "react";
 import SettingsList from "./SettingsList";
+import PushBroadcastCard from "./PushBroadcastCard";
 
 export default function SettingsView() {
   return (
@@ -10,6 +11,7 @@ export default function SettingsView() {
         <p className="text-sm text-gray-500">Administra los parámetros globales de la aplicación.</p>
       </div>
       <SettingsList />
+      <PushBroadcastCard />
     </div>
   );
 }
