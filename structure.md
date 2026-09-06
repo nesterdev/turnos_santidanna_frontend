@@ -138,6 +138,7 @@
 │   │       ├── 📄 InstallPWA.jsx
 │   │       ├── 📄 Loading.tsx
 │   │       ├── 📄 PublicHeader.astro
+│   │       ├── 📄 PushDevicesList.jsx
 │   │       ├── 📄 SelectCard.jsx
 │   │       ├── 📄 SessionExpiredModal.astro
 │   │       ├── 📄 ShiftSelector.jsx

@@ -62,3 +62,15 @@ export async function sendBroadcastNotification(payload) {
     body: JSON.stringify(payload),
   });
 }
+
+export async function getPushSubscriptions() {
+  return await apiFetch('/push/subscriptions', {
+    method: 'GET',
+  });
+}
+
+export async function deletePushSubscription(id) {
+  return await apiFetch(`/push/subscriptions/${id}`, {
+    method: 'DELETE',
+  });
+}
