@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Smartphone, Trash2, RefreshCw, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Smartphone, Trash2, RefreshCw, ShieldAlert } from "lucide-react";
 import { getPushSubscriptions, deletePushSubscription } from "../../lib/api/push";
-import { showAlert } from "../../lib/utils/alerts";
+import { showSuccess, showError } from "../../lib/utils/alerts"; // <--- Importamos las funciones correctas
 
 export default function PushDevicesList() {
   const [subscriptions, setSubscriptions] = useState([]);
@@ -15,7 +15,7 @@ export default function PushDevicesList() {
       setSubscriptions(res.subscriptions || []);
     } catch (error) {
       console.error("Error al cargar dispositivos:", error);
-      showAlert("No se pudieron cargar los dispositivos registrados", "error");
+      showError("No se pudieron cargar los dispositivos registrados");
     } finally {
       setLoading(false);
     }
@@ -32,11 +32,11 @@ export default function PushDevicesList() {
 
     try {
       await deletePushSubscription(id);
-      showAlert("Dispositivo eliminado con éxito", "success");
+      showSuccess("Dispositivo eliminado con éxito"); // <--- Orden correcto mediante helper
       setSubscriptions(subscriptions.filter((sub) => sub.id !== id));
     } catch (error) {
       console.error("Error al eliminar suscripción:", error);
-      showAlert(error.message || "Error al eliminar el dispositivo", "error");
+      showError(error.message || "Error al eliminar el dispositivo");
     }
   };
 
@@ -80,7 +80,6 @@ export default function PushDevicesList() {
             </thead>
             <tbody className="divide-y divide-gray-100 text-xs text-gray-600">
               {subscriptions.map((sub) => {
-                // Parseamos un poco el endpoint para mostrar el navegador (ej: fcm.googleapis.com, updates.push.services.mozilla.com, etc)
                 let browserName = "Desconocido";
                 try {
                   const urlObj = new URL(sub.endpoint);
