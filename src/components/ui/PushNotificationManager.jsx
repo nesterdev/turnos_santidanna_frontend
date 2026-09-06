@@ -3,7 +3,8 @@ import { registerPushNotifications } from "../../lib/api/push";
 
 export default function PushNotificationManager() {
   const [statusMessage, setStatusMessage] = useState("");
-  const [isStandalone, setIsStandalone] = useState(true);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
   useEffect(() => {
     const isInStandaloneMode = 
@@ -11,6 +12,9 @@ export default function PushNotificationManager() {
       window.navigator.standalone === true;
     
     setIsStandalone(isInStandaloneMode);
+
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    setIsIOSDevice(/ipad|iphone|ipod/.test(userAgent.toLowerCase()));
   }, []);
 
   const handleEnablePush = async () => {
@@ -25,7 +29,7 @@ export default function PushNotificationManager() {
       const permission = await Notification.requestPermission();
       
       if (permission !== "granted") {
-        setStatusMessage("Permiso denegado. Habilítalo en la configuración del navegador o del sistema.");
+        setStatusMessage("Permiso denegado. Habilítalo en la configuración de iOS (Ajustes > Santidana > Notificaciones).");
         return;
       }
 
@@ -36,7 +40,6 @@ export default function PushNotificationManager() {
 
       setStatusMessage("Conectando con el Service Worker...");
       
-      // Añadimos un tiempo límite de seguridad (5 segundos) para evitar bloqueos infinitos
       const registration = await Promise.race([
         navigator.serviceWorker.ready,
         new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout SW")), 5000))
@@ -45,11 +48,11 @@ export default function PushNotificationManager() {
       setStatusMessage("Registrando dispositivo en el servidor...");
       await registerPushNotifications(registration);
 
-      setStatusMessage("¡Dispositivo registrado con éxito para notificaciones! 🎉");
+      setStatusMessage("¡Dispositivo iOS registrado con éxito para notificaciones! 🎉");
     } catch (err) {
       console.error("Error al activar notificaciones:", err);
       if (err.message === "Timeout SW") {
-        setStatusMessage("El Service Worker no respondió a tiempo. Recarga la página.");
+        setStatusMessage("El Service Worker no respondió a tiempo. Recarga la aplicación.");
       } else {
         setStatusMessage("Hubo un error al registrar el dispositivo. Revisa la consola.");
       }
@@ -72,11 +75,11 @@ export default function PushNotificationManager() {
         </div>
       </div>
 
-      {!isStandalone && (
+      {!isStandalone && isIOSDevice && (
         <div className="p-3.5 bg-amber-500/10 border border-amber-200 rounded-2xl text-amber-800 text-xs flex items-start gap-2.5">
           <span className="text-base leading-none">⚠️</span>
           <div>
-            <strong className="font-bold">Nota para iOS:</strong> Para recibir notificaciones, asegúrate de instalar esta app en tu pantalla de inicio usando <b className="font-semibold text-slate-900">Compartir &gt; Agregar a pantalla de inicio</b>.
+            <strong className="font-bold">Aviso importante en iOS:</strong> Estás abriendo la app desde el navegador. Para que las notificaciones push funcionen, debes abrir la app directamente desde el ícono en tu <b className="font-semibold text-slate-900">Pantalla de inicio</b>.
           </div>
         </div>
       )}
@@ -89,7 +92,7 @@ export default function PushNotificationManager() {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          Activar Notificaciones Manualmente
+          Activar Notificaciones en este Dispositivo
         </button>
       </div>
 
