@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { sendBroadcastNotification } from "../../lib/api/push";
+import { showAlert } from "../../lib/utils/alerts";
 // Ajusta la importación de alertas según la estructura de tu proyecto (ej. alert.js o alerts.js)
-import { showAlert } from "../../utils/alert"; 
 
 export default function PushBroadcastCard() {
   const [title, setTitle] = useState("");
