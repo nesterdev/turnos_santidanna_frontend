@@ -29,8 +29,21 @@ import logoImage from "../../assets/variedades_santidana_500x500.png";
 
     <ToastContainer client:only="react" />
     <ConfirmModalContainer client:only="react" />
-    
-    {/* 2. Añade el componente de instalación con directiva client:only */}
     <InstallPWA client:only="react" />
+
+    {/* Script nativo que se ejecuta en el navegador del cliente */}
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => {
+              console.log('Service Worker registrado correctamente con scope:', reg.scope);
+            })
+            .catch((err) => {
+              console.error('Fallo al registrar el Service Worker:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

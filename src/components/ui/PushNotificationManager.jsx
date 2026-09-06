@@ -6,7 +6,6 @@ export default function PushNotificationManager() {
   const [isStandalone, setIsStandalone] = useState(true);
 
   useEffect(() => {
-    // Detectar si corre en modo standalone (PWA instalada en iOS o Android)
     const isInStandaloneMode = 
       window.matchMedia('(display-mode: standalone)').matches || 
       window.navigator.standalone === true;
@@ -16,30 +15,44 @@ export default function PushNotificationManager() {
 
   const handleEnablePush = async () => {
     try {
-      setStatusMessage("Solicitando permisos...");
+      setStatusMessage("Solicitando permisos de notificación...");
 
       if (!("Notification" in window)) {
-        setStatusMessage("Este navegador no soporta notificaciones push.");
+        setStatusMessage("Este navegador no soporta notificaciones.");
         return;
       }
 
       const permission = await Notification.requestPermission();
       
       if (permission !== "granted") {
-        setStatusMessage("Permiso de notificaciones denegado. Habilítalo en la configuración.");
+        setStatusMessage("Permiso denegado. Habilítalo en la configuración del navegador o del sistema.");
         return;
       }
 
-      setStatusMessage("Esperando al Service Worker...");
-      await navigator.serviceWorker.ready;
+      if (!("serviceWorker" in navigator)) {
+        setStatusMessage("Tu navegador no soporta Service Workers.");
+        return;
+      }
 
-      setStatusMessage("Registrando dispositivo...");
-      await registerPushNotifications();
+      setStatusMessage("Conectando con el Service Worker...");
+      
+      // Añadimos un tiempo límite de seguridad (5 segundos) para evitar bloqueos infinitos
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout SW")), 5000))
+      ]);
+
+      setStatusMessage("Registrando dispositivo en el servidor...");
+      await registerPushNotifications(registration);
 
       setStatusMessage("¡Dispositivo registrado con éxito para notificaciones! 🎉");
     } catch (err) {
       console.error("Error al activar notificaciones:", err);
-      setStatusMessage("Hubo un error al registrar el dispositivo. Revisa la consola.");
+      if (err.message === "Timeout SW") {
+        setStatusMessage("El Service Worker no respondió a tiempo. Recarga la página.");
+      } else {
+        setStatusMessage("Hubo un error al registrar el dispositivo. Revisa la consola.");
+      }
     }
   };
 
