@@ -2,6 +2,7 @@
 import React from "react";
 import SettingsList from "./SettingsList";
 import PushBroadcastCard from "./PushBroadcastCard";
+import PushDevicesList from "../ui/PushDevicesList";
 
 export default function SettingsView() {
   return (
@@ -12,6 +13,7 @@ export default function SettingsView() {
       </div>
       <SettingsList />
       <PushBroadcastCard />
+      <PushDevicesList />
     </div>
   );
 }
