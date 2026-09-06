@@ -9,20 +9,27 @@ export default function InstallPWA() {
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    
-    // 1. Detectar si es iOS (iPhone / iPad / iPod)
-    const iosDevice = /ipad|iphone|ipod/.test(userAgent.toLowerCase());
-    // Validar si ya está en modo PWA instalado (Standalone)
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+    // 1. Detectar si la PWA ya está instalada (Standalone Mode en iOS y Android/Escritorio)
+    const isStandalone = 
+      window.matchMedia("(display-mode: standalone)").matches || 
+      window.navigator.standalone === true;
 
-    if (iosDevice && !isStandalone) {
-      setIsIOS(true);
-      setVisible(true); // Mostrar el banner adaptado para iOS
+    // Si ya está instalada, no mostramos nada bajo ninguna circunstancia
+    if (isStandalone) {
+      setVisible(false);
       return;
     }
 
-    // 2. Comportamiento para Android / Escritorio con soporte beforeinstallprompt
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const iosDevice = /ipad|iphone|ipod/.test(userAgent.toLowerCase());
+
+    if (iosDevice) {
+      setIsIOS(true);
+      setVisible(true);
+      return;
+    }
+
+    // 2. Evento nativo para Android / Chrome de escritorio
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -38,7 +45,6 @@ export default function InstallPWA() {
 
   const handleInstallClick = async () => {
     if (isIOS) {
-      // Si es iOS, desplegamos el modal/instrucciones visuales
       setShowIOSInstructions(true);
       return;
     }
@@ -50,7 +56,19 @@ export default function InstallPWA() {
     
     if (outcome === "accepted") {
       console.log("Usuario aceptó instalar la PWA");
-      await registerPushNotifications();
+      
+      try {
+        // Asegurarnos de pedir permisos y esperar al Service Worker antes de registrar las push
+        if ("Notification" in window) {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            await navigator.serviceWorker.ready;
+            await registerPushNotifications();
+          }
+        }
+      } catch (err) {
+        console.error("Error al registrar notificaciones post-instalación:", err);
+      }
     }
 
     setDeferredPrompt(null);
@@ -104,7 +122,7 @@ export default function InstallPWA() {
               </h3>
               <button 
                 onClick={() => setShowIOSInstructions(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -132,9 +150,9 @@ export default function InstallPWA() {
                   2
                 </div>
                 <div>
-                  <p className="font-medium text-white mb-0.5">Selecciona &quot;Agregar al inicio&quot;</p>
+                  <p className="font-medium text-white mb-0.5">Selecciona &quot;Añadir a pantalla de inicio&quot;</p>
                   <p className="text-slate-400 flex items-center gap-1">
-                    Desplázate por el menú y busca la opción <PlusSquare className="w-4 h-4 inline text-slate-200 mx-0.5" /> <strong>&quot;Agregar a ID de inicio&quot; o &quot;Añadir a pantalla de inicio&quot;</strong>.
+                    Desplázate por el menú y busca la opción <PlusSquare className="w-4 h-4 inline text-slate-200 mx-0.5" /> <strong>&quot;Añadir a pantalla de inicio&quot;</strong>.
                   </p>
                 </div>
               </div>
