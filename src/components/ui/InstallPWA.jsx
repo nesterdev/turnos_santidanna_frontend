@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Smartphone, Share, PlusSquare, X } from "lucide-react";
-import { registerPushNotifications } from "../../lib/api/push";
 
 export default function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -9,14 +8,12 @@ export default function InstallPWA() {
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
-    // 0. Si el usuario ya indicó previamente que no quiere ver el banner o ya instaló, salimos
     const isDismissed = localStorage.getItem("pwa_install_dismissed");
     if (isDismissed === "true") {
       setVisible(false);
       return;
     }
 
-    // 1. Detectar si la PWA ya está instalada (Standalone Mode en iOS y Android/Escritorio)
     const isStandalone = 
       window.matchMedia("(display-mode: standalone)").matches || 
       window.navigator.standalone === true;
@@ -35,7 +32,6 @@ export default function InstallPWA() {
       return;
     }
 
-    // 2. Evento nativo para Android / Chrome de escritorio
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -52,7 +48,6 @@ export default function InstallPWA() {
   const handleDismiss = () => {
     setVisible(false);
     setShowIOSInstructions(false);
-    // Guardamos en localStorage para que no vuelva a aparecer en este navegador
     localStorage.setItem("pwa_install_dismissed", "true");
   };
 
@@ -69,21 +64,8 @@ export default function InstallPWA() {
     
     if (outcome === "accepted") {
       console.log("Usuario aceptó instalar la PWA");
-      
-      try {
-        if ("Notification" in window) {
-          const permission = await Notification.requestPermission();
-          if (permission === "granted") {
-            await navigator.serviceWorker.ready;
-            await registerPushNotifications();
-          }
-        }
-      } catch (err) {
-        console.error("Error al registrar notificaciones post-instalación:", err);
-      }
     }
 
-    // Al terminar el flujo de instalación (aceptado o rechazado), ocultamos y marcamos
     setDeferredPrompt(null);
     handleDismiss();
   };
@@ -92,7 +74,6 @@ export default function InstallPWA() {
 
   return (
     <>
-      {/* Banner flotante principal */}
       <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:w-96 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-800 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#FF3131] flex items-center justify-center shrink-0 text-white">
@@ -125,7 +106,6 @@ export default function InstallPWA() {
         </div>
       </div>
 
-      {/* Modal de instrucciones específicas para iOS (Safari) */}
       {showIOSInstructions && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 text-white shadow-2xl animate-in fade-in zoom-in duration-200">

@@ -4,12 +4,12 @@ import { registerPushNotifications } from "../../lib/api/push";
 export default function PushNotificationManager() {
   const [statusMessage, setStatusMessage] = useState("");
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    // 1. Verificamos si ya se registró previamente en este dispositivo usando localStorage
-    const savedPushStatus = localStorage.getItem("ios_push_subscribed");
+    const savedPushStatus = localStorage.getItem("push_notifications_subscribed");
     if (savedPushStatus === "true") {
       setIsSubscribed(true);
     }
@@ -21,11 +21,15 @@ export default function PushNotificationManager() {
     setIsStandalone(isInStandaloneMode);
 
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    setIsIOSDevice(/ipad|iphone|ipod/.test(userAgent.toLowerCase()));
+    const ios = /ipad|iphone|ipod/.test(userAgent.toLowerCase());
+    const android = /android/.test(userAgent.toLowerCase());
+    
+    setIsIOSDevice(ios);
+    setIsMobileDevice(ios || android);
   }, []);
 
-  // Si no es un dispositivo iOS o si ya se suscribió con éxito, ocultamos el componente por completo
-  if (!isIOSDevice || isSubscribed) {
+  // Si no es un dispositivo móvil (celular/tablet) o ya se suscribió, ocultamos el componente
+  if (!isMobileDevice || isSubscribed) {
     return null; 
   }
 
@@ -40,12 +44,10 @@ export default function PushNotificationManager() {
 
       await registerPushNotifications();
       
-      // Guardamos en localStorage para que no vuelva a mostrarse nunca más
-      localStorage.setItem("ios_push_subscribed", "true");
+      localStorage.setItem("push_notifications_subscribed", "true");
       
       setStatusMessage("¡Dispositivo registrado con éxito para notificaciones! 🎉");
 
-      // Ocultamos el componente tras un breve instante para una transición limpia
       setTimeout(() => {
         setIsSubscribed(true);
       }, 2000);
@@ -76,8 +78,8 @@ export default function PushNotificationManager() {
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Notificaciones Push (iOS)</h3>
-            <p className="text-xs text-slate-400">Mantente al día con tus turnos.</p>
+            <h3 className="text-sm font-bold text-slate-900">Notificaciones Push</h3>
+            <p className="text-xs text-slate-400">Mantente al día con tus turnos y alertas.</p>
           </div>
         </div>
       </div>
@@ -86,7 +88,7 @@ export default function PushNotificationManager() {
         <div className="p-3.5 bg-amber-500/10 border border-amber-200 rounded-2xl text-amber-800 text-xs flex items-start gap-2.5">
           <span>⚠️</span>
           <div>
-            <strong className="font-bold">Aviso importante:</strong> Recuerda añadir la app a tu <b>Pantalla de inicio</b> desde Safari para activar las notificaciones.
+            <strong className="font-bold">Aviso importante:</strong> Para una mejor experiencia, recuerda añadir la app a tu <b>Pantalla de inicio</b> {isIOSDevice ? "desde Safari" : "desde el menú de tu navegador"}.
           </div>
         </div>
       )}
