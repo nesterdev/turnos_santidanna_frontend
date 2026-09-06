@@ -17,7 +17,6 @@ export async function registerPushNotifications() {
     return false;
   }
 
-  // Validación estricta para iOS: debe ser modo standalone (instalada en pantalla de inicio)
   const isIOS = /ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase());
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
@@ -26,47 +25,36 @@ export async function registerPushNotifications() {
     return false;
   }
 
-  try {
-    // 1. Asegurar que el Service Worker esté listo
-    const registration = await navigator.serviceWorker.ready;
+  // QUITAMOS EL TRY/CATCH DE AQUÍ O PROPAGAMOS EL ERROR
+  // para que si el backend falla, el componente React se entere de verdad.
+  const registration = await navigator.serviceWorker.ready;
+  let subscription = await registration.pushManager.getSubscription();
 
-    // 2. Verificar si ya existe una suscripción activa previa
-    let subscription = await registration.pushManager.getSubscription();
-
-    if (!subscription) {
-      // 3. Pedir permiso explícito al usuario (requiere gesto de clic)
-      const permissionResult = await Notification.requestPermission();
-      if (permissionResult !== 'granted') {
-        console.warn('Permiso de notificaciones denegado por el usuario.');
-        return false;
-      }
-
-      // 4. Obtener Llave Pública VAPID
-      const publicVapidKey = import.meta.env.PUBLIC_VAPID_KEY;
-      if (!publicVapidKey) {
-        console.error('Falta la variable PUBLIC_VAPID_KEY en el cliente');
-        return false;
-      }
-
-      // 5. Crear la suscripción push en el navegador
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-      });
+  if (!subscription) {
+    const permissionResult = await Notification.requestPermission();
+    if (permissionResult !== 'granted') {
+      throw new Error('Permiso de notificaciones denegado por el usuario.');
     }
 
-    // 6. Enviar la suscripción al backend usando tu apiFetch
-    await apiFetch('/push/subscribe', {
-      method: 'POST',
-      body: JSON.stringify({ subscription }),
-    });
+    const publicVapidKey = import.meta.env.PUBLIC_VAPID_KEY;
+    if (!publicVapidKey) {
+      throw new Error('Falta la variable PUBLIC_VAPID_KEY en el cliente');
+    }
 
-    console.log('¡Dispositivo suscrito y registrado exitosamente en el servidor!');
-    return true;
-  } catch (error) {
-    console.error('Error al registrar las notificaciones push:', error);
-    return false;
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+    });
   }
+
+  // Esto lanzará una excepción real a la consola y al componente si el servidor falla o no responde
+  const response = await apiFetch('/push/subscribe', {
+    method: 'POST',
+    body: JSON.stringify({ subscription }),
+  });
+
+  console.log('¡Dispositivo suscrito y registrado exitosamente en el servidor!', response);
+  return true;
 }
 
 export async function sendBroadcastNotification(payload) {
