@@ -11,6 +11,7 @@ export default function PushDevicesList() {
     try {
       setLoading(true);
       const res = await getPushSubscriptions();
+      console.log("Dispositivos obtenidos:", res);
       setSubscriptions(res.subscriptions || []);
     } catch (error) {
       console.error("Error al cargar dispositivos:", error);

@@ -139,6 +139,7 @@
 │   │       ├── 📄 Loading.tsx
 │   │       ├── 📄 PublicHeader.astro
 │   │       ├── 📄 PushDevicesList.jsx
+│   │       ├── 📄 PushNotificationManager.jsx
 │   │       ├── 📄 SelectCard.jsx
 │   │       ├── 📄 SessionExpiredModal.astro
 │   │       ├── 📄 ShiftSelector.jsx

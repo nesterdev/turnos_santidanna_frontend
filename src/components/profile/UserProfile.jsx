@@ -4,8 +4,8 @@ import { user } from '../../lib/stores/userStore';
 import { apiFetch } from '../../lib/utils/fetch';
 import { apiAction } from '../../lib/utils/apiAction';
 import { showLoading, hideLoading } from '../../lib/utils/loading';
-import { showError } from '../../lib/utils/alert';
-
+import { showError } from '../../lib/utils/alerts';
+import PushNotificationManager from '../ui/PushNotificationManager';
 export default function UserProfile() {
   const currentUser = useStore(user);
   const [activeTab, setActiveTab] = useState('overview');
@@ -582,7 +582,7 @@ export default function UserProfile() {
           </form>
         </div>
       )}
-
+      <PushNotificationManager />
     </div>
   );
 }
