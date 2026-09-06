@@ -5,8 +5,15 @@ export default function PushNotificationManager() {
   const [statusMessage, setStatusMessage] = useState("");
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
+    // 1. Verificamos si ya se registró previamente en este dispositivo usando localStorage
+    const savedPushStatus = localStorage.getItem("ios_push_subscribed");
+    if (savedPushStatus === "true") {
+      setIsSubscribed(true);
+    }
+
     const isInStandaloneMode =
       window.matchMedia("(display-mode: standalone)").matches ||
       window.navigator.standalone === true;
@@ -17,6 +24,11 @@ export default function PushNotificationManager() {
     setIsIOSDevice(/ipad|iphone|ipod/.test(userAgent.toLowerCase()));
   }, []);
 
+  // Si no es un dispositivo iOS o si ya se suscribió con éxito, ocultamos el componente por completo
+  if (!isIOSDevice || isSubscribed) {
+    return null; 
+  }
+
   const handleEnablePush = async () => {
     try {
       setStatusMessage("Solicitando permisos y registrando dispositivo...");
@@ -26,23 +38,29 @@ export default function PushNotificationManager() {
         return;
       }
 
-      // Llamamos directamente a la función unificada de tu API. 
-      // Ella misma pide permisos, maneja el SW y hace el POST al backend.
       await registerPushNotifications();
+      
+      // Guardamos en localStorage para que no vuelva a mostrarse nunca más
+      localStorage.setItem("ios_push_subscribed", "true");
+      
+      setStatusMessage("¡Dispositivo registrado con éxito para notificaciones! 🎉");
 
-      setStatusMessage("¡Dispositivo iOS registrado con éxito para notificaciones! 🎉");
+      // Ocultamos el componente tras un breve instante para una transición limpia
+      setTimeout(() => {
+        setIsSubscribed(true);
+      }, 2000);
+
     } catch (err) {
       console.error("Error detallado al activar notificaciones:", err);
-      // Ahora sí verás el error real en pantalla si el POST al backend falla
-      setStatusMessage(`Error: ${err.message || "Revisa la consola para más detalles."}`);
+      setStatusMessage(`Error: ${err.message || "Revisa la consola."}`);
     }
   };
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-sm space-y-5">
+    <div className="bg-white border border-slate-200/85 rounded-3xl p-6 md:p-8 shadow-sm space-y-5">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-xs">
+          <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -58,53 +76,30 @@ export default function PushNotificationManager() {
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">
-              Notificaciones Push
-            </h3>
-            <p className="text-xs text-slate-400">
-              Mantente al día con tus turnos y alertas operativas.
-            </p>
+            <h3 className="text-sm font-bold text-slate-900">Notificaciones Push (iOS)</h3>
+            <p className="text-xs text-slate-400">Mantente al día con tus turnos.</p>
           </div>
         </div>
       </div>
 
-      {!isStandalone && isIOSDevice && (
+      {!isStandalone && (
         <div className="p-3.5 bg-amber-500/10 border border-amber-200 rounded-2xl text-amber-800 text-xs flex items-start gap-2.5">
-          <span className="text-base leading-none">⚠️</span>
+          <span>⚠️</span>
           <div>
-            <strong className="font-bold">Aviso importante en iOS:</strong>{" "}
-            Estás abriendo la app desde el navegador. Para que las
-            notificaciones push funcionen, debes abrir la app directamente desde
-            el ícono en tu{" "}
-            <b className="font-semibold text-slate-900">Pantalla de inicio</b>.
+            <strong className="font-bold">Aviso importante:</strong> Recuerda añadir la app a tu <b>Pantalla de inicio</b> desde Safari para activar las notificaciones.
           </div>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
-        <button
-          onClick={handleEnablePush}
-          className="w-full py-3 px-5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 active:scale-95 text-white text-xs font-bold rounded-2xl transition-all shadow-md shadow-rose-600/20 cursor-pointer flex items-center justify-center gap-2"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
-          Activar Notificaciones en este Dispositivo
-        </button>
-      </div>
+      <button
+        onClick={handleEnablePush}
+        className="w-full py-3 px-5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs font-bold rounded-2xl shadow-md cursor-pointer transition-all active:scale-95"
+      >
+        Activar Notificaciones
+      </button>
 
       {statusMessage && (
-        <p className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 font-medium animate-fadeIn">
+        <p className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 font-medium">
           {statusMessage}
         </p>
       )}

@@ -9,12 +9,18 @@ export default function InstallPWA() {
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
+    // 0. Si el usuario ya indicó previamente que no quiere ver el banner o ya instaló, salimos
+    const isDismissed = localStorage.getItem("pwa_install_dismissed");
+    if (isDismissed === "true") {
+      setVisible(false);
+      return;
+    }
+
     // 1. Detectar si la PWA ya está instalada (Standalone Mode en iOS y Android/Escritorio)
     const isStandalone = 
       window.matchMedia("(display-mode: standalone)").matches || 
       window.navigator.standalone === true;
 
-    // Si ya está instalada, no mostramos nada bajo ninguna circunstancia
     if (isStandalone) {
       setVisible(false);
       return;
@@ -43,6 +49,13 @@ export default function InstallPWA() {
     };
   }, []);
 
+  const handleDismiss = () => {
+    setVisible(false);
+    setShowIOSInstructions(false);
+    // Guardamos en localStorage para que no vuelva a aparecer en este navegador
+    localStorage.setItem("pwa_install_dismissed", "true");
+  };
+
   const handleInstallClick = async () => {
     if (isIOS) {
       setShowIOSInstructions(true);
@@ -58,7 +71,6 @@ export default function InstallPWA() {
       console.log("Usuario aceptó instalar la PWA");
       
       try {
-        // Asegurarnos de pedir permisos y esperar al Service Worker antes de registrar las push
         if ("Notification" in window) {
           const permission = await Notification.requestPermission();
           if (permission === "granted") {
@@ -71,8 +83,9 @@ export default function InstallPWA() {
       }
     }
 
+    // Al terminar el flujo de instalación (aceptado o rechazado), ocultamos y marcamos
     setDeferredPrompt(null);
-    setVisible(false);
+    handleDismiss();
   };
 
   if (!visible) return null;
@@ -104,7 +117,7 @@ export default function InstallPWA() {
             {isIOS ? "Ver cómo" : "Instalar"}
           </button>
           <button
-            onClick={() => setVisible(false)}
+            onClick={handleDismiss}
             className="p-1.5 text-slate-400 hover:text-white text-xs font-bold rounded-lg cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -159,10 +172,10 @@ export default function InstallPWA() {
             </div>
 
             <button
-              onClick={() => setShowIOSInstructions(false)}
+              onClick={handleDismiss}
               className="w-full py-3 bg-[#FF3131] hover:bg-red-600 text-white font-bold rounded-xl transition-all shadow-lg text-xs tracking-wide cursor-pointer"
             >
-              ¡Entendido!
+              ¡Entendido y agregado!
             </button>
           </div>
         </div>
